@@ -1,0 +1,11 @@
+/pnpm-lock.yaml
+
+# build output
+dist/
+.wrangler
+/worker-configuration.d.ts
+
+.idea/
+
+.DS_Store
+*.log
