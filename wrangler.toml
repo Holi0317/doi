@@ -7,9 +7,13 @@ name = "poche"
 main = "src/index.ts"
 compatibility_date = "2025-06-03"
 
-[assets]
-binding = "ASSETS"
-directory = "./public"
-
 [observability]
 enabled = true
+
+[[durable_objects.bindings]]
+name = "STORAGE"
+class_name = "StorageDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["StorageDO"]

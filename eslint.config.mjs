@@ -32,6 +32,7 @@ export default tseslint.config(
     rules: {
       curly: ["error", "all"],
       "@stylistic/spaced-comment": ["error", "always", { markers: ["/"] }],
+      "@typescript-eslint/array-type": ["error", { default: "array-simple" }],
     },
   },
 

@@ -1,9 +1,6 @@
-import { Hono } from "hono";
-
-const app = new Hono<{ Bindings: CloudflareBindings }>();
-
-app.get("/message", (c) => {
-  return c.text("Hello Hono!");
-});
+import app from "./router";
 
 export default app;
+
+// Must export all durable objects in entrypoint
+export { StorageDO } from "./do/storage";

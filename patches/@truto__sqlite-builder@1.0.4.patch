@@ -1,0 +1,21 @@
+diff --git a/dist/index.js b/dist/index.js
+index ca16f6a77bad504a2b8a4d13afb4094aca595f1a..b125b0550f515fa012292cbaaa5cecf52b77c217 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,6 +1,5 @@
+ // src/constants.ts
+ var MAX_QUERY_LENGTH = 102400;
+-var STACKED_QUERY_REGEX = /;[\s\S]*\S/;
+ var QUALIFIED_IDENTIFIER_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
+ var SIMPLE_IDENTIFIER_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/;
+ 
+@@ -151,9 +150,6 @@ function sql(strings, ...values) {
+   if (text.length > MAX_QUERY_LENGTH) {
+     throw new Error(`Query too long: ${text.length} bytes (max: ${MAX_QUERY_LENGTH})`);
+   }
+-  if (STACKED_QUERY_REGEX.test(text)) {
+-    throw new Error("Stacked queries are not allowed");
+-  }
+   return Object.freeze({
+     text,
+     values: Object.freeze([...queryValues])
