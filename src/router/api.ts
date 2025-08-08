@@ -1,12 +1,14 @@
 import { Hono } from "hono";
 import { LinkInsertSchema } from "../do/storage";
 import { zv } from "../composable/validator";
+import { getStorageStub } from "../composable/do";
+import { requireSession } from "../composable/session";
 
 const app = new Hono<Env>();
+app.use(requireSession("redirect"));
 
 app.get("/api/list", async (c) => {
-  const id = c.env.STORAGE.idFromName("0");
-  const stub = c.env.STORAGE.get(id);
+  const stub = await getStorageStub(c);
 
   const links = await stub.search({
     limit: 30,
@@ -17,8 +19,7 @@ app.get("/api/list", async (c) => {
 });
 
 app.post("/api/insert", zv("json", LinkInsertSchema), async (c) => {
-  const id = c.env.STORAGE.idFromName("0");
-  const stub = c.env.STORAGE.get(id);
+  const stub = await getStorageStub(c);
 
   const body = c.req.valid("json");
 

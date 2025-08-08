@@ -111,7 +111,8 @@ export function requireSession(onMissing: "redirect" | "throw" = "throw") {
 }
 
 /**
- * Assert
+ * Same as {@link getSession}, except when the return value is null this will
+ * raise 401 error.
  */
 export async function mustSession(c: Context<Env>) {
   const sess = await getSession(c);
@@ -122,4 +123,6 @@ export async function mustSession(c: Context<Env>) {
 
     throw new HTTPException(401, { message: "Unauthenticated" });
   }
+
+  return sess;
 }
