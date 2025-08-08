@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
 import { LinkInsertSchema } from "../do/storage";
+import { zv } from "../composable/validator";
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+const app = new Hono<Env>();
 
 app.get("/api/list", async (c) => {
   const id = c.env.STORAGE.idFromName("0");
@@ -16,7 +16,7 @@ app.get("/api/list", async (c) => {
   return c.json(links);
 });
 
-app.post("/api/insert", zValidator("json", LinkInsertSchema), async (c) => {
+app.post("/api/insert", zv("json", LinkInsertSchema), async (c) => {
   const id = c.env.STORAGE.idFromName("0");
   const stub = c.env.STORAGE.get(id);
 
