@@ -20,7 +20,7 @@ CREATE TABLE link (
   archive integer NOT NULL
     CHECK (archive = 0 OR archive = 1)
     DEFAULT FALSE,
-  created_at integer NOT NULL DEFAULT (unixepoch('now'))
+  created_at integer NOT NULL DEFAULT (unixepoch('now', 'subsec') * 1000)
 );
 
 CREATE INDEX idx_link_favorite ON link(favorite);
@@ -35,7 +35,7 @@ const LinkItemSchema = z.object({
   url: z.string(),
   favorite: zu.sqlBool(),
   archive: zu.sqlBool(),
-  created_at: zu.sqlDate(),
+  created_at: zu.unixEpochMs(),
 });
 
 export const LinkInsertSchema = z.object({
