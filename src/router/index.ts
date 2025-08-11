@@ -4,7 +4,7 @@ import authRouter from "./auth";
 
 const app = new Hono<Env>();
 
-app.route("/", apiRouter);
-app.route("/", authRouter);
+app.route("/auth", authRouter);
+app.route("/api", apiRouter);
 
 export default app;

@@ -8,12 +8,12 @@ import { oauthAccessToken } from "../composable/github";
 
 const app = new Hono<Env>();
 
-app.get("/auth/logout", async (c) => {
+app.get("/logout", async (c) => {
   await deleteSession(c);
   return c.text("You have been successfully logged out!");
 });
 
-app.get("/auth/github/login", async (c) => {
+app.get("/github/login", async (c) => {
   const redirectUri = new URL(c.req.url);
   redirectUri.hash = "";
   redirectUri.pathname = "/auth/github/callback";
@@ -39,7 +39,7 @@ const UserInfoSchema = z.object({
 });
 
 app.get(
-  "/auth/github/callback",
+  "/github/callback",
   zv("query", z.object({ code: z.string() })),
   async (c) => {
     const { code } = c.req.valid("query");
@@ -72,7 +72,7 @@ app.get(
   },
 );
 
-app.get("/auth", async (c) => {
+app.get("/", async (c) => {
   const sess = await getSession(c);
   return c.text(`Hello <${sess?.name}>!`);
 });

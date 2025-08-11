@@ -7,7 +7,7 @@ import { requireSession } from "../composable/session";
 const app = new Hono<Env>();
 app.use(requireSession("redirect"));
 
-app.get("/api/list", async (c) => {
+app.get("/list", async (c) => {
   const stub = await getStorageStub(c);
 
   const links = await stub.search({
@@ -18,7 +18,7 @@ app.get("/api/list", async (c) => {
   return c.json(links);
 });
 
-app.post("/api/insert", zv("json", LinkInsertSchema), async (c) => {
+app.post("/insert", zv("json", LinkInsertSchema), async (c) => {
   const stub = await getStorageStub(c);
 
   const body = c.req.valid("json");
