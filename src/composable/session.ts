@@ -1,9 +1,10 @@
 import type { Context } from "hono";
-import { getSignedCookie, setSignedCookie, deleteCookie } from "hono/cookie";
+import { deleteCookie, setCookie, getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import * as z from "zod";
-import * as zu from "../zod-utils";
+import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
+import type dayjs from "dayjs";
 
 const COOKIE_NAME = "poche-auth";
 
@@ -14,32 +15,62 @@ const cookieOpt = {
   prefix: "host",
 } as const;
 
-export const SessionSchema = z.object({
-  expire: zu.unixEpochMs(),
+/**
+ * Generate session ID
+ */
+function genSessionID() {
+  return uint8ArrayToHex(crypto.getRandomValues(new Uint8Array(8)));
+}
 
+/**
+ * Hash session ID.
+ *
+ * We only store hashed session ID in the kv, meanwhile client can hold the
+ * session ID in cookie.
+ *
+ * Following recommendation from https://security.stackexchange.com/a/261773
+ */
+async function hashSessionID(sessID: string) {
+  const hash = await crypto.subtle.digest("SHA-256", Uint8Array.from(sessID));
+
+  return uint8ArrayToHex(toUint8Array(hash));
+}
+
+export const SessionSchema = z.object({
   source: z.literal("github"),
   uid: z.string(),
   name: z.string(),
   avatar_url: z.string(),
 });
 
+/**
+ * Set session for current request (both cookie and kv).
+ */
 export async function setSession(
   c: Context<Env>,
   content: z.input<typeof SessionSchema>,
+  expire: dayjs.Dayjs,
 ) {
-  await setSignedCookie(
-    c,
-    COOKIE_NAME,
-    JSON.stringify(content),
-    c.env.AUTH_SECRET,
-    {
-      ...cookieOpt,
-      expires: new Date(content.expire),
-    },
-  );
+  const sessID = genSessionID();
+  const sessHash = await hashSessionID(sessID);
+
+  await c.env.SESSION.put(sessHash, JSON.stringify(content), {
+    expiration: expire.unix(),
+  });
+
+  setCookie(c, COOKIE_NAME, sessID, cookieOpt);
 }
 
+/**
+ * Delete cookie and session
+ */
 export async function deleteSession(c: Context<Env>) {
+  const sessID = getCookie(c, COOKIE_NAME);
+  if (sessID) {
+    const sessHash = await hashSessionID(sessID);
+    await c.env.SESSION.delete(sessHash);
+  }
+
   deleteCookie(c, COOKIE_NAME, cookieOpt);
 }
 
@@ -61,30 +92,40 @@ export async function getSession(
     return cached;
   }
 
-  const cookie = await getSignedCookie(
-    c,
-    c.env.AUTH_SECRET,
-    COOKIE_NAME,
-    cookieOpt.prefix,
-  );
+  const sessID = getCookie(c, COOKIE_NAME, cookieOpt.prefix);
 
-  if (!cookie) {
+  // Cookie doesn't exist. User is unauthenticated.
+  if (!sessID) {
     await deleteSession(c);
     return null;
   }
 
-  const sess = SessionSchema.parse(JSON.parse(cookie));
-  const now = Date.now();
+  const sessHash = await hashSessionID(sessID);
+  const sessData = await c.env.SESSION.get(sessHash, "json");
 
-  if (now > sess.expire) {
-    console.log("Session expired. Deleting the session cookie.");
+  // Session does not exist, or expired
+  if (sessData == null) {
     await deleteSession(c);
     return null;
   }
 
-  c.set("session", sess);
+  const parsed = SessionSchema.safeParse(sessData);
 
-  return sess;
+  // Should not happen. This has to be a bug.
+  // Or we changed session schema and messed up
+  if (!parsed.success) {
+    console.warn(
+      `Failed to parse session data from kv: ${z.prettifyError(parsed.error)}`,
+      parsed.error,
+    );
+
+    await deleteSession(c);
+    return null;
+  }
+
+  c.set("session", parsed.data);
+
+  return parsed.data;
 }
 
 /**

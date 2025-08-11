@@ -39,15 +39,18 @@ app.get(
     const access_token = await oauthToken(c, ky, code);
     const userInfo = await getUser(ky, access_token);
 
-    const expire = dayjs().add(7, "days").valueOf();
+    const expire = dayjs().add(7, "days");
 
-    await setSession(c, {
+    await setSession(
+      c,
+      {
+        source: "github",
+        uid: userInfo.id.toString(),
+        name: userInfo.name || userInfo.login,
+        avatar_url: userInfo.avatar_url,
+      },
       expire,
-      source: "github",
-      uid: userInfo.id.toString(),
-      name: userInfo.name || userInfo.login,
-      avatar_url: userInfo.avatar_url,
-    });
+    );
 
     return c.redirect("/");
   },
