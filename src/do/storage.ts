@@ -1,9 +1,10 @@
 import { DurableObject } from "cloudflare:workers";
 import * as z from "zod";
-import * as zu from "../zod-utils";
-import { DBMigration, useDBMigration } from "../composable/db_migration";
-import { sql, useSql } from "../composable/sql";
 import { base64ToString } from "uint8array-extras";
+import * as zu from "../zod-utils";
+import type { DBMigration } from "../composable/db_migration";
+import { useDBMigration } from "../composable/db_migration";
+import { sql, useSql } from "../composable/sql";
 
 const migrations: DBMigration[] = [
   {

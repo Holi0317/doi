@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 
 /**
  * Get authorization url (login URL) for GitHub app.

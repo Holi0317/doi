@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 import { getSignedCookie, setSignedCookie, deleteCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";

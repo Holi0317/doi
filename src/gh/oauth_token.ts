@@ -1,6 +1,6 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { KyInstance } from "ky";
+import type { KyInstance } from "ky";
 import * as z from "zod";
 
 const AccessTokenSchema = z.union([

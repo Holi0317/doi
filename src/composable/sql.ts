@@ -1,5 +1,6 @@
-import * as z from "zod";
-import { sql as _sql, SqlQuery } from "@truto/sqlite-builder";
+import type * as z from "zod";
+import type { SqlQuery } from "@truto/sqlite-builder";
+import { sql as _sql } from "@truto/sqlite-builder";
 
 export const sql = _sql;
 

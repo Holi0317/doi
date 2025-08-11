@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * Env interface for hono Context
  */

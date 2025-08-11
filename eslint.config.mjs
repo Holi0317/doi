@@ -5,10 +5,16 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import stylistic from "@stylistic/eslint-plugin";
+import importPlugin from "eslint-plugin-import-x";
 
 export default tseslint.config(
   {
     ignores: ["dist/", "node_modules/", ".wrangler/"],
+  },
+  {
+    plugins: {
+      import: importPlugin,
+    },
   },
 
   {
@@ -54,6 +60,10 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_.+", ignoreRestSiblings: true },
       ],
+      "import/no-duplicates": "error",
+      "@typescript-eslint/consistent-type-imports": "error",
+      "@typescript-eslint/no-import-type-side-effects": "error",
+      "import/order": ["error"],
     },
   },
 );

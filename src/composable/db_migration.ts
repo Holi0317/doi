@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { sql, useSql } from "./sql";
 import type { SqlQuery } from "@truto/sqlite-builder";
+import { sql, useSql } from "./sql";
 
 const MigrationNameSchema = z.object({
   name: z.string(),
