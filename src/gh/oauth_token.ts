@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import ky from "ky";
+import { KyInstance } from "ky";
 import * as z from "zod";
 
 const AccessTokenSchema = z.union([
@@ -18,8 +18,15 @@ const AccessTokenSchema = z.union([
 
 /**
  * Exchange authorization access code with `ghu` access token
+ *
+ * @throws {HTTPException} access token exchange failed. Could be the code got
+ * reused.
  */
-export async function oauthAccessToken(c: Context<Env>, code: string) {
+export async function oauthToken(
+  c: Context<Env>,
+  ky: KyInstance,
+  code: string,
+) {
   const accessTokenResp = await ky
     .post("https://github.com/login/oauth/access_token", {
       json: {

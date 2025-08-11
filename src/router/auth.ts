@@ -1,12 +1,19 @@
 import { Hono } from "hono";
 import dayjs from "dayjs";
 import * as z from "zod";
-import ky from "ky";
 import { deleteSession, getSession, setSession } from "../composable/session";
 import { zv } from "../composable/validator";
-import { oauthAccessToken } from "../composable/github";
+import { getUser } from "../gh/user";
+import { oauthToken } from "../gh/oauth_token";
+import { useKy } from "../composable/http";
+import { getAuthorizeUrl } from "../gh/authorize";
 
 const app = new Hono<Env>();
+
+app.get("/", async (c) => {
+  const sess = await getSession(c);
+  return c.text(`Hello <${sess?.name}>!`);
+});
 
 app.get("/logout", async (c) => {
   await deleteSession(c);
@@ -14,28 +21,11 @@ app.get("/logout", async (c) => {
 });
 
 app.get("/github/login", async (c) => {
-  const redirectUri = new URL(c.req.url);
-  redirectUri.hash = "";
-  redirectUri.pathname = "/auth/github/callback";
-  redirectUri.search = "";
-  redirectUri.password = "";
+  const authUrl = getAuthorizeUrl(c);
 
-  // See https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
-  const param = new URLSearchParams([
-    ["client_id", c.env.GH_CLIENT_ID],
-    ["redirect_uri", redirectUri.toString()],
-  ]);
+  console.log(`Redirecting to login ${authUrl}`);
 
-  return c.redirect(
-    `https://github.com/login/oauth/authorize?${param.toString()}`,
-  );
-});
-
-const UserInfoSchema = z.object({
-  id: z.number(),
-  login: z.string(),
-  name: z.string().nullable(),
-  avatar_url: z.string(),
+  return c.redirect(authUrl);
 });
 
 app.get(
@@ -44,19 +34,10 @@ app.get(
   async (c) => {
     const { code } = c.req.valid("query");
 
-    const access_token = await oauthAccessToken(c, code);
+    const ky = useKy(c);
 
-    const userInfoResp = await ky
-      .get("https://api.github.com/user", {
-        headers: {
-          authorization: `Bearer ${access_token}`,
-          accept: "application/json",
-          "user-agent": `poche-app/0.0.0`,
-        },
-      })
-      .json();
-
-    const userInfo = UserInfoSchema.parse(userInfoResp);
+    const access_token = await oauthToken(c, ky, code);
+    const userInfo = await getUser(ky, access_token);
 
     const expire = dayjs().add(7, "days").valueOf();
 
@@ -71,10 +52,5 @@ app.get(
     return c.redirect("/");
   },
 );
-
-app.get("/", async (c) => {
-  const sess = await getSession(c);
-  return c.text(`Hello <${sess?.name}>!`);
-});
 
 export default app;
