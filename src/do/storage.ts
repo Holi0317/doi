@@ -44,8 +44,10 @@ export interface LinkInsertItem {
   url: string;
 }
 
-const IDSchema = z.object({
+const InsertedSchema = z.object({
   id: z.number(),
+  url: z.string(),
+  title: z.string(),
 });
 
 export interface SearchParam {
@@ -104,19 +106,19 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {
-    const inserted: Array<z.infer<typeof IDSchema>> = [];
+    const inserted: Array<z.infer<typeof InsertedSchema>> = [];
 
     for (const link of links) {
       // FIXME: Handle duplicate properly. Should delete existing item and
       // re-insert it.
       const item = this.conn.one(
-        IDSchema,
+        InsertedSchema,
         sql`INSERT INTO link (title, url) VALUES (${link.title}, ${link.url})
   ON CONFLICT (url) DO UPDATE
   SET archive = FALSE,
     created_at = excluded.created_at,
     title = excluded.title
-  RETURNING id, url;`,
+  RETURNING id, url, title;`,
       );
 
       inserted.push(item);

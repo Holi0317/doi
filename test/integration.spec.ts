@@ -35,7 +35,9 @@ describe("Integration test", () => {
     });
 
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([{ id: 1 }]);
+    expect(await insert.json()).toEqual([
+      { id: 1, title: "asdf", url: "https://google.com/" },
+    ]);
 
     const list = await client.api.list.$get();
 
@@ -74,19 +76,13 @@ describe("Integration test", () => {
     });
 
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([{ id: 1 }]);
-
-    const list = await client.api.list.$get();
-    const items = await list.json();
-
-    expect(items[0]).toEqual({
-      archive: false,
-      created_at: expect.any(Number),
-      favorite: false,
-      id: 1,
-      title: "My cute title",
-      url: "https://google.com/",
-    });
+    expect(await insert.json()).toEqual([
+      {
+        id: 1,
+        title: "My cute title",
+        url: "https://google.com/",
+      },
+    ]);
   });
 
   it("should use document title when http response isn't ok", async () => {
@@ -107,19 +103,13 @@ describe("Integration test", () => {
     });
 
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([{ id: 1 }]);
-
-    const list = await client.api.list.$get();
-    const items = await list.json();
-
-    expect(items[0]).toEqual({
-      archive: false,
-      created_at: expect.any(Number),
-      favorite: false,
-      id: 1,
-      title: "You should still use this 404 title",
-      url: "https://google.com/",
-    });
+    expect(await insert.json()).toEqual([
+      {
+        id: 1,
+        title: "You should still use this 404 title",
+        url: "https://google.com/",
+      },
+    ]);
   });
 
   it("should use url as title if document fetch failed", async () => {
@@ -132,18 +122,8 @@ describe("Integration test", () => {
     });
 
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([{ id: 1 }]);
-
-    const list = await client.api.list.$get();
-    const items = await list.json();
-
-    expect(items[0]).toEqual({
-      archive: false,
-      created_at: expect.any(Number),
-      favorite: false,
-      id: 1,
-      title: "https://google.com/",
-      url: "https://google.com/",
-    });
+    expect(await insert.json()).toEqual([
+      { id: 1, title: "https://google.com/", url: "https://google.com/" },
+    ]);
   });
 });
