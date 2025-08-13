@@ -9,16 +9,29 @@ import { useKy } from "../composable/http";
 const app = new Hono<Env>()
   .use(requireSession("redirect"))
 
-  .get("/list", async (c) => {
-    const stub = await getStorageStub(c);
+  .get(
+    "/search",
+    zv(
+      "query",
+      z.object({
+        query: z.string().nullish(),
+        cursor: z.string().nullish(),
+        archive: z.boolean().optional(),
+        favorite: z.boolean().optional(),
+        limit: z.number().min(1).max(300).default(30),
+        order: z.literal(["id_asc", "id_desc"]).default("id_desc"),
+      }),
+    ),
+    async (c) => {
+      const stub = await getStorageStub(c);
 
-    const links = await stub.search({
-      limit: 30,
-      order: "id_desc",
-    });
+      const q = c.req.valid("query");
 
-    return c.json(links);
-  })
+      const links = await stub.search(q);
+
+      return c.json(links);
+    },
+  )
 
   .post(
     "/insert",
@@ -66,6 +79,7 @@ const app = new Hono<Env>()
             };
           }
 
+          // FIXME: Resolve redirect on url as well
           const title = await getHTMLTitle(ky, item.url);
 
           return {
