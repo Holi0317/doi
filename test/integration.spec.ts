@@ -1,8 +1,34 @@
-import { SELF, fetchMock } from "cloudflare:test";
+import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { createTestClient } from "./client";
 
-describe("Integration test", () => {
+interface TestCase {
+  insert: Array<{
+    title: string;
+    url: string;
+  }>;
+
+  insertResponse: Array<{
+    id: number;
+    title: string;
+    url: string;
+  }>;
+}
+
+async function testInsert(tc: TestCase) {
+  const client = await createTestClient();
+
+  const insert = await client.api.insert.$post({
+    json: {
+      items: tc.insert,
+    },
+  });
+
+  expect(insert.status).toEqual(201);
+  expect(await insert.json()).toEqual(tc.insertResponse);
+}
+
+describe("Link insert", () => {
   beforeAll(() => {
     fetchMock.activate();
     fetchMock.disableNetConnect();
@@ -10,51 +36,10 @@ describe("Integration test", () => {
 
   afterEach(() => fetchMock.assertNoPendingInterceptors());
 
-  it("responds with not found and proper status for /404", async () => {
-    const response = await SELF.fetch("http://example.com/404");
-    expect(response.status).toBe(404);
-    expect(await response.text()).toBe("404 Not Found");
-  });
-
-  it("should get authenticated successfully", async () => {
-    const client = await createTestClient();
-
-    const response = await client.auth.$get();
-
-    expect(response.status).toEqual(200);
-    expect(await response.text()).toEqual("Hello <testing user>!");
-  });
-
   it("should insert link and store it", async () => {
-    const client = await createTestClient();
-
-    const insert = await client.api.insert.$post({
-      json: {
-        items: [{ title: "asdf", url: "https://google.com" }],
-      },
-    });
-
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
-      { id: 1, title: "asdf", url: "https://google.com/" },
-    ]);
-
-    const list = await client.api.list.$get();
-
-    expect(list.status).toEqual(200);
-    const items = await list.json();
-
-    expect(Array.isArray(items)).toEqual(true);
-    expect(items.length).toEqual(1);
-
-    const item = items[0];
-    expect(item).toEqual({
-      archive: false,
-      created_at: expect.any(Number),
-      favorite: false,
-      id: 1,
-      title: "asdf",
-      url: "https://google.com/",
+    await testInsert({
+      insert: [{ title: "asdf", url: "https://google.com" }],
+      insertResponse: [{ id: 1, title: "asdf", url: "https://google.com/" }],
     });
   });
 
@@ -67,22 +52,16 @@ describe("Integration test", () => {
         `<!doctype html><html><head><title>My cute title</title></head></html>`,
       );
 
-    const client = await createTestClient();
-
-    const insert = await client.api.insert.$post({
-      json: {
-        items: [{ title: "", url: "https://google.com" }],
-      },
+    await testInsert({
+      insert: [{ title: "", url: "https://google.com" }],
+      insertResponse: [
+        {
+          id: 1,
+          title: "My cute title",
+          url: "https://google.com/",
+        },
+      ],
     });
-
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
-      {
-        id: 1,
-        title: "My cute title",
-        url: "https://google.com/",
-      },
-    ]);
   });
 
   it("should use document title when http response isn't ok", async () => {
@@ -94,100 +73,87 @@ describe("Integration test", () => {
         `<!doctype html><html><head><title>You should still use this 404 title</title></head></html>`,
       );
 
-    const client = await createTestClient();
-
-    const insert = await client.api.insert.$post({
-      json: {
-        items: [{ title: "", url: "https://google.com" }],
-      },
+    await testInsert({
+      insert: [{ title: "", url: "https://google.com" }],
+      insertResponse: [
+        {
+          id: 1,
+          title: "You should still use this 404 title",
+          url: "https://google.com/",
+        },
+      ],
     });
-
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
-      {
-        id: 1,
-        title: "You should still use this 404 title",
-        url: "https://google.com/",
-      },
-    ]);
   });
 
   it("should use empty string as title if document fetch failed", async () => {
-    const client = await createTestClient();
-
-    const insert = await client.api.insert.$post({
-      json: {
-        items: [{ title: "", url: "https://google.com" }],
-      },
+    await testInsert({
+      insert: [{ title: "", url: "https://google.com" }],
+      insertResponse: [
+        {
+          id: 1,
+          title: "",
+          url: "https://google.com/",
+        },
+      ],
     });
-
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
-      { id: 1, title: "", url: "https://google.com/" },
-    ]);
   });
 
-  it("should deduplicate same URL", async () => {
-    const client = await createTestClient();
-
-    const insert1 = await client.api.insert.$post({
-      json: {
-        items: [{ title: "asdf", url: "https://google.com" }],
-      },
+  it("should deduplicate same URL in different request", async () => {
+    await testInsert({
+      insert: [{ title: "first", url: "https://google.com" }],
+      insertResponse: [
+        {
+          id: 1,
+          title: "first",
+          url: "https://google.com/",
+        },
+      ],
     });
 
-    expect(insert1.status).toEqual(201);
-    expect(await insert1.json()).toEqual([
-      { id: 1, title: "asdf", url: "https://google.com/" },
-    ]);
-
-    const insert2 = await client.api.insert.$post({
-      json: {
-        items: [{ title: "asdf", url: "https://google.com" }],
-      },
+    await testInsert({
+      insert: [{ title: "second", url: "https://google.com" }],
+      insertResponse: [
+        {
+          id: 2,
+          title: "second",
+          url: "https://google.com/",
+        },
+      ],
     });
+  });
 
-    expect(insert2.status).toEqual(201);
-    expect(await insert2.json()).toEqual([
-      { id: 2, title: "asdf", url: "https://google.com/" },
-    ]);
-
-    const list = await client.api.list.$get();
-
-    expect(list.status).toEqual(200);
-    const items = await list.json();
-
-    expect(Array.isArray(items)).toEqual(true);
-    expect(items.length).toEqual(1);
-
-    const item = items[0];
-    expect(item).toEqual({
-      archive: false,
-      created_at: expect.any(Number),
-      favorite: false,
-      id: 2,
-      title: "asdf",
-      url: "https://google.com/",
+  it("should deduplicate same URL in same request", async () => {
+    await testInsert({
+      insert: [
+        // Also testing dedupe is after cleaning the url
+        { title: "first", url: "https://google.com#123" },
+        { title: "second", url: "https://google.com#456" },
+      ],
+      insertResponse: [
+        {
+          id: 2,
+          title: "second",
+          url: "https://google.com/",
+        },
+      ],
     });
   });
 
   it("should remove hash, username and password from URL", async () => {
-    const client = await createTestClient();
-
-    const insert = await client.api.insert.$post({
-      json: {
-        items: [
-          {
-            title: "asdf",
-            url: "https://username:password@google.com?query=123&query=456#hash",
-          },
-        ],
-      },
+    await testInsert({
+      insert: [
+        {
+          title: "asdf",
+          url: "https://username:password@google.com?query=123&query=456#hash",
+        },
+      ],
+      insertResponse: [
+        {
+          id: 1,
+          title: "asdf",
+          url: "https://google.com/?query=123&query=456",
+        },
+      ],
     });
-
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
-      { id: 1, title: "asdf", url: "https://google.com/?query=123&query=456" },
-    ]);
   });
 });

@@ -53,7 +53,11 @@ export interface LinkInsertItem {
   url: string;
 }
 
-const InsertedSchema = z.object({
+const IDSchema = z.strictObject({
+  id: z.number(),
+});
+
+const InsertedSchema = z.strictObject({
   id: z.number(),
   url: z.string(),
   title: z.string(),
@@ -115,19 +119,32 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {
-    const inserted: Array<z.infer<typeof InsertedSchema>> = [];
+    const inserted: Array<z.infer<typeof IDSchema>> = [];
 
     for (const link of links) {
       const item = this.conn.one(
-        InsertedSchema,
+        IDSchema,
         sql`INSERT OR REPLACE INTO link (title, url) VALUES (${link.title}, ${link.url})
-  RETURNING id, url, title;`,
+  RETURNING id;`,
       );
 
       inserted.push(item);
     }
 
-    return inserted;
+    // If user is trying to insert the same URL in the same transaction, some ID
+    // will get replaced.
+    //
+    // The only reliable way to purge invalid ID in the same transaction is to
+    // use query inserted entities.
+
+    return this.conn.many(
+      InsertedSchema,
+      sql`SELECT id, url, title
+FROM link
+WHERE id IN ${sql.in(inserted.map((r) => r.id))}
+ORDER BY id ASC;
+    `,
+    );
   }
 
   public search(param: SearchParam) {
