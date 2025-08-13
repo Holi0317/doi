@@ -1,0 +1,3 @@
+- [ ] Image preview
+- [ ] Admin page
+- [ ] Basic view
