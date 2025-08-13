@@ -6,7 +6,7 @@ import * as z from "zod";
 import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
 import type dayjs from "dayjs";
 
-const COOKIE_NAME = "poche-auth";
+export const COOKIE_NAME = "poche-auth";
 
 const cookieOpt = {
   path: "/",
@@ -44,6 +44,26 @@ export const SessionSchema = z.object({
 });
 
 /**
+ * Store session data to KV.
+ *
+ * This function is mainly for testing only. You should use {@link setSession} instead.
+ */
+export async function storeSession(
+  env: CloudflareBindings,
+  content: z.input<typeof SessionSchema>,
+  expire: dayjs.Dayjs,
+) {
+  const sessID = genSessionID();
+  const sessHash = await hashSessionID(sessID);
+
+  await env.SESSION.put(sessHash, JSON.stringify(content), {
+    expiration: expire.unix(),
+  });
+
+  return sessID;
+}
+
+/**
  * Set session for current request (both cookie and kv).
  */
 export async function setSession(
@@ -51,12 +71,7 @@ export async function setSession(
   content: z.input<typeof SessionSchema>,
   expire: dayjs.Dayjs,
 ) {
-  const sessID = genSessionID();
-  const sessHash = await hashSessionID(sessID);
-
-  await c.env.SESSION.put(sessHash, JSON.stringify(content), {
-    expiration: expire.unix(),
-  });
+  const sessID = await storeSession(c.env, content, expire);
 
   setCookie(c, COOKIE_NAME, sessID, cookieOpt);
 }

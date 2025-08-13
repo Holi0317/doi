@@ -39,16 +39,10 @@ const LinkItemSchema = z.object({
   created_at: zu.unixEpochMs(),
 });
 
-export const LinkInsertSchema = z.object({
-  title: z.string(),
-  url: z.url({
-    protocol: /^https?$/,
-    hostname: z.regexes.domain,
-    normalize: true,
-  }),
-});
-
-export type LinkInsert = z.input<typeof LinkInsertSchema>;
+export interface LinkInsertItem {
+  title: string;
+  url: string;
+}
 
 const IDSchema = z.object({
   id: z.number(),
@@ -106,18 +100,29 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     run(migrations);
   }
 
-  public insert(link: LinkInsert) {
-    const parsed = LinkInsertSchema.parse(link);
+  /**
+   * Insert given links to database
+   */
+  public insert(links: LinkInsertItem[]) {
+    const inserted: Array<z.infer<typeof IDSchema>> = [];
 
-    return this.conn.one(
-      IDSchema,
-      sql`INSERT INTO link (title, url) VALUES (${parsed.title}, ${parsed.url})
+    for (const link of links) {
+      // FIXME: Handle duplicate properly. Should delete existing item and
+      // re-insert it.
+      const item = this.conn.one(
+        IDSchema,
+        sql`INSERT INTO link (title, url) VALUES (${link.title}, ${link.url})
   ON CONFLICT (url) DO UPDATE
   SET archive = FALSE,
     created_at = excluded.created_at,
     title = excluded.title
-  RETURNING id;`,
-    );
+  RETURNING id, url;`,
+      );
+
+      inserted.push(item);
+    }
+
+    return inserted;
   }
 
   public search(param: SearchParam) {
