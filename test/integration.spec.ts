@@ -126,4 +126,48 @@ describe("Integration test", () => {
       { id: 1, title: "https://google.com/", url: "https://google.com/" },
     ]);
   });
+
+  it("should deduplicate same URL", async () => {
+    const client = await createTestClient();
+
+    const insert1 = await client.api.insert.$post({
+      json: {
+        items: [{ title: "asdf", url: "https://google.com" }],
+      },
+    });
+
+    expect(insert1.status).toEqual(201);
+    expect(await insert1.json()).toEqual([
+      { id: 1, title: "asdf", url: "https://google.com/" },
+    ]);
+
+    const insert2 = await client.api.insert.$post({
+      json: {
+        items: [{ title: "asdf", url: "https://google.com" }],
+      },
+    });
+
+    expect(insert2.status).toEqual(201);
+    expect(await insert2.json()).toEqual([
+      { id: 2, title: "asdf", url: "https://google.com/" },
+    ]);
+
+    const list = await client.api.list.$get();
+
+    expect(list.status).toEqual(200);
+    const items = await list.json();
+
+    expect(Array.isArray(items)).toEqual(true);
+    expect(items.length).toEqual(1);
+
+    const item = items[0];
+    expect(item).toEqual({
+      archive: false,
+      created_at: expect.any(Number),
+      favorite: false,
+      id: 2,
+      title: "asdf",
+      url: "https://google.com/",
+    });
+  });
 });

@@ -29,6 +29,7 @@ const app = new Hono<Env>()
           .array(
             z.object({
               title: z.string().nullish(),
+              // FIXME: Remove id from URL
               url: z.url({
                 protocol: /^https?$/,
                 hostname: z.regexes.domain,

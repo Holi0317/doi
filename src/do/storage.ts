@@ -11,16 +11,25 @@ const migrations: DBMigration[] = [
     name: "20250610-create-link",
     script: sql`
 CREATE TABLE link (
+  -- ID/PK of the link. This relates to created_at column.
+  -- On conflict of URL, we will replace (delete and insert) the row and bump ID.
   id integer PRIMARY KEY AUTOINCREMENT,
+
+  -- Title of the link's HTML page.
+  -- If title wasn't available, this will be the URL itself.
   title text NOT NULL,
+  -- URL of the link.
   url text NOT NULL UNIQUE
     CHECK (url like 'http://%' OR url like 'https://%'),
+  -- Boolean. Favorite or not.
   favorite integer NOT NULL
     CHECK (favorite = 0 OR favorite = 1)
     DEFAULT FALSE,
+  -- Boolean. Archived or not.
   archive integer NOT NULL
     CHECK (archive = 0 OR archive = 1)
     DEFAULT FALSE,
+  -- Insert timestamp in epoch milliseconds.
   created_at integer NOT NULL DEFAULT (unixepoch('now', 'subsec') * 1000)
 );
 
@@ -109,15 +118,9 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     const inserted: Array<z.infer<typeof InsertedSchema>> = [];
 
     for (const link of links) {
-      // FIXME: Handle duplicate properly. Should delete existing item and
-      // re-insert it.
       const item = this.conn.one(
         InsertedSchema,
-        sql`INSERT INTO link (title, url) VALUES (${link.title}, ${link.url})
-  ON CONFLICT (url) DO UPDATE
-  SET archive = FALSE,
-    created_at = excluded.created_at,
-    title = excluded.title
+        sql`INSERT OR REPLACE INTO link (title, url) VALUES (${link.title}, ${link.url})
   RETURNING id, url, title;`,
       );
 
