@@ -1,5 +1,7 @@
 import type { KyInstance } from "ky";
 
+const TIMEOUT = 5000;
+
 /**
  * Get title of HTML from given URL.
  *
@@ -16,11 +18,14 @@ export async function getHTMLTitle(
   // ky's response object is actually subclass of Response
   let resp: Response;
 
+  const controller = new AbortController();
+
   try {
     resp = await ky.get(url, {
       throwHttpErrors: false,
-      timeout: 5,
+      timeout: TIMEOUT,
       retry: 0,
+      signal: controller.signal,
     });
   } catch (err) {
     console.warn(`Failed to fetch url ${url}`, err);
@@ -40,13 +45,33 @@ export async function getHTMLTitle(
       // Push text fragment to buffer, because HTMLRewriter pipes text in stream
       // to us. See https://developers.cloudflare.com/workers/runtime-apis/html-rewriter/#text-chunks
       title.push(text.text);
+
+      // Actually we can abort the controller (body read) when `text.lastInTextNode`
+      // is true. Maybe we should do that later if it's cheaper.
     },
   });
+
+  // Abort controller after TIMEOUT
+  const clock = setTimeout(() => {
+    controller.abort();
+  }, TIMEOUT);
 
   // Kickstart the transform, then consume the body to /dev/null.
   // Consuming the body is necessary to make sure HTMLRewriter callbacks got
   // called.
-  await rewriter.transform(resp)?.body?.pipeTo(new WritableStream());
+  try {
+    await rewriter.transform(resp)?.body?.pipeTo(new WritableStream(), {
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      console.warn(`Body read timeout for url ${url}`);
+    } else {
+      console.warn(`Error when reading url body from ${url}`, err);
+    }
+  }
+
+  clearTimeout(clock);
 
   return title.join("");
 }
