@@ -112,7 +112,7 @@ describe("Integration test", () => {
     ]);
   });
 
-  it("should use url as title if document fetch failed", async () => {
+  it("should use empty string as title if document fetch failed", async () => {
     const client = await createTestClient();
 
     const insert = await client.api.insert.$post({
@@ -123,7 +123,7 @@ describe("Integration test", () => {
 
     expect(insert.status).toEqual(201);
     expect(await insert.json()).toEqual([
-      { id: 1, title: "https://google.com/", url: "https://google.com/" },
+      { id: 1, title: "", url: "https://google.com/" },
     ]);
   });
 

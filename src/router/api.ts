@@ -57,7 +57,7 @@ const app = new Hono<Env>()
             };
           }
 
-          const title = (await getHTMLTitle(ky, item.url)) || item.url;
+          const title = await getHTMLTitle(ky, item.url);
 
           return {
             title,
