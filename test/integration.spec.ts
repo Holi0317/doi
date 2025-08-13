@@ -170,4 +170,24 @@ describe("Integration test", () => {
       url: "https://google.com/",
     });
   });
+
+  it("should remove hash, username and password from URL", async () => {
+    const client = await createTestClient();
+
+    const insert = await client.api.insert.$post({
+      json: {
+        items: [
+          {
+            title: "asdf",
+            url: "https://username:password@google.com?query=123&query=456#hash",
+          },
+        ],
+      },
+    });
+
+    expect(insert.status).toEqual(201);
+    expect(await insert.json()).toEqual([
+      { id: 1, title: "asdf", url: "https://google.com/?query=123&query=456" },
+    ]);
+  });
 });

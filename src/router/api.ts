@@ -29,12 +29,21 @@ const app = new Hono<Env>()
           .array(
             z.object({
               title: z.string().nullish(),
-              // FIXME: Remove id from URL
-              url: z.url({
-                protocol: /^https?$/,
-                hostname: z.regexes.domain,
-                normalize: true,
-              }),
+              url: z
+                .url({
+                  protocol: /^https?$/,
+                  hostname: z.regexes.domain,
+                  normalize: true,
+                })
+                .transform((val) => {
+                  const url = new URL(val);
+
+                  url.hash = "";
+                  url.username = "";
+                  url.password = "";
+
+                  return url.toString();
+                }),
             }),
           )
           .min(1, { error: "At least must have an item" })
