@@ -1,12 +1,13 @@
 import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
+import type { InferRequestType } from "hono/client";
+import type { ClientType } from "./client";
 import { createTestClient } from "./client";
 
 interface TestCase {
-  insert: Array<{
-    title: string;
-    url: string;
-  }>;
+  insert: InferRequestType<
+    ClientType["api"]["insert"]["$post"]
+  >["json"]["items"];
 
   insertResponse: Array<{
     id: number;

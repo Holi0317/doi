@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import { COOKIE_NAME, storeSession } from "../src/composable/session";
 import type { AppType } from "../src/router";
 
+export type ClientType = ReturnType<typeof hc<AppType>>;
+
 export async function createTestClient() {
   const sessID = await storeSession(
     env,

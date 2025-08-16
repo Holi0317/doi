@@ -5,6 +5,7 @@ import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session";
 import { getHTMLTitle } from "../composable/scraper";
 import { useKy } from "../composable/http";
+import { encodeCursor } from "../composable/cursor";
 
 const app = new Hono<Env>()
   .use(requireSession("redirect"))
@@ -16,9 +17,11 @@ const app = new Hono<Env>()
       z.object({
         query: z.string().nullish(),
         cursor: z.string().nullish(),
-        archive: z.boolean().optional(),
-        favorite: z.boolean().optional(),
-        limit: z.number().min(1).max(300).default(30),
+        // FIXME: 'false' is coerced into true with zod. Figure out query param
+        // semantics later
+        archive: z.coerce.boolean().optional(),
+        favorite: z.coerce.boolean().optional(),
+        limit: z.coerce.number().min(1).max(300).default(30),
         order: z.literal(["id_asc", "id_desc"]).default("id_desc"),
       }),
     ),
@@ -27,9 +30,15 @@ const app = new Hono<Env>()
 
       const q = c.req.valid("query");
 
-      const links = await stub.search(q);
+      const search = await stub.search(q);
 
-      return c.json(links);
+      const lastID = search.items.at(-1)?.id;
+      const cursor = lastID == null ? null : encodeCursor(lastID);
+
+      return c.json({
+        ...search,
+        cursor,
+      });
     },
   )
 

@@ -1,13 +1,14 @@
 import { DurableObject } from "cloudflare:workers";
 import * as z from "zod";
-import { base64ToString } from "uint8array-extras";
 import * as zu from "../zod-utils";
 import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
+import { decodeCursor } from "../composable/cursor";
 
 const migrations: DBMigration[] = [
   {
+    // FIXME: Limit text size
     name: "20250610-create-link",
     script: sql`
 CREATE TABLE link (
@@ -39,7 +40,7 @@ CREATE INDEX idx_link_archive ON link(archive);
   },
 ];
 
-const LinkItemSchema = z.object({
+const LinkItemSchema = z.strictObject({
   id: z.number(),
   title: z.string(),
   url: z.string(),
@@ -55,6 +56,10 @@ export interface LinkInsertItem {
 
 const IDSchema = z.strictObject({
   id: z.number(),
+});
+
+const CountSchema = z.strictObject({
+  count: z.number(),
 });
 
 const InsertedSchema = z.strictObject({
@@ -101,6 +106,12 @@ export interface SearchParam {
    */
   limit: number;
 
+  /**
+   * Order in result. Can only sort by id.
+   *
+   * id correlates to created_at timestamp, so this sorting is effectively link
+   * insert time.
+   */
   order: "id_asc" | "id_desc";
 }
 
@@ -151,22 +162,33 @@ ORDER BY id ASC;
     const query = param.query || "";
     const queryLike = `%${query}%`;
 
-    // Empty string in base64 is also empty string. So cursor will remain empty
-    // in those case.
-    const cursor = base64ToString(param.cursor || "");
+    const cursor = decodeCursor(param.cursor);
 
-    return this.conn.any(
-      LinkItemSchema,
-      sql`SELECT *
+    const frag = sql`
   FROM link
   WHERE 1=1
     AND (${query} = '' OR title like ${queryLike} OR url like ${queryLike})
     AND (${param.archive ?? null} IS NULL OR ${param.archive} = link.archive)
     AND (${param.favorite ?? null} IS NULL OR ${param.favorite} = link.favorite)
-    AND (${cursor} = '' OR ${cursor} ${param.order === "id_asc" ? sql.raw("<") : sql.raw(">")} link.id)
-  ORDER BY id ${param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc")}
-  LIMIT ${param.limit}
-      `,
+`;
+
+    const { count } = this.conn.one(
+      CountSchema,
+      sql`SELECT COUNT(*) AS count ${frag}`,
     );
+
+    const items = this.conn.any(
+      LinkItemSchema,
+      sql`SELECT *
+  ${frag}
+  AND (${cursor} IS NULL OR ${cursor} ${param.order === "id_asc" ? sql.raw("<") : sql.raw(">")} link.id)
+ORDER BY id ${param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc")}
+LIMIT ${param.limit}`,
+    );
+
+    return {
+      count,
+      items,
+    };
   }
 }
