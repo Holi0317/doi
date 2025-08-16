@@ -18,14 +18,14 @@ export async function getHTMLTitle(
   // ky's response object is actually subclass of Response
   let resp: Response;
 
-  const controller = new AbortController();
+  // Set end-to-end (including reading header and body) timeout with this signal.
+  const signal = AbortSignal.timeout(TIMEOUT);
 
   try {
     resp = await ky.get(url, {
       throwHttpErrors: false,
-      timeout: TIMEOUT,
       retry: 0,
-      signal: controller.signal,
+      signal,
     });
   } catch (err) {
     console.warn(`Failed to fetch url ${url}`, err);
@@ -34,6 +34,7 @@ export async function getHTMLTitle(
 
   let title: string[] = [];
 
+  // omg HTMLRewriter is pure magic
   const rewriter = new HTMLRewriter();
   rewriter.on("title", {
     element() {
@@ -51,27 +52,23 @@ export async function getHTMLTitle(
     },
   });
 
-  // Abort controller after TIMEOUT
-  const clock = setTimeout(() => {
-    controller.abort();
-  }, TIMEOUT);
-
   // Kickstart the transform, then consume the body to /dev/null.
   // Consuming the body is necessary to make sure HTMLRewriter callbacks got
   // called.
   try {
     await rewriter.transform(resp)?.body?.pipeTo(new WritableStream(), {
-      signal: controller.signal,
+      signal,
     });
   } catch (err) {
+    // No need to check on `title` or return anything special on error. Just return
+    // whatever we've got in the buffer afterwards.
+
     if (err instanceof DOMException && err.name === "AbortError") {
       console.warn(`Body read timeout for url ${url}`);
     } else {
       console.warn(`Error when reading url body from ${url}`, err);
     }
   }
-
-  clearTimeout(clock);
 
   return title.join("");
 }
