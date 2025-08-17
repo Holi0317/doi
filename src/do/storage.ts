@@ -18,10 +18,11 @@ CREATE TABLE link (
 
   -- Title of the link's HTML page.
   -- If title wasn't available, this will be the URL itself.
-  title text NOT NULL,
+  title text NOT NULL CHECK (length(title) < 100),
   -- URL of the link.
   url text NOT NULL UNIQUE
-    CHECK (url like 'http://%' OR url like 'https://%'),
+    CHECK (url like 'http://%' OR url like 'https://%')
+    CHECK (length(url) < 512),
   -- Boolean. Favorite or not.
   favorite integer NOT NULL
     CHECK (favorite = 0 OR favorite = 1)

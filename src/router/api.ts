@@ -88,11 +88,10 @@ const app = new Hono<Env>()
             };
           }
 
-          // FIXME: Resolve redirect on url as well
           const title = await getHTMLTitle(ky, item.url);
 
           return {
-            title,
+            title: title.substring(0, 512),
             url: item.url,
           };
         }),
