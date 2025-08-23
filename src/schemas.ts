@@ -8,6 +8,7 @@
  */
 
 import * as z from "zod";
+import * as zu from "./zod-utils";
 
 /**
  * Query on searching API
@@ -28,13 +29,11 @@ export const SearchQuerySchema = z.object({
       null / undefined / empty string will be treated as noop.
       Note the client must keep other search parameters the same when paginating.`,
     }),
-  // FIXME: 'false' is coerced into true with zod. Figure out query param
-  // semantics later
-  archive: z.coerce.boolean().optional().meta({
+  archive: zu.queryBool().optional().meta({
     description: `Archive filter. Undefined means disable filter. Boolean means the item must be archived or not archived.`,
   }),
-  favorite: z.coerce
-    .boolean()
+  favorite: zu
+    .queryBool()
     .optional()
     .meta({
       description: `Favorite filter.

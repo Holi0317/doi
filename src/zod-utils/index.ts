@@ -13,3 +13,8 @@ export const unixEpochMs = () =>
     error:
       "Timestamp looks small. Did you pass in epoch in seconds instead of milliseconds?",
   });
+
+export const queryBool = () =>
+  z
+    .literal(["", "1", "0", "true", "false"])
+    .transform((val) => !(val === "false" || val === "0"));

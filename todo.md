@@ -3,6 +3,6 @@
 - [ ] Image preview
 - [ ] Admin page
 - [ ] Basic view
-- [ ] Fix tsconfig on test project
+- [x] Fix tsconfig on test project
 - [ ] Authentication by Cloudflare Access
 - [ ] Rate limiting

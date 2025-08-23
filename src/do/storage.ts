@@ -145,8 +145,8 @@ ORDER BY id ASC;
   FROM link
   WHERE 1=1
     AND (${query} = '' OR title like ${queryLike} OR url like ${queryLike})
-    AND (${param.archive ?? null} IS NULL OR ${param.archive} = link.archive)
-    AND (${param.favorite ?? null} IS NULL OR ${param.favorite} = link.favorite)
+    AND (${param.archive ?? null} IS NULL OR ${Number(param.archive)} = link.archive)
+    AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;
 
     const { count } = this.conn.one(
