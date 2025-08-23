@@ -5,10 +5,10 @@ import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
+import type { EditBodySchema, SearchQuerySchema } from "../schemas";
 
 const migrations: DBMigration[] = [
   {
-    // FIXME: Limit text size
     name: "20250610-create-link",
     script: sql`
 CREATE TABLE link (
@@ -69,53 +69,6 @@ const InsertedSchema = z.strictObject({
   title: z.string(),
 });
 
-export interface SearchParam {
-  /**
-   * Search query. This will search both title and url.
-   *
-   * null / undefined / empty string will all be treated as disable search filter.
-   */
-  query?: string | null;
-
-  /**
-   * Cursor for pagination.
-   *
-   * null / undefined / empty string will be treated as noop.
-   *
-   * Note the client must keep search parameter the same when paginating.
-   */
-  cursor?: string | null;
-
-  /**
-   * Archive filter.
-   *
-   * Undefined means disable filter. Boolean means the item must be archived
-   * or not arvhived.
-   */
-  archive?: boolean;
-
-  /**
-   * Favorite filter.
-   *
-   * Undefined means disable filter. Boolean means the item must be favorited
-   * or not favorited.
-   */
-  favorite?: boolean;
-
-  /**
-   * Limit items to return.
-   */
-  limit: number;
-
-  /**
-   * Order in result. Can only sort by id.
-   *
-   * id correlates to created_at timestamp, so this sorting is effectively link
-   * insert time.
-   */
-  order: "id_asc" | "id_desc";
-}
-
 export class StorageDO extends DurableObject<CloudflareBindings> {
   private readonly conn: ReturnType<typeof useSql>;
 
@@ -149,6 +102,9 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     // The only reliable way to purge invalid ID in the same transaction is to
     // use query inserted entities.
 
+    // FIXME: Return per-url insert result back to client. Need some way to
+    // indicate there was a duplication/replacement on insert process.
+
     return this.conn.many(
       InsertedSchema,
       sql`SELECT id, url, title
@@ -159,7 +115,27 @@ ORDER BY id ASC;
     );
   }
 
-  public search(param: SearchParam) {
+  public edit(param: z.output<typeof EditBodySchema>) {
+    for (const op of param.op) {
+      switch (op.op) {
+        case "set": {
+          const column =
+            op.field === "archive"
+              ? sql.ident("archive")
+              : sql.ident("favorite");
+          this.conn.void_(
+            sql`UPDATE link SET ${column} = ${Number(op.value)} WHERE id = ${op.id}`,
+          );
+          break;
+        }
+        case "delete":
+          this.conn.void_(sql`DELETE FROM link WHERE id = ${op.id}`);
+          break;
+      }
+    }
+  }
+
+  public search(param: z.output<typeof SearchQuerySchema>) {
     const query = param.query || "";
     const queryLike = `%${query}%`;
 

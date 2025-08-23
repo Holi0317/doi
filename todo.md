@@ -1,3 +1,5 @@
+- [ ] Storage DO stats (item count, used bytes, location)
+- [ ] Bookkeep living storage DOs / registered users
 - [ ] Image preview
 - [ ] Admin page
 - [ ] Basic view
