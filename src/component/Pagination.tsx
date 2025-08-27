@@ -32,6 +32,7 @@ export function Pagination(props: PaginationProps) {
     cursor: props.cursor,
   });
 
+  const firstFrag = <a href={firstUrl}>{"< First page"}</a>;
   const nextFrag = (
     <>
       &nbsp; | &nbsp;
@@ -40,9 +41,11 @@ export function Pagination(props: PaginationProps) {
   );
 
   return (
-    <span>
-      <a href={firstUrl}>{"< First page"}</a>
+    <div>
+      {/* Only show first page if there's no cursor.
+        We might be on first page with cursor but good enough for most cases. */}
+      {props.queries.cursor && firstFrag}
       {props.cursor != null && nextFrag}
-    </span>
+    </div>
   );
 }

@@ -156,19 +156,32 @@ ORDER BY id ASC;
       sql`SELECT COUNT(*) AS count ${frag}`,
     );
 
-    // FIXME: Test if there's "Next page" at all
-    const items = this.conn.any(
+    const itemsPlus = this.conn.any(
       LinkItemSchema,
       sql`SELECT *
   ${frag}
   AND (${cursor} IS NULL OR ${cursor} ${param.order === "id_asc" ? sql.raw("<") : sql.raw(">")} link.id)
 ORDER BY id ${param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc")}
-LIMIT ${param.limit}`,
+LIMIT ${param.limit + 1}`,
     );
 
+    const items = itemsPlus.slice(0, param.limit);
+    const hasMore = itemsPlus.length > param.limit;
+
     return {
+      /**
+       * Total number of items satisfying the filter, exclude pagination.
+       */
       count,
+      /**
+       * Paginated items matching the filter. Length of this array will be <=
+       * limit parameter.
+       */
       items,
+      /**
+       * If true, this query can continue paginate.
+       */
+      hasMore,
     };
   }
 }

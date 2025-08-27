@@ -22,7 +22,8 @@ const app = new Hono<Env>({ strict: false })
     const search = await stub.search(q);
 
     const lastID = search.items.at(-1)?.id;
-    const cursor = lastID == null ? null : encodeCursor(lastID);
+    const cursor =
+      lastID == null || !search.hasMore ? null : encodeCursor(lastID);
 
     return c.json({
       ...search,
