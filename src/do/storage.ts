@@ -50,6 +50,8 @@ const LinkItemSchema = z.strictObject({
   created_at: zu.unixEpochMs(),
 });
 
+export type LinkItem = z.output<typeof LinkItemSchema>;
+
 export interface LinkInsertItem {
   title: string;
   url: string;
@@ -154,6 +156,7 @@ ORDER BY id ASC;
       sql`SELECT COUNT(*) AS count ${frag}`,
     );
 
+    // FIXME: Test if there's "Next page" at all
     const items = this.conn.any(
       LinkItemSchema,
       sql`SELECT *

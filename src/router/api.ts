@@ -11,7 +11,7 @@ import {
   SearchQuerySchema,
 } from "../schemas";
 
-const app = new Hono<Env>()
+const app = new Hono<Env>({ strict: false })
   .use(requireSession("redirect"))
 
   .get("/search", zv("query", SearchQuerySchema), async (c) => {

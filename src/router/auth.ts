@@ -8,7 +8,7 @@ import { oauthToken } from "../gh/oauth_token";
 import { useKy } from "../composable/http";
 import { getAuthorizeUrl } from "../gh/authorize";
 
-const app = new Hono<Env>()
+const app = new Hono<Env>({ strict: false })
   .get("/", async (c) => {
     const sess = await getSession(c);
     return c.text(`Hello <${sess?.name}>!`);
