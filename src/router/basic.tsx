@@ -87,6 +87,10 @@ const app = new Hono<Env>({ strict: false })
       <Layout title="Edit">
         <a href="/basic">Back</a>
         <LinkItemForm item={jason} />
+
+        <form method="post" action={`/basic/edit/${id}/delete`}>
+          <input type="submit" value="Delete" />
+        </form>
       </Layout>,
     );
   })
@@ -127,6 +131,18 @@ const app = new Hono<Env>({ strict: false })
 
       return c.redirect(`/basic/edit/${id}`);
     },
-  );
+  )
+
+  .post("/edit/:id/delete", zv("param", IDStringSchema), async (c) => {
+    const { id } = c.req.valid("param");
+
+    await c.get("client").api.edit.$post({
+      json: {
+        op: [{ op: "delete", id }],
+      },
+    });
+
+    return c.redirect(`/basic`);
+  });
 
 export default app;
