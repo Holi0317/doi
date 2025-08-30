@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import type { LinkItem } from "../do/storage";
 
 export interface LinkItemFormProps {
@@ -45,16 +46,7 @@ export function LinkItemForm(props: LinkItemFormProps) {
       </div>
 
       <div>
-        <label>
-          Created at
-          {/* FIXME:Rendering is broken */}
-          <input
-            name="created_at"
-            type="datetime-local"
-            disabled={true}
-            value={item.created_at}
-          />
-        </label>
+        <label>Created at {dayjs(item.created_at).toISOString()}</label>
       </div>
 
       <input type="submit" value="submit" />
