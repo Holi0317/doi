@@ -10,6 +10,7 @@ import { Pagination } from "../component/Pagination";
 import { LinkItem } from "../component/LinkItem";
 import { LinkItemForm } from "../component/LinkItemForm";
 import * as zu from "../zod-utils";
+import { InsertForm } from "../component/InsertForm";
 
 const ItemEditSchema = z.object({
   archive: zu.queryBool().optional(),
@@ -39,16 +40,20 @@ const app = new Hono<Env>({ strict: false })
       return c.redirect("?archive=false");
     }
 
-    const resp = await c.get("client").api.search.$get({
+    const resp = await c.get("client").search.$get({
       query: queryRaw,
     });
     const jason = await resp.json();
 
     return c.render(
       <Layout title="List">
-        {jason.items.map((item) => (
-          <LinkItem item={item} />
-        ))}
+        <InsertForm />
+
+        <ul>
+          {jason.items.map((item) => (
+            <LinkItem item={item} />
+          ))}
+        </ul>
 
         <hr />
 
@@ -56,10 +61,30 @@ const app = new Hono<Env>({ strict: false })
       </Layout>,
     );
   })
+  .post("/insert", zv("form", z.object({ url: z.string() })), async (c) => {
+    const { url } = c.req.valid("form");
+
+    const resp = await c.get("client").insert.$post({
+      json: {
+        items: [
+          {
+            url,
+          },
+        ],
+      },
+    });
+
+    if (resp.status >= 400) {
+      return c.json(await resp.json(), resp.status);
+    }
+
+    return c.redirect("/basic?archive=false");
+  })
+
   .post("/archive", zv("form", IDStringSchema), async (c) => {
     const { id } = c.req.valid("form");
 
-    await c.get("client").api.edit.$post({
+    await c.get("client").edit.$post({
       json: {
         op: [{ op: "set", field: "archive", id, value: true }],
       },
@@ -71,7 +96,7 @@ const app = new Hono<Env>({ strict: false })
   .get("/edit/:id", zv("param", IDStringSchema), async (c) => {
     const { id } = c.req.valid("param");
 
-    const resp = await c.get("client").api.item[":id"].$get({
+    const resp = await c.get("client").item[":id"].$get({
       param: {
         id: id.toString(),
       },
@@ -123,7 +148,7 @@ const app = new Hono<Env>({ strict: false })
         });
       }
 
-      await c.get("client").api.edit.$post({
+      await c.get("client").edit.$post({
         json: {
           op,
         },
@@ -136,7 +161,7 @@ const app = new Hono<Env>({ strict: false })
   .post("/edit/:id/delete", zv("param", IDStringSchema), async (c) => {
     const { id } = c.req.valid("param");
 
-    await c.get("client").api.edit.$post({
+    await c.get("client").edit.$post({
       json: {
         op: [{ op: "delete", id }],
       },

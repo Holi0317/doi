@@ -1,18 +1,20 @@
 import { createMiddleware } from "hono/factory";
 import { hc } from "hono/client";
-import type { AppType } from "../router";
+import type { APIAppType } from "../router/api";
 
 /**
  * Inject `client` property to the request.
  *
  * That's a mostly functional hc client. Main usecase is to send "request" to
  * api side from html rendering side.
+ *
+ * Note that we are injecting API client, not the client for whole app.
  */
-export function clientInject(app: AppType) {
+export function clientInject(app: APIAppType) {
   return createMiddleware<Env>(async (c, next) => {
     c.set(
       "client",
-      hc<AppType>("https://example.com", {
+      hc<APIAppType>("https://example.com", {
         async fetch(
           input: string | URL | globalThis.Request,
           init?: RequestInit,

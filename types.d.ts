@@ -14,7 +14,7 @@ interface Env {
     // From `middleware/client`. A semi functional hc client for requesting api
     // from html views
     client: ReturnType<
-      typeof import("hono/client").hc<import("./src/router").AppType>
+      typeof import("hono/client").hc<import("./src/router/api").APIAppType>
     >;
   };
 }

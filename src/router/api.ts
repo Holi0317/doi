@@ -89,3 +89,5 @@ const app = new Hono<Env>({ strict: false })
   });
 
 export default app;
+
+export type APIAppType = typeof app;
