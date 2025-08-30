@@ -17,13 +17,19 @@ export function clientInject(app: AppType) {
           input: string | URL | globalThis.Request,
           init?: RequestInit,
         ): Promise<Response> {
-          const req1 = new Request(input, init);
+          const req = new Request(input, init);
 
-          const req = new Request(req1, {
-            // Make sure we inherit headers from the actual request. This way we
-            // can have cookies sent to the api properly
-            headers: c.req.raw.headers,
-          });
+          // Make sure we inherit some headers from the actual request. This way we
+          // can have cookies sent to the api properly
+          const cookie = c.req.header("cookie");
+          if (cookie) {
+            req.headers.set("Cookie", cookie);
+          }
+
+          const ip = c.req.header("cf-connecting-ip");
+          if (ip) {
+            req.headers.set("cf-connecting-ip", ip);
+          }
 
           return app.fetch(req, c.env, c.executionCtx);
         },

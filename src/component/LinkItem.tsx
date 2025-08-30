@@ -11,9 +11,30 @@ export function LinkItem(props: LinkItemProps) {
 
   return (
     <li>
-      <a href={item.url} target="_blank" rel="noopener noreferrer" alt={title}>
-        {title}
-      </a>
+      <div style={{ display: "inline-flex", alignItems: "baseline" }}>
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          alt={title}
+        >
+          {title}
+        </a>
+
+        <form
+          action="/basic/archive"
+          method="post"
+          style={{ margin: 0, marginLeft: 8 }}
+        >
+          <input type="hidden" name="id" value={item.id} />
+          <input type="submit" value="archive" />
+        </form>
+        <button>
+          <a style={{ all: "unset" }} href={`/basic/edit/${item.id}`}>
+            Edit
+          </a>
+        </button>
+      </div>
     </li>
   );
 }
