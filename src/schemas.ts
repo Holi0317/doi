@@ -11,6 +11,13 @@ import * as z from "zod";
 import * as zu from "./zod-utils";
 
 /**
+ * Simple id coerce into a number schema.
+ */
+export const IDStringSchema = z.object({
+  id: z.coerce.number(),
+});
+
+/**
  * Query on searching API
  */
 export const SearchQuerySchema = z.object({

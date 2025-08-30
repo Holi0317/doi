@@ -7,12 +7,31 @@ import { useKy } from "../composable/http";
 import { encodeCursor } from "../composable/cursor";
 import {
   EditBodySchema,
+  IDStringSchema,
   InsertBodySchema,
   SearchQuerySchema,
 } from "../schemas";
 
 const app = new Hono<Env>({ strict: false })
   .use(requireSession("redirect"))
+
+  .get("/item/:id", zv("param", IDStringSchema), async (c) => {
+    const stub = await getStorageStub(c);
+    const { id } = c.req.valid("param");
+
+    const item = await stub.get(id);
+
+    if (item == null) {
+      return c.json(
+        {
+          message: "not found",
+        },
+        404,
+      );
+    }
+
+    return c.json(item);
+  })
 
   .get("/search", zv("query", SearchQuerySchema), async (c) => {
     const stub = await getStorageStub(c);

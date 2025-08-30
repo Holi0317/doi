@@ -17,7 +17,7 @@
     "hono": "^4.8.12",
     "ky": "^1.8.2",
     "uint8array-extras": "^1.4.0",
-    "zod": "^4.0.14"
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.8.61",

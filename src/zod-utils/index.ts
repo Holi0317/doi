@@ -15,6 +15,13 @@ export const unixEpochMs = () =>
   });
 
 export const queryBool = () =>
-  z
-    .literal(["", "1", "0", "true", "false"])
-    .transform((val) => !(val === "false" || val === "0"));
+  z.stringbool({
+    truthy: [
+      "true",
+      // Empty string means the parameter is specified in query, which means true
+      "",
+      "1",
+      "on",
+    ],
+    falsy: ["false", "0", "off"],
+  });

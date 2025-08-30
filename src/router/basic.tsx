@@ -1,17 +1,34 @@
 import { Hono } from "hono";
+import { jsxRenderer } from "hono/jsx-renderer";
 import * as z from "zod";
 import { requireSession } from "../composable/session";
-import { SearchQuerySchema } from "../schemas";
+import type { EditOpSchema } from "../schemas";
+import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";
 import { Layout } from "../component/layout";
 import { Pagination } from "../component/Pagination";
 import { LinkItem } from "../component/LinkItem";
+import { LinkItemForm } from "../component/LinkItemForm";
+import * as zu from "../zod-utils";
+
+const ItemEditSchema = z.object({
+  archive: zu.queryBool().optional(),
+  favorite: zu.queryBool().optional(),
+});
 
 /**
  * Basic views for the app
  */
 const app = new Hono<Env>({ strict: false })
   .use(requireSession("redirect"))
+  .use(
+    jsxRenderer(
+      ({ children }) => {
+        return <>{children}</>;
+      },
+      { docType: true },
+    ),
+  )
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
     const queryRaw = c.req.queries();
@@ -27,7 +44,7 @@ const app = new Hono<Env>({ strict: false })
     });
     const jason = await resp.json();
 
-    return c.html(
+    return c.render(
       <Layout title="List">
         {jason.items.map((item) => (
           <LinkItem item={item} />
@@ -39,19 +56,76 @@ const app = new Hono<Env>({ strict: false })
       </Layout>,
     );
   })
+  .post("/archive", zv("form", IDStringSchema), async (c) => {
+    const { id } = c.req.valid("form");
+
+    await c.get("client").api.edit.$post({
+      json: {
+        op: [{ op: "set", field: "archive", id, value: true }],
+      },
+    });
+
+    return c.redirect("/basic?archive=false");
+  })
+
+  .get("/edit/:id", zv("param", IDStringSchema), async (c) => {
+    const { id } = c.req.valid("param");
+
+    const resp = await c.get("client").api.item[":id"].$get({
+      param: {
+        id: id.toString(),
+      },
+    });
+
+    if (resp.status === 404) {
+      return c.text("not found", 404);
+    }
+
+    const jason = await resp.json();
+
+    return c.render(
+      <Layout title="Edit">
+        <a href="/basic">Back</a>
+        <LinkItemForm item={jason} />
+      </Layout>,
+    );
+  })
+
   .post(
-    "/archive",
-    zv("form", z.object({ id: z.coerce.number() })),
+    "/edit/:id",
+    zv("param", IDStringSchema),
+    zv("form", ItemEditSchema),
     async (c) => {
-      const { id } = c.req.valid("form");
+      const { id } = c.req.valid("param");
+      const form = c.req.valid("form");
+
+      const op: Array<z.input<typeof EditOpSchema>> = [];
+
+      if (form.archive != null) {
+        op.push({
+          op: "set",
+          field: "archive",
+          id,
+          value: form.archive,
+        });
+      }
+
+      if (form.favorite != null) {
+        op.push({
+          op: "set",
+          field: "favorite",
+          id,
+          value: form.favorite,
+        });
+      }
 
       await c.get("client").api.edit.$post({
         json: {
-          op: [{ op: "set", field: "archive", id, value: true }],
+          op,
         },
       });
 
-      return c.redirect("/basic?archive=false");
+      return c.redirect(`/basic/edit/${id}`);
     },
   );
 

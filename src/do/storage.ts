@@ -137,6 +137,13 @@ ORDER BY id ASC;
     }
   }
 
+  public get(id: number) {
+    return this.conn.maybeOne(
+      LinkItemSchema,
+      sql`SELECT * FROM link WHERE id = ${id}`,
+    );
+  }
+
   public search(param: z.output<typeof SearchQuerySchema>) {
     const query = param.query || "";
     const queryLike = `%${query}%`;
