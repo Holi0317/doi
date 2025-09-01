@@ -79,6 +79,25 @@ export const InsertBodySchema = z.object({
             url.username = "";
             url.password = "";
 
+            const trackingParams = [
+              // UTM / Google Analytics
+              "utm_source",
+              "utm_medium",
+              "utm_campaign",
+              "utm_term",
+              "utm_content",
+              // Youtube
+              "si",
+              // Instagram
+              "igshid",
+            ];
+
+            const searchParams = url.searchParams;
+            for (const key of trackingParams) {
+              searchParams.delete(key);
+            }
+            url.search = searchParams.toString();
+
             return url.toString();
           }),
       }),

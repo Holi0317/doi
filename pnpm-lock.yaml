@@ -16,6 +16,9 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.7.2
         version: 0.7.2(hono@4.8.12)(zod@4.1.5)
+      '@std/html':
+        specifier: jsr:^1.0.4
+        version: '@jsr/std__html@1.0.4'
       '@truto/sqlite-builder':
         specifier: ^1.0.4
         version: 1.0.4(patch_hash=af901e0121fc3158ae48b13259e17e643d2a982814275845a8fe0cbd79805085)
@@ -510,6 +513,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@jsr/std__html@1.0.4':
+    resolution: {integrity: sha512-aSwoT4KN/DujGKauiU7b1oEWLeJrBbHtCiRpjd3eNrpCzBlTL5q/8jZvUpgiHNCLi9CELTfxoCowpFM1skuNSQ==, tarball: https://npm.jsr.io/~/11/@jsr/std__html/1.0.4.tgz}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -2086,6 +2092,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.4
+
+  '@jsr/std__html@1.0.4': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:

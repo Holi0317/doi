@@ -4,32 +4,32 @@ import type { InferRequestType } from "hono/client";
 import type { ClientType } from "./client";
 import { createTestClient } from "./client";
 
-interface TestCase {
-  insert: InferRequestType<
-    ClientType["api"]["insert"]["$post"]
-  >["json"]["items"];
-
-  insertResponse: Array<{
-    id: number;
-    title: string;
-    url: string;
-  }>;
-}
-
-async function testInsert(tc: TestCase) {
-  const client = await createTestClient();
-
-  const insert = await client.api.insert.$post({
-    json: {
-      items: tc.insert,
-    },
-  });
-
-  expect(insert.status).toEqual(201);
-  expect(await insert.json()).toEqual(tc.insertResponse);
-}
-
 describe("Link insert", () => {
+  interface TestCase {
+    insert: InferRequestType<
+      ClientType["api"]["insert"]["$post"]
+    >["json"]["items"];
+
+    insertResponse: Array<{
+      id: number;
+      title: string;
+      url: string;
+    }>;
+  }
+
+  async function testInsert(tc: TestCase) {
+    const client = await createTestClient();
+
+    const insert = await client.api.insert.$post({
+      json: {
+        items: tc.insert,
+      },
+    });
+
+    expect(insert.status).toEqual(201);
+    expect(await insert.json()).toEqual(tc.insertResponse);
+  }
+
   beforeAll(() => {
     fetchMock.activate();
     fetchMock.disableNetConnect();
@@ -41,27 +41,6 @@ describe("Link insert", () => {
     await testInsert({
       insert: [{ title: "asdf", url: "https://google.com" }],
       insertResponse: [{ id: 1, title: "asdf", url: "https://google.com/" }],
-    });
-  });
-
-  it("should fetch title from document", async () => {
-    fetchMock
-      .get("https://google.com")
-      .intercept({ path: "/", method: "get" })
-      .reply(
-        200,
-        `<!doctype html><html><head><title>My cute title</title></head></html>`,
-      );
-
-    await testInsert({
-      insert: [{ title: "", url: "https://google.com" }],
-      insertResponse: [
-        {
-          id: 1,
-          title: "My cute title",
-          url: "https://google.com/",
-        },
-      ],
     });
   });
 
@@ -155,6 +134,96 @@ describe("Link insert", () => {
           url: "https://google.com/?query=123&query=456",
         },
       ],
+    });
+  });
+
+  it("should remove tracking query", async () => {
+    await testInsert({
+      insert: [
+        {
+          title: "asdf",
+          url: "https://google.com?utm_content=buffercf3b2&utm_medium=social&utm_source=snapchat.com&utm_campaign=buffer",
+        },
+      ],
+      insertResponse: [
+        {
+          id: 1,
+          title: "asdf",
+          url: "https://google.com/",
+        },
+      ],
+    });
+  });
+});
+
+describe("HTML title scraping", () => {
+  interface TestCase {
+    title: string;
+    expected: string;
+  }
+
+  async function testInsert(tc: TestCase) {
+    fetchMock
+      .get("https://google.com")
+      .intercept({ path: "/", method: "get" })
+      .reply(
+        200,
+        `<!doctype html><html><head><title>${tc.title}</title></head></html>`,
+      );
+
+    const client = await createTestClient();
+
+    const insert = await client.api.insert.$post({
+      json: {
+        items: [{ title: "", url: "https://google.com" }],
+      },
+    });
+
+    expect(insert.status).toEqual(201);
+    expect(await insert.json()).toEqual([
+      {
+        id: 1,
+        title: tc.expected,
+        url: "https://google.com/",
+      },
+    ]);
+  }
+
+  beforeAll(() => {
+    fetchMock.activate();
+    fetchMock.disableNetConnect();
+  });
+
+  afterEach(() => fetchMock.assertNoPendingInterceptors());
+
+  it("should fetch title from document", async () => {
+    await testInsert({
+      title: "My cute title",
+      expected: "My cute title",
+    });
+  });
+
+  it("should unescape html entity", async () => {
+    await testInsert({
+      title: "Hash &#35; and &amp; lt &lt; lt &#60;",
+      expected: "Hash # and & lt < lt <",
+    });
+  });
+
+  it("should trim excessive whitespace", async () => {
+    await testInsert({
+      title: `     
+
+
+Hello
+
+
+w
+
+      
+
+`,
+      expected: "Hello\n\n\nw",
     });
   });
 });

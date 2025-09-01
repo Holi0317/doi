@@ -1,4 +1,5 @@
 import type { KyInstance } from "ky";
+import { unescape } from "@std/html/entities";
 
 const TIMEOUT = 5000;
 
@@ -70,5 +71,5 @@ export async function getHTMLTitle(
     }
   }
 
-  return title.join("");
+  return unescape(title.join("").trim());
 }

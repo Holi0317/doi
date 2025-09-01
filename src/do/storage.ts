@@ -17,7 +17,8 @@ CREATE TABLE link (
   id integer PRIMARY KEY AUTOINCREMENT,
 
   -- Title of the link's HTML page.
-  -- If title wasn't available, this will be the URL itself.
+  -- If title wasn't available, this will empty string.
+  -- WARNING: Title can be used for XSS. Remember to escape before rendering
   title text NOT NULL CHECK (length(title) < 100),
   -- URL of the link.
   url text NOT NULL UNIQUE
