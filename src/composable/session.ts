@@ -6,7 +6,7 @@ import * as z from "zod";
 import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
 import type dayjs from "dayjs";
 
-export const COOKIE_NAME = "poche-auth";
+export const COOKIE_NAME = "doi-auth";
 
 const cookieOpt = {
   path: "/",

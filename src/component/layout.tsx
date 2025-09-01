@@ -6,7 +6,7 @@ export type LayoutProps = PropsWithChildren<{
 }>;
 
 export function Layout(props: LayoutProps) {
-  const title = props.title ? `${props.title} | Poche` : "Poche";
+  const title = props.title ? `${props.title} | Doi` : "Doi";
 
   return (
     <html lang="en">

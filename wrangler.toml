@@ -3,7 +3,7 @@
 
 "$schema" = "node_modules/wrangler/config-schema.json"
 
-name = "poche"
+name = "doi"
 main = "src/index.ts"
 compatibility_date = "2025-06-03"
 

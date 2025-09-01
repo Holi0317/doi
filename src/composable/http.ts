@@ -6,7 +6,7 @@ export function useKy(c: Context<Env>) {
 
   return ky.create({
     headers: {
-      "user-agent": `poche-app/${version.id || "unknown"}/${version.tag || "unknown"}`,
+      "user-agent": `doi-app/${version.id || "unknown"}/${version.tag || "unknown"}`,
     },
   });
 }
