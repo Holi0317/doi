@@ -51,6 +51,7 @@ describe("Link search", () => {
       resp: {
         count: 0,
         cursor: null,
+        hasMore: false,
         items: [],
       },
     });
@@ -66,7 +67,8 @@ describe("Link search", () => {
       search: {},
       resp: {
         count: 3,
-        cursor: encodeCursor(1),
+        cursor: null,
+        hasMore: false,
         items: [
           {
             archive: false,
@@ -110,6 +112,7 @@ describe("Link search", () => {
       resp: {
         count: 0,
         cursor: null,
+        hasMore: false,
         items: [],
       },
     });
@@ -127,7 +130,8 @@ describe("Link search", () => {
       },
       resp: {
         count: 3,
-        cursor: encodeCursor(3),
+        cursor: null,
+        hasMore: false,
         items: [
           {
             archive: false,
@@ -173,6 +177,7 @@ describe("Link search", () => {
       resp: {
         count: 3,
         cursor: encodeCursor(2),
+        hasMore: true,
         items: [
           {
             archive: false,
@@ -201,6 +206,7 @@ describe("Link search", () => {
       resp: {
         count: 3,
         cursor: encodeCursor(3),
+        hasMore: true,
         items: [
           {
             archive: false,
