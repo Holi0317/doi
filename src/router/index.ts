@@ -4,6 +4,8 @@ import apiRouter from "./api";
 import authRouter from "./auth";
 import basicRouter from "./basic";
 
+// TODO: Landing page
+// TODO: Admin page
 const app = new Hono<Env>({ strict: false })
   .use(clientInject(apiRouter))
   .route("/auth", authRouter)

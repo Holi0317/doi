@@ -1,4 +1,5 @@
 import type { LinkItem } from "../do/storage";
+import { ButtonLink } from "./ButtonLink";
 
 export interface LinkItemProps {
   item: LinkItem;
@@ -29,11 +30,8 @@ export function LinkItem(props: LinkItemProps) {
           <input type="hidden" name="id" value={item.id} />
           <input type="submit" value="archive" />
         </form>
-        <button>
-          <a style={{ all: "unset" }} href={`/basic/edit/${item.id}`}>
-            Edit
-          </a>
-        </button>
+
+        <ButtonLink href={`/basic/edit/${item.id}`}>Edit</ButtonLink>
       </div>
     </li>
   );

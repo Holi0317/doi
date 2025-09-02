@@ -36,16 +36,13 @@ export const SearchQuerySchema = z.object({
       null / undefined / empty string will be treated as noop.
       Note the client must keep other search parameters the same when paginating.`,
     }),
-  archive: zu.queryBool().optional().meta({
+  archive: zu.queryBool().meta({
     description: `Archive filter. Undefined means disable filter. Boolean means the item must be archived or not archived.`,
   }),
-  favorite: zu
-    .queryBool()
-    .optional()
-    .meta({
-      description: `Favorite filter.
+  favorite: zu.queryBool().meta({
+    description: `Favorite filter.
       Undefined means disable filter. Boolean means the item must be favorited or not favorited.`,
-    }),
+  }),
   limit: z.coerce.number().min(1).max(300).default(30).meta({
     description: `Limit items to return.`,
   }),

@@ -7,14 +7,15 @@ import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";
 import { Layout } from "../component/layout";
 import { Pagination } from "../component/Pagination";
-import { LinkItem } from "../component/LinkItem";
 import { LinkItemForm } from "../component/LinkItemForm";
 import * as zu from "../zod-utils";
 import { InsertForm } from "../component/InsertForm";
+import { LinkList } from "../component/LinkList";
+import { SearchToolbar } from "../component/SearchToolbar";
 
 const ItemEditSchema = z.object({
-  archive: zu.queryBool().optional(),
-  favorite: zu.queryBool().optional(),
+  archive: zu.queryBool(),
+  favorite: zu.queryBool(),
 });
 
 /**
@@ -33,6 +34,7 @@ const app = new Hono<Env>({ strict: false })
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
     const queryRaw = c.req.queries();
+    const query = c.req.valid("query");
 
     // Assume empty query means someone opens this page for the first time.
     // We wanna show unarchived items if that's the case.
@@ -49,15 +51,14 @@ const app = new Hono<Env>({ strict: false })
       <Layout title="List">
         <InsertForm />
 
-        <ul>
-          {jason.items.map((item) => (
-            <LinkItem item={item} />
-          ))}
-        </ul>
+        <SearchToolbar query={query} />
+
+        <p>Total count = {jason.count}</p>
+        <LinkList items={jason.items} />
 
         <hr />
 
-        <Pagination cursor={jason.cursor} queries={c.req.valid("query")} />
+        <Pagination cursor={jason.cursor} queries={query} />
       </Layout>,
     );
   })
