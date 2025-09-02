@@ -84,6 +84,45 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
   }
 
   /**
+   * Get statistics about this durable object
+   */
+  public async stat() {
+    const colo = await this.getColo();
+
+    const dbSize = this.ctx.storage.sql.databaseSize;
+
+    const { count } = this.conn.one(
+      CountSchema,
+      sql`SELECT COUNT(*) AS count FROM link;`,
+    );
+
+    const maxID = this.conn.one(
+      CountSchema,
+      sql`SELECT MAX(id) AS count FROM link;`,
+    );
+
+    return {
+      name: this.ctx.id.name,
+      colo,
+      dbSize,
+      count,
+      maxID: maxID.count,
+    };
+  }
+
+  private async getColo() {
+    const resp = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
+    const body = await resp.text();
+
+    const match = body.match(/^colo=(.+)/m);
+    if (match == null) {
+      return "unknown";
+    }
+
+    return match[1];
+  }
+
+  /**
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {
