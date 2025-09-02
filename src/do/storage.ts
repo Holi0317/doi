@@ -19,7 +19,7 @@ CREATE TABLE link (
   -- Title of the link's HTML page.
   -- If title wasn't available, this will empty string.
   -- WARNING: Title can be used for XSS. Remember to escape before rendering
-  title text NOT NULL CHECK (length(title) < 100),
+  title text NOT NULL CHECK (length(title) < 512),
   -- URL of the link.
   url text NOT NULL UNIQUE
     CHECK (url like 'http://%' OR url like 'https://%')
