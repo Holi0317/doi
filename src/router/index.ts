@@ -1,13 +1,16 @@
 import { Hono } from "hono";
 import { clientInject } from "../middleware/client";
+import { renderer } from "../middleware/renderer";
 import apiRouter from "./api";
 import authRouter from "./auth";
 import basicRouter from "./basic";
+import landingRouter from "./landing";
 
-// TODO: Landing page
 // TODO: Admin page
 const app = new Hono<Env>({ strict: false })
   .use(clientInject(apiRouter))
+  .use(renderer())
+  .route("/", landingRouter)
   .route("/auth", authRouter)
   .route("/api", apiRouter)
   .route("/basic", basicRouter);

@@ -1,7 +1,6 @@
 import { Hono } from "hono";
-import { jsxRenderer } from "hono/jsx-renderer";
 import * as z from "zod";
-import { requireSession } from "../composable/session";
+import { mustSession, requireSession } from "../composable/session";
 import type { EditOpSchema } from "../schemas";
 import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";
@@ -23,16 +22,10 @@ const ItemEditSchema = z.object({
  */
 const app = new Hono<Env>({ strict: false })
   .use(requireSession("redirect"))
-  .use(
-    jsxRenderer(
-      ({ children }) => {
-        return <>{children}</>;
-      },
-      { docType: true },
-    ),
-  )
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
+    const sess = await mustSession(c);
+
     const queryRaw = c.req.queries();
     const query = c.req.valid("query");
 
@@ -49,6 +42,7 @@ const app = new Hono<Env>({ strict: false })
 
     return c.render(
       <Layout title="List">
+        <p>Authenticated via GitHub, {sess.name}</p>
         <InsertForm />
 
         <SearchToolbar query={query} />

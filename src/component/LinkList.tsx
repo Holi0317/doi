@@ -20,7 +20,7 @@ export function LinkList(props: LinkListProps) {
   }
 
   return (
-    <ul>
+    <ul style={{ lineHeight: "2.5rem" }}>
       {items.map((item) => (
         <LinkItemComp item={item} />
       ))}
