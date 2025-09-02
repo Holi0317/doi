@@ -159,17 +159,19 @@ describe("Link insert", () => {
 describe("HTML title scraping", () => {
   interface TestCase {
     title: string;
+    document?: string;
     expected: string;
   }
 
   async function testInsert(tc: TestCase) {
+    const doc =
+      tc.document ??
+      `<!doctype html><html><head><title>${tc.title}</title></head></html>`;
+
     fetchMock
       .get("https://google.com")
       .intercept({ path: "/", method: "get" })
-      .reply(
-        200,
-        `<!doctype html><html><head><title>${tc.title}</title></head></html>`,
-      );
+      .reply(200, doc);
 
     const client = await createTestClient();
 
@@ -224,6 +226,14 @@ w
 
 `,
       expected: "Hello\n\n\nw",
+    });
+  });
+
+  it("should only use title in head", async () => {
+    await testInsert({
+      title: "",
+      document: `<!doctype html><html><head><title>true title</title></head><body><title>No</title></body></html>`,
+      expected: "true title",
     });
   });
 });

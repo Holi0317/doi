@@ -37,7 +37,7 @@ export async function getHTMLTitle(
 
   // omg HTMLRewriter is pure magic
   const rewriter = new HTMLRewriter();
-  rewriter.on("title", {
+  rewriter.on("head>title", {
     element() {
       // Reset title buffer in case the page got multiple titles. We always use
       // the text from the last title tag.
