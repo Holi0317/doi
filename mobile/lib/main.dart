@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/components/link_tile.dart';
-import 'package:mobile/app_router.dart'; // Added import
-
-import 'container/link.dart';
+import 'package:mobile/app_router.dart';
 
 void main() {
   runApp(const MyApp());

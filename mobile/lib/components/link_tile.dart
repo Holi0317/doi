@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../container/link.dart';
+import '../models/link.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree }
 
 class LinkTile extends StatelessWidget {
-  const LinkTile({super.key, required this.item});
+  LinkTile({super.key, required this.item});
 
   final Link item;
+
+  // FIXME: Handle url parsing error
+  late final uri = Uri.parse(item.url);
 
   void _showContextMenu(BuildContext context, Offset globalPosition) async {
     final overlay = Overlay.of(context).context.findRenderObject();
@@ -38,7 +41,7 @@ class LinkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key('value'),
+      key: ValueKey(item.id),
       // FIXME: Add archive icon, and animate it
       background: Container(color: Colors.purple),
       child: GestureDetector(
@@ -53,11 +56,11 @@ class LinkTile extends StatelessWidget {
         },
         child: ListTile(
           title: Text(item.title),
-          subtitle: Text(item.uri.host),
+          subtitle: Text(uri.host),
           leading: Image.network("https://github.blog/wp-content/uploads/2025/08/copilot-wallpaper-generic-logo-header.png"),
           onTap: () async {
             await launchUrl(
-              item.uri,
+              uri,
               mode: LaunchMode.inAppBrowserView,
               webOnlyWindowName: "_blank",
             );
