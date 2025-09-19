@@ -1,6 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="envs">
+      <entry key="JAVA_HOME" value="$APPLICATION_HOME_DIR$/jbr/Contents/Home" />
+    </option>
     <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />
-    <method />
+    <method v="2" />
   </configuration>
 </component>
