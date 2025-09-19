@@ -54,6 +54,7 @@ class LinkTile extends StatelessWidget {
         child: ListTile(
           title: Text(item.title),
           subtitle: Text(item.uri.host),
+          leading: Image.network("https://github.blog/wp-content/uploads/2025/08/copilot-wallpaper-generic-logo-header.png"),
           onTap: () async {
             await launchUrl(
               item.uri,
