@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/link.dart';
@@ -54,7 +53,7 @@ class LinkTile extends StatelessWidget {
           _showContextMenu(context, details.globalPosition);
         },
         child: ListTile(
-          title: Text(item.title),
+          title: Text(item.title.isEmpty ? uri.toString() : item.title),
           subtitle: Text(uri.host),
           leading: Image.network("https://github.blog/wp-content/uploads/2025/08/copilot-wallpaper-generic-logo-header.png"),
           onTap: () async {

@@ -5,43 +5,56 @@ import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/search_query.dart';
 import 'package:mobile/models/search_response.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'models/edit_op.dart';
 import 'models/insert_item.dart';
 import 'models/link.dart';
 
-class ClientException implements Exception {
-  final String message;
-  final String? responseBody;
+class RequestException implements Exception {
+  final String path;
+  final String method;
+  final int statusCode;
+  final String body;
 
-  ClientException(this.message, [this.responseBody]);
+  const RequestException({
+    required this.path,
+    required this.method,
+    required this.statusCode,
+    required this.body,
+  });
 
   @override
   String toString() {
-    if (responseBody != null) {
-      return "ClientException: $message - Response body: $responseBody";
-    }
-    return "ClientException: $message";
+    return "RequestException for $method $path $statusCode: $body";
   }
 }
 
 class Client {
   final http.Client _client;
 
-  String get baseUrl => 'http://127.0.0.1:8787/api';
+  // FIXME: Move url/auth to ctor
+  String get baseUrl => 'http://100.66.229.117:8787/api';
 
-  String get authToken => '';
+  String get authToken => '86ed8dece3ba61d2';
 
+  // FIXME: Use platform-specific http implementation
   Client() : _client = http.Client();
+
+  /// Cleanup resource associated with this client.
+  ///
+  /// After calling [close], this client can no longer be used.
+  void close() {
+    _client.close();
+  }
 
   /// Send a request to the server.
   ///
-  /// FIXME: This is ClientException from http. We should rename our exception.
-  /// This will emit a [ClientException] if there is a transport-level
+  /// This will emit a [http.ClientException] if there is a transport-level
   /// failure when communication with the server. For example, if the server could
   /// not be reached.
   ///
-  /// Throws a [ClientException] if the response got a non-success (>= 400) status code.
+  /// Throws a [RequestException] if the response got a non-success (>= 400) status code.
   ///
   /// [path] should begin with a `/`.
   ///
@@ -52,6 +65,7 @@ class Client {
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
+    Future<void>? abortTrigger,
   }) async {
     assert(path.startsWith('/'));
 
@@ -61,8 +75,7 @@ class Client {
 
     final cookie = Cookie('__Host-doi-auth', authToken);
 
-    // FIXME: Add cancel context
-    final req = http.AbortableRequest(method, url);
+    final req = http.AbortableRequest(method, url, abortTrigger: abortTrigger);
     req.headers['cookie'] = cookie.toString();
     // FIXME: What's our agent?
     req.headers['user-agent'] = '';
@@ -75,25 +88,44 @@ class Client {
     final resp = await _client.send(req);
 
     if (resp.statusCode >= 400) {
-      final responseBody = await resp.stream.bytesToString();
-      throw ClientException('Request failed with status code ${resp.statusCode}', responseBody);
+      final respBody = await resp.stream.bytesToString();
+      throw RequestException(
+        method: method,
+        path: path,
+        body: respBody,
+        statusCode: resp.statusCode,
+      );
     }
 
     return resp;
   }
 
-  Future<void> insert(List<InsertItem> items) async {
+  /// Insert link into server.
+  Future<void> insert(
+    List<InsertItem> items, {
+    Future<void>? abortTrigger,
+  }) async {
     // Each batch only support at most 100 items
     for (final chunk in items.slices(100)) {
-      await _request('POST', '/insert', body: {'items': chunk});
+      await _request(
+        'POST',
+        '/insert',
+        body: {'items': chunk},
+        abortTrigger: abortTrigger,
+      );
     }
   }
 
-  Future<SearchResponse> search(SearchQuery query) async {
+  /// Search (or list) links from server.
+  Future<SearchResponse> search(
+    SearchQuery query, {
+    Future<void>? abortTrigger,
+  }) async {
     final resp = await _request(
       'GET',
       '/search',
       queryParameters: query.toMap(),
+      abortTrigger: abortTrigger,
     );
 
     final responseBodyString = await resp.stream.bytesToString();
@@ -101,21 +133,28 @@ class Client {
     return SearchResponse.fromJson(jsonResponse as Map<String, dynamic>);
   }
 
-  Future<Link> getItem(int id) async {
-    final resp = await _request(
-      'GET',
-      '/item/$id',
-    );
+  /// Get a single link from server.
+  ///
+  /// If the item ID is not found, a [RequestException] with `statusCode == 404`
+  /// will be thrown.
+  Future<Link> getItem(int id, {Future<void>? abortTrigger}) async {
+    final resp = await _request('GET', '/item/$id', abortTrigger: abortTrigger);
 
     final responseBodyString = await resp.stream.bytesToString();
     final jsonResponse = jsonDecode(responseBodyString);
     return Link.fromJson(jsonResponse as Map<String, dynamic>);
   }
 
-  Future<void> edit(List<EditOp> op) async {
+  /// Edit links.
+  Future<void> edit(List<EditOp> op, {Future<void>? abortTrigger}) async {
     // Each batch only support at most 100 items
     for (final chunk in op.slices(100)) {
-      await _request('POST', '/edit', body: {'op': chunk});
+      await _request(
+        'POST',
+        '/edit',
+        body: {'op': chunk},
+        abortTrigger: abortTrigger,
+      );
     }
   }
 }

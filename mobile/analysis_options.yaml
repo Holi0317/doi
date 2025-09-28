@@ -27,6 +27,10 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
+  analyzer:
+    plugins:
+      - custom_lint
+
   errors:
     # Interop for freezed and json_serializable
     invalid_annotation_target: ignore
