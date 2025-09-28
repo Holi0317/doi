@@ -13,7 +13,7 @@ import {
 } from "../schemas";
 
 const app = new Hono<Env>({ strict: false })
-  .use(requireSession("redirect"))
+  .use(requireSession("throw"))
 
   .get("/item/:id", zv("param", IDStringSchema), async (c) => {
     const stub = await getStorageStub(c);
