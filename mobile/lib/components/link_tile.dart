@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/link.dart';
@@ -46,9 +47,7 @@ class LinkTile extends StatelessWidget {
       background: Container(color: Colors.purple),
       child: GestureDetector(
         onLongPressStart: (details) {
-          _showContextMenu(context, details.globalPosition);
-        },
-        onForcePressStart: (details) {
+          Feedback.forLongPress(context);
           _showContextMenu(context, details.globalPosition);
         },
         onSecondaryTapDown: (details) {
