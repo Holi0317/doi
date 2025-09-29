@@ -2,16 +2,23 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'client.dart';
-import 'models/search_query.dart';
-import 'models/search_response.dart';
+import '../models/search_query.dart';
+import '../models/search_response.dart';
+import '../repositories/api.dart';
+import 'http.dart';
 
-part 'provider.g.dart';
+part 'api.g.dart';
 
 @riverpod
-Client client(Ref ref) {
-  final client = Client();
-  ref.onDispose(client.close);
+ApiRepository apiRepository(Ref ref) {
+  final httpClient = ref.watch(httpClientProvider);
+
+  final client = ApiRepository(
+    baseUrl: 'http://100.66.229.117:8787/api',
+    authToken: '86ed8dece3ba61d2',
+    transport: httpClient,
+  );
+
   return client;
 }
 
@@ -24,6 +31,6 @@ Future<void> _abortTrigger(Ref ref) {
 
 @riverpod
 Future<SearchResponse> search(Ref ref, SearchQuery query) async {
-  final client = ref.watch(clientProvider);
+  final client = ref.watch(apiRepositoryProvider);
   return client.search(query, abortTrigger: _abortTrigger(ref));
 }

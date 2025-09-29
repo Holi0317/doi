@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/search_query.dart';
-import '../provider.dart';
 import '../components/link_tile.dart';
 import '../models/link.dart';
+import '../models/search_query.dart';
+import '../providers/api.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

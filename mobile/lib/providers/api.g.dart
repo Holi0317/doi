@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'provider.dart';
+part of 'api.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,45 +9,46 @@ part of 'provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(client)
-const clientProvider = ClientProvider._();
+@ProviderFor(apiRepository)
+const apiRepositoryProvider = ApiRepositoryProvider._();
 
-final class ClientProvider extends $FunctionalProvider<Client, Client, Client>
-    with $Provider<Client> {
-  const ClientProvider._()
+final class ApiRepositoryProvider
+    extends $FunctionalProvider<ApiRepository, ApiRepository, ApiRepository>
+    with $Provider<ApiRepository> {
+  const ApiRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'clientProvider',
+        name: r'apiRepositoryProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$clientHash();
+  String debugGetCreateSourceHash() => _$apiRepositoryHash();
 
   @$internal
   @override
-  $ProviderElement<Client> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<ApiRepository> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  Client create(Ref ref) {
-    return client(ref);
+  ApiRepository create(Ref ref) {
+    return apiRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Client value) {
+  Override overrideWithValue(ApiRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Client>(value),
+      providerOverride: $SyncValueProvider<ApiRepository>(value),
     );
   }
 }
 
-String _$clientHash() => r'97ca2a307ec7834dd231ff5ef90e2ad1c3b8f83b';
+String _$apiRepositoryHash() => r'ff8b7b26fc321ef042bcef58bc898de56adf5c32';
 
 @ProviderFor(search)
 const searchProvider = SearchFamily._();
@@ -104,7 +105,7 @@ final class SearchProvider
   }
 }
 
-String _$searchHash() => r'81b5f8e82c6b4a3d6b6ac1e68c9ed5c514ec6c3f';
+String _$searchHash() => r'82717a276c53679a308c2376fd987f6b464bebfd';
 
 final class SearchFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<SearchResponse>, SearchQuery> {

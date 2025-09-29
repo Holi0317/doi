@@ -5,11 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/search_query.dart';
 import 'package:mobile/models/search_response.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'models/edit_op.dart';
-import 'models/insert_item.dart';
-import 'models/link.dart';
+import '../models/edit_op.dart';
+import '../models/insert_item.dart';
+import '../models/link.dart';
 
 class RequestException implements Exception {
   final String path;
@@ -30,23 +29,17 @@ class RequestException implements Exception {
   }
 }
 
-class Client {
+/// Binding for server API.
+class ApiRepository {
   final http.Client _client;
+  final String baseUrl;
+  final String _authToken;
 
-  // FIXME: Move url/auth to ctor
-  String get baseUrl => 'http://100.66.229.117:8787/api';
-
-  String get authToken => '86ed8dece3ba61d2';
-
-  // FIXME: Use platform-specific http implementation
-  Client() : _client = http.Client();
-
-  /// Cleanup resource associated with this client.
-  ///
-  /// After calling [close], this client can no longer be used.
-  void close() {
-    _client.close();
-  }
+  ApiRepository({
+    required http.Client transport,
+    required this.baseUrl,
+    required String authToken,
+  }) : _authToken = authToken, _client = transport;
 
   /// Send a request to the server.
   ///
@@ -73,7 +66,7 @@ class Client {
       '$baseUrl$path',
     ).replace(queryParameters: queryParameters);
 
-    final cookie = Cookie('__Host-doi-auth', authToken);
+    final cookie = Cookie('__Host-doi-auth', _authToken);
 
     final req = http.AbortableRequest(method, url, abortTrigger: abortTrigger);
     req.headers['cookie'] = cookie.toString();
@@ -81,6 +74,8 @@ class Client {
     req.headers['user-agent'] = '';
 
     if (body != null) {
+      assert(method.toLowerCase() != 'get', 'Get request cannot contain body');
+
       req.headers['content-type'] = 'application/json';
       req.body = jsonEncode(body);
     }
