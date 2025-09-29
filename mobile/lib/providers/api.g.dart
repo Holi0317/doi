@@ -13,8 +13,13 @@ part of 'api.dart';
 const apiRepositoryProvider = ApiRepositoryProvider._();
 
 final class ApiRepositoryProvider
-    extends $FunctionalProvider<ApiRepository, ApiRepository, ApiRepository>
-    with $Provider<ApiRepository> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<ApiRepository>,
+          ApiRepository,
+          FutureOr<ApiRepository>
+        >
+    with $FutureModifier<ApiRepository>, $FutureProvider<ApiRepository> {
   const ApiRepositoryProvider._()
     : super(
         from: null,
@@ -31,24 +36,17 @@ final class ApiRepositoryProvider
 
   @$internal
   @override
-  $ProviderElement<ApiRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $FutureProviderElement<ApiRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  ApiRepository create(Ref ref) {
+  FutureOr<ApiRepository> create(Ref ref) {
     return apiRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ApiRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ApiRepository>(value),
-    );
   }
 }
 
-String _$apiRepositoryHash() => r'ff8b7b26fc321ef042bcef58bc898de56adf5c32';
+String _$apiRepositoryHash() => r'b8abb8216e2b0c342d43666dbb89307c4e590515';
 
 @ProviderFor(search)
 const searchProvider = SearchFamily._();
@@ -105,7 +103,7 @@ final class SearchProvider
   }
 }
 
-String _$searchHash() => r'82717a276c53679a308c2376fd987f6b464bebfd';
+String _$searchHash() => r'eb217c5c21b3f5bce2181c52f5d9841b493f0130';
 
 final class SearchFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<SearchResponse>, SearchQuery> {

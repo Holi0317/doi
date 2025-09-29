@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/link_tile.dart';
+import '../components/settings_dialog.dart';
 import '../models/link.dart';
 import '../models/search_query.dart';
 import '../providers/api.dart';
@@ -24,6 +25,20 @@ class HomeScreen extends ConsumerWidget {
           preferredSize: Size.fromHeight(6.0),
           child: val.isLoading ? LinearProgressIndicator() : Container(),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Show Settings dialog',
+            onPressed: () async {
+              await showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return SettingsDialog();
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(searchProvider(SearchQuery()).future),

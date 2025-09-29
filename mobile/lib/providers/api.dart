@@ -5,17 +5,21 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/search_query.dart';
 import '../models/search_response.dart';
 import '../repositories/api.dart';
+import './shared_preferences.dart';
 import 'http.dart';
 
 part 'api.g.dart';
 
 @riverpod
-ApiRepository apiRepository(Ref ref) {
+Future<ApiRepository> apiRepository(Ref ref) async {
   final httpClient = ref.watch(httpClientProvider);
 
+  final apiUrl = await ref.watch(apiUrlPreferenceProvider.future);
+  final apiToken = await ref.watch(apiTokenPreferenceProvider.future);
+
   final client = ApiRepository(
-    baseUrl: 'http://100.66.229.117:8787/api',
-    authToken: '86ed8dece3ba61d2',
+    baseUrl: apiUrl,
+    authToken: apiToken,
     transport: httpClient,
   );
 
@@ -31,6 +35,6 @@ Future<void> _abortTrigger(Ref ref) {
 
 @riverpod
 Future<SearchResponse> search(Ref ref, SearchQuery query) async {
-  final client = ref.watch(apiRepositoryProvider);
+  final client = await ref.watch(apiRepositoryProvider.future);
   return client.search(query, abortTrigger: _abortTrigger(ref));
 }
