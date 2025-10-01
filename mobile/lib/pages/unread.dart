@@ -11,7 +11,7 @@ class UnreadPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadSearchQuery = SearchQuery();
+    final unreadSearchQuery = const SearchQuery();
     final asyncValue = ref.watch(searchProvider(unreadSearchQuery));
 
     return Scaffold(

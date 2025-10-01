@@ -13,7 +13,7 @@ class SettingsPage extends StatelessWidget {
           await showDialog<void>(
             context: context,
             builder: (BuildContext context) {
-              return SettingsDialog();
+              return const SettingsDialog();
             },
           );
         },
