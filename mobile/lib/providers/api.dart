@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mobile/providers/extensions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/search_query.dart';
@@ -26,15 +27,8 @@ Future<ApiRepository> apiRepository(Ref ref) async {
   return client;
 }
 
-/// Create an abortTrigger for http library from riverpod [Ref].
-Future<void> _abortTrigger(Ref ref) {
-  final completer = Completer<void>();
-  ref.onDispose(completer.complete);
-  return completer.future;
-}
-
 @riverpod
 Future<SearchResponse> search(Ref ref, SearchQuery query) async {
   final client = await ref.watch(apiRepositoryProvider.future);
-  return client.search(query, abortTrigger: _abortTrigger(ref));
+  return client.search(query, abortTrigger: ref.abortTrigger());
 }
