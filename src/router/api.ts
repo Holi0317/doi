@@ -1,8 +1,9 @@
 import { Hono } from "hono";
+import * as z from "zod";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session";
-import { getHTMLTitle } from "../composable/scraper";
+import { getHTMLTitle, getSocialImageUrl } from "../composable/scraper";
 import { useKy } from "../composable/http";
 import { encodeCursor } from "../composable/cursor";
 import {
@@ -11,9 +12,39 @@ import {
   InsertBodySchema,
   SearchQuerySchema,
 } from "../schemas";
+import * as zu from "../zod-utils";
+import { fetchImage } from "../composable/image";
 
 const app = new Hono<Env>({ strict: false })
   .use(requireSession("throw"))
+
+  .get("/image", zv("query", z.object({ url: zu.httpUrl() })), async (c) => {
+    // FIXME: Guard this endpoint by user agent so we are not recursively
+    // scraping image.
+
+    const { url } = c.req.valid("query");
+
+    // Create a cache key based on the URL
+    const cacheKey = new URL(url);
+    const cache = caches.default;
+
+    // Try to get from cache first
+    const response = await cache.match(cacheKey);
+    if (response) {
+      return response;
+    }
+
+    // Fetch and extract image URL from the page
+    const ky = useKy(c);
+    const imageUrl = await getSocialImageUrl(ky, url);
+
+    const imageResp = await fetchImage(ky, imageUrl);
+
+    // Store in cache
+    await cache.put(cacheKey, imageResp.clone());
+
+    return imageResp;
+  })
 
   .get("/item/:id", zv("param", IDStringSchema), async (c) => {
     const stub = await getStorageStub(c);
@@ -79,6 +110,7 @@ const app = new Hono<Env>({ strict: false })
 
     return c.json(inserted, 201);
   })
+
   .post("/edit", zv("json", EditBodySchema), async (c) => {
     const stub = await getStorageStub(c);
 

@@ -15,6 +15,49 @@ export const unixEpochMs = () =>
   });
 
 /**
+ * URL validation that only allows http or https protocols.
+ *
+ * This also normalize the URL, then strip hash, authentication and tracking
+ * parameters from the URL.
+ */
+export function httpUrl() {
+  return z
+    .url({
+      protocol: /^https?$/,
+      hostname: z.regexes.domain,
+      normalize: true,
+    })
+    .transform((val) => {
+      const url = new URL(val);
+
+      url.hash = "";
+      url.username = "";
+      url.password = "";
+
+      const trackingParams = [
+        // UTM / Google Analytics
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_term",
+        "utm_content",
+        // Youtube
+        "si",
+        // Instagram
+        "igshid",
+      ];
+
+      const searchParams = url.searchParams;
+      for (const key of trackingParams) {
+        searchParams.delete(key);
+      }
+      url.search = searchParams.toString();
+
+      return url.toString();
+    });
+}
+
+/**
  * Type for boolean in query parameter. Input data type has to be a string or
  * undefined.
  *
