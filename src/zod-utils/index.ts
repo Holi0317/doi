@@ -15,6 +15,19 @@ export const unixEpochMs = () =>
   });
 
 /**
+ * URL validation that only allows http or https protocols.
+ *
+ * This is a reusable URL validator that ensures only http/https URLs are accepted.
+ */
+export function httpUrl() {
+  return z.url({
+    protocol: /^https?$/,
+    hostname: z.regexes.domain,
+    normalize: true,
+  });
+}
+
+/**
  * Type for boolean in query parameter. Input data type has to be a string or
  * undefined.
  *

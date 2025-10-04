@@ -12,16 +12,17 @@ import {
   SearchQuerySchema,
 } from "../schemas";
 import * as z from "zod";
+import * as zu from "../zod-utils";
 
 const app = new Hono<Env>({ strict: false })
   .get(
     "/image",
-    zv("query", z.object({ url: z.string().url() })),
+    zv("query", z.object({ url: zu.httpUrl() })),
     async (c) => {
       const { url } = c.req.valid("query");
 
       // Create a cache key based on the URL
-      const cacheKey = new URL(c.req.url);
+      const cacheKey = new URL(url);
       const cache = caches.default;
 
       // Try to get from cache first

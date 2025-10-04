@@ -63,12 +63,8 @@ export const InsertBodySchema = z.object({
     .array(
       z.object({
         title: z.string().nullish(),
-        url: z
-          .url({
-            protocol: /^https?$/,
-            hostname: z.regexes.domain,
-            normalize: true,
-          })
+        url: zu
+          .httpUrl()
           .transform((val) => {
             const url = new URL(val);
 
