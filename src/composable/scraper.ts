@@ -73,3 +73,85 @@ export async function getHTMLTitle(
 
   return unescape(title.join("").trim());
 }
+
+/**
+ * Get image preview URL from HTML meta tags.
+ *
+ * This function scrapes the given URL as HTML and tries to extract image preview
+ * URLs from meta tags. It supports:
+ * - Open Graph Protocol (og:image): https://ogp.me/
+ * - Twitter Cards (twitter:image): https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup
+ *
+ * If the we cannot fetch the page because of network error, or the page does
+ * not have any image meta tags, this will return null.
+ *
+ * This will still parse HTML document that contains error (>= 400) HTTP status
+ * code.
+ */
+export async function getHTMLImagePreview(
+  ky: KyInstance,
+  url: string,
+): Promise<string | null> {
+  // ky's response object is actually subclass of Response
+  let resp: Response;
+
+  // Set end-to-end (including reading header and body) timeout with this signal.
+  const signal = AbortSignal.timeout(TIMEOUT);
+
+  try {
+    resp = await ky.get(url, {
+      throwHttpErrors: false,
+      retry: 0,
+      signal,
+    });
+  } catch (err) {
+    console.warn(`Failed to fetch url ${url}`, err);
+    return null;
+  }
+
+  let imageUrl: string | null = null;
+
+  // Use HTMLRewriter to parse meta tags
+  const rewriter = new HTMLRewriter();
+  rewriter.on("head>meta", {
+    element(element) {
+      // Check for og:image
+      const property = element.getAttribute("property");
+      if (property === "og:image") {
+        const content = element.getAttribute("content");
+        if (content && !imageUrl) {
+          imageUrl = content;
+        }
+      }
+
+      // Check for twitter:image
+      const name = element.getAttribute("name");
+      if (name === "twitter:image") {
+        const content = element.getAttribute("content");
+        if (content && !imageUrl) {
+          imageUrl = content;
+        }
+      }
+    },
+  });
+
+  // Kickstart the transform, then consume the body to /dev/null.
+  // Consuming the body is necessary to make sure HTMLRewriter callbacks got
+  // called.
+  try {
+    await rewriter.transform(resp)?.body?.pipeTo(new WritableStream(), {
+      signal,
+    });
+  } catch (err) {
+    // No need to check on `imageUrl` or return anything special on error. Just return
+    // whatever we've got in the buffer afterwards.
+
+    if (err instanceof DOMException && err.name === "AbortError") {
+      console.warn(`Body read timeout for url ${url}`);
+    } else {
+      console.warn(`Error when reading url body from ${url}`, err);
+    }
+  }
+
+  return imageUrl;
+}
