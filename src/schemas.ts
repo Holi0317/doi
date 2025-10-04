@@ -63,36 +63,7 @@ export const InsertBodySchema = z.object({
     .array(
       z.object({
         title: z.string().nullish(),
-        url: zu
-          .httpUrl()
-          .transform((val) => {
-            const url = new URL(val);
-
-            url.hash = "";
-            url.username = "";
-            url.password = "";
-
-            const trackingParams = [
-              // UTM / Google Analytics
-              "utm_source",
-              "utm_medium",
-              "utm_campaign",
-              "utm_term",
-              "utm_content",
-              // Youtube
-              "si",
-              // Instagram
-              "igshid",
-            ];
-
-            const searchParams = url.searchParams;
-            for (const key of trackingParams) {
-              searchParams.delete(key);
-            }
-            url.search = searchParams.toString();
-
-            return url.toString();
-          }),
+        url: zu.httpUrl(),
       }),
     )
     .min(1, { error: "At least must have an item" })

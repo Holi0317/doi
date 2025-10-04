@@ -1,13 +1,13 @@
 import type { KyInstance } from "ky";
 import { unescape } from "@std/html/entities";
 
+/**
+ * Global timeout for scraping requests, in ms.
+ */
 const TIMEOUT = 5000;
 
 /**
- * Fetch HTML from URL and process it with HTMLRewriter.
- *
- * This helper function handles the common pattern of fetching a URL,
- * processing the response with HTMLRewriter, and handling errors.
+ * Fetch HTML from URL and process it with {@link HTMLRewriter}.
  */
 async function processHTML(
   ky: KyInstance,
@@ -30,6 +30,8 @@ async function processHTML(
     console.warn(`Failed to fetch url ${url}`, err);
     return;
   }
+
+  // FIXME: Validate content-type is html. If not, do a resp.body.cancel
 
   // Kickstart the transform, then consume the body to /dev/null.
   // Consuming the body is necessary to make sure HTMLRewriter callbacks got
@@ -77,9 +79,6 @@ export async function getHTMLTitle(
       // Push text fragment to buffer, because HTMLRewriter pipes text in stream
       // to us. See https://developers.cloudflare.com/workers/runtime-apis/html-rewriter/#text-chunks
       title.push(text.text);
-
-      // Actually we can abort the controller (body read) when `text.lastInTextNode`
-      // is true. Maybe we should do that later if it's cheaper.
     },
   });
 
@@ -96,36 +95,38 @@ export async function getHTMLTitle(
  * - Open Graph Protocol (og:image): https://ogp.me/
  * - Twitter Cards (twitter:image): https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup
  *
+ * When more than one matching tags exists, this will return the last parsed
+ * tags, regardless of which meta tags format used.
+ *
  * If the we cannot fetch the page because of network error, or the page does
  * not have any image meta tags, this will return null.
  *
  * This will still parse HTML document that contains error (>= 400) HTTP status
  * code.
  */
-export async function getHTMLImagePreview(
+export async function getSocialImageUrl(
   ky: KyInstance,
   url: string,
-): Promise<string | null> {
+): Promise<URL | null> {
   let imageUrl: string | null = null;
 
-  // Use HTMLRewriter to parse meta tags
   const rewriter = new HTMLRewriter();
   rewriter.on("head>meta", {
     element(element) {
-      // Check for og:image
+      // Check for og:image. Like <meta property="og:image" content="img_link">
       const property = element.getAttribute("property");
       if (property === "og:image") {
         const content = element.getAttribute("content");
-        if (content && !imageUrl) {
+        if (content != null) {
           imageUrl = content;
         }
       }
 
-      // Check for twitter:image
+      // Check for twitter:image. Like <meta name="twitter:image" content="img_link">
       const name = element.getAttribute("name");
       if (name === "twitter:image") {
         const content = element.getAttribute("content");
-        if (content && !imageUrl) {
+        if (content != null) {
           imageUrl = content;
         }
       }
@@ -134,5 +135,15 @@ export async function getHTMLImagePreview(
 
   await processHTML(ky, url, rewriter);
 
-  return imageUrl;
+  if (imageUrl == null) {
+    return null;
+  }
+
+  try {
+    // FIXME: Validate schema and regex?
+    return new URL(imageUrl);
+  } catch {
+    console.warn("Cannot parse image tag as URL", imageUrl);
+    return null;
+  }
 }

@@ -78,7 +78,7 @@ describe("Image preview API", () => {
     expect(await resp.text()).toEqual("fake-twitter-image");
   });
 
-  it("should prefer og:image over twitter:image", async () => {
+  it("should prefer the last image tag", async () => {
     const client = await createTestClient();
 
     // Mock the HTML page with both meta tags
@@ -96,12 +96,12 @@ describe("Image preview API", () => {
         </html>`,
       );
 
-    // Mock the image fetch (only og:image should be requested)
+    // Mock the image fetch
     fetchMock
       .get("https://example.com")
-      .intercept({ path: "/og-image.jpg", method: "get" })
-      .reply(200, "og-image-data", {
-        headers: { "Content-Type": "image/jpeg" },
+      .intercept({ path: "/twitter-image.png", method: "get" })
+      .reply(200, "twitter-image-data", {
+        headers: { "Content-Type": "image/png" },
       });
 
     const resp = await client.api.image.$get({
@@ -109,7 +109,8 @@ describe("Image preview API", () => {
     });
 
     expect(resp.status).toEqual(200);
-    expect(await resp.text()).toEqual("og-image-data");
+    expect(resp.headers.get("Content-Type")).toEqual("image/png");
+    expect(await resp.text()).toEqual("twitter-image-data");
   });
 
   it("should return 404 when no image meta tags are present", async () => {
@@ -148,7 +149,7 @@ describe("Image preview API", () => {
     expect(await resp.text()).toEqual("");
   });
 
-  it("should return 404 when the image URL cannot be fetched", async () => {
+  async function testReturn404() {
     const client = await createTestClient();
 
     // Mock the HTML page with og:image
@@ -165,14 +166,35 @@ describe("Image preview API", () => {
         </html>`,
       );
 
-    // Image fetch fails
-    // Don't mock the image URL so it fails to fetch
-
     const resp = await client.api.image.$get({
       query: { url: "https://example.com/page" },
     });
 
     expect(resp.status).toEqual(404);
     expect(await resp.text()).toEqual("");
+  }
+
+  it("should return 404 when the image URL returns 500", async () => {
+    // Image fetch fails
+    fetchMock
+      .get("https://example.com")
+      .intercept({ path: "/broken-image.jpg", method: "get" })
+      .reply(500, "xxx", {
+        headers: { "Content-Type": "image/png" },
+      });
+
+    await testReturn404();
+  });
+
+  it("should return 404 when the image URL returns non image/* content-type", async () => {
+    // Image fetch fails
+    fetchMock
+      .get("https://example.com")
+      .intercept({ path: "/broken-image.jpg", method: "get" })
+      .reply(200, "xxx", {
+        headers: { "Content-Type": "application/zip" },
+      });
+
+    await testReturn404();
   });
 });
