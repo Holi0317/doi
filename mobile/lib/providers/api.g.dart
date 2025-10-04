@@ -122,3 +122,134 @@ final class SearchFamily extends $Family
   @override
   String toString() => r'searchProvider';
 }
+
+/// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
+///
+/// [query] is the query for first page. After that, this provider will fetch pages with given [cursors] parameter.
+/// Widget should keep a list of cursors that needs to be fetched. You can get the cursor from `state.keys!.last`.
+/// Make sure to check that cursor as non-empty string. The page might be in loading or error state and we use empty
+/// string here as filler. This provider will assert that all cursors are non-empty string.
+///
+/// WARN: [cursors] list must be immutable for riverpod's change detection to work.
+
+@ProviderFor(searchPaginated)
+const searchPaginatedProvider = SearchPaginatedFamily._();
+
+/// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
+///
+/// [query] is the query for first page. After that, this provider will fetch pages with given [cursors] parameter.
+/// Widget should keep a list of cursors that needs to be fetched. You can get the cursor from `state.keys!.last`.
+/// Make sure to check that cursor as non-empty string. The page might be in loading or error state and we use empty
+/// string here as filler. This provider will assert that all cursors are non-empty string.
+///
+/// WARN: [cursors] list must be immutable for riverpod's change detection to work.
+
+final class SearchPaginatedProvider
+    extends
+        $FunctionalProvider<
+          PagingState<String, Link>,
+          PagingState<String, Link>,
+          PagingState<String, Link>
+        >
+    with $Provider<PagingState<String, Link>> {
+  /// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
+  ///
+  /// [query] is the query for first page. After that, this provider will fetch pages with given [cursors] parameter.
+  /// Widget should keep a list of cursors that needs to be fetched. You can get the cursor from `state.keys!.last`.
+  /// Make sure to check that cursor as non-empty string. The page might be in loading or error state and we use empty
+  /// string here as filler. This provider will assert that all cursors are non-empty string.
+  ///
+  /// WARN: [cursors] list must be immutable for riverpod's change detection to work.
+  const SearchPaginatedProvider._({
+    required SearchPaginatedFamily super.from,
+    required (SearchQuery, List<String>) super.argument,
+  }) : super(
+         retry: null,
+         name: r'searchPaginatedProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$searchPaginatedHash();
+
+  @override
+  String toString() {
+    return r'searchPaginatedProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<PagingState<String, Link>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PagingState<String, Link> create(Ref ref) {
+    final argument = this.argument as (SearchQuery, List<String>);
+    return searchPaginated(ref, argument.$1, argument.$2);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PagingState<String, Link> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PagingState<String, Link>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SearchPaginatedProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$searchPaginatedHash() => r'f30ea55a6c4236730106c98e02f6adef5f56b3dc';
+
+/// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
+///
+/// [query] is the query for first page. After that, this provider will fetch pages with given [cursors] parameter.
+/// Widget should keep a list of cursors that needs to be fetched. You can get the cursor from `state.keys!.last`.
+/// Make sure to check that cursor as non-empty string. The page might be in loading or error state and we use empty
+/// string here as filler. This provider will assert that all cursors are non-empty string.
+///
+/// WARN: [cursors] list must be immutable for riverpod's change detection to work.
+
+final class SearchPaginatedFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          PagingState<String, Link>,
+          (SearchQuery, List<String>)
+        > {
+  const SearchPaginatedFamily._()
+    : super(
+        retry: null,
+        name: r'searchPaginatedProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
+  ///
+  /// [query] is the query for first page. After that, this provider will fetch pages with given [cursors] parameter.
+  /// Widget should keep a list of cursors that needs to be fetched. You can get the cursor from `state.keys!.last`.
+  /// Make sure to check that cursor as non-empty string. The page might be in loading or error state and we use empty
+  /// string here as filler. This provider will assert that all cursors are non-empty string.
+  ///
+  /// WARN: [cursors] list must be immutable for riverpod's change detection to work.
+
+  SearchPaginatedProvider call(SearchQuery query, List<String> cursors) =>
+      SearchPaginatedProvider._(argument: (query, cursors), from: this);
+
+  @override
+  String toString() => r'searchPaginatedProvider';
+}
