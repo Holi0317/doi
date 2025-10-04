@@ -7,6 +7,7 @@ import 'package:mobile/models/search_query.dart';
 import '../providers/api.dart';
 import '../providers/combine.dart';
 import 'link_tile.dart';
+import 'link_tile_shimmer.dart';
 
 class LinkList extends ConsumerStatefulWidget {
   const LinkList({super.key, required this.query});
@@ -49,6 +50,27 @@ class _LinkListState extends ConsumerState<LinkList> {
     ref.invalidate(searchProvider);
   }
 
+  /// Build loading indicator for the first page
+  /// Shows shimmer items and prevents scrolling
+  Widget _buildFirstPageLoadingIndicator() {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 10,
+      itemBuilder: (context, index) => const LinkTileShimmer(),
+    );
+  }
+
+  /// Build loading indicator for new pages
+  /// Shows shimmer effect for 3 items
+  Widget _buildNewPageLoadingIndicator() {
+    return Column(
+      children: List.generate(
+        3,
+        (index) => const LinkTileShimmer(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(searchPaginatedProvider(widget.query, _cursors));
@@ -65,8 +87,8 @@ class _LinkListState extends ConsumerState<LinkList> {
         builderDelegate: PagedChildBuilderDelegate(
           itemBuilder: (context, item, index) => LinkTile(item: item),
           animateTransitions: true,
-          // FIXME: Fill in remaining builders/widgets
-          // TODO: Use loading shimmer. See https://docs.flutter.dev/cookbook/effects/shimmer-loading
+          firstPageProgressIndicatorBuilder: (context) => _buildFirstPageLoadingIndicator(),
+          newPageProgressIndicatorBuilder: (context) => _buildNewPageLoadingIndicator(),
         ),
       ),
     );
