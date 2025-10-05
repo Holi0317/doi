@@ -5,6 +5,7 @@ import 'package:mobile/models/link.dart';
 import 'package:mobile/models/search_query.dart';
 
 import '../providers/api.dart';
+import '../providers/combine.dart';
 import 'link_tile.dart';
 
 class LinkList extends ConsumerStatefulWidget {

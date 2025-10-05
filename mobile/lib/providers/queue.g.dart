@@ -1,0 +1,156 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'queue.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// A queue (fifo) of edit operations [EditOp] to be performed when online.
+///
+/// This queue is persisted to sqlite local storage.
+
+@ProviderFor(EditQueue)
+@JsonPersist()
+const editQueueProvider = EditQueueProvider._();
+
+/// A queue (fifo) of edit operations [EditOp] to be performed when online.
+///
+/// This queue is persisted to sqlite local storage.
+@JsonPersist()
+final class EditQueueProvider
+    extends $AsyncNotifierProvider<EditQueue, List<EditOp>> {
+  /// A queue (fifo) of edit operations [EditOp] to be performed when online.
+  ///
+  /// This queue is persisted to sqlite local storage.
+  const EditQueueProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'editQueueProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$editQueueHash();
+
+  @$internal
+  @override
+  EditQueue create() => EditQueue();
+}
+
+String _$editQueueHash() => r'07da1059c78afdc48a359e389cd357f673691f1b';
+
+/// A queue (fifo) of edit operations [EditOp] to be performed when online.
+///
+/// This queue is persisted to sqlite local storage.
+
+@JsonPersist()
+abstract class _$EditQueueBase extends $AsyncNotifier<List<EditOp>> {
+  FutureOr<List<EditOp>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<AsyncValue<List<EditOp>>, List<EditOp>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<EditOp>>, List<EditOp>>,
+              AsyncValue<List<EditOp>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+/// Map view for [EditQueue].
+
+@ProviderFor(editQueueById)
+const editQueueByIdProvider = EditQueueByIdProvider._();
+
+/// Map view for [EditQueue].
+
+final class EditQueueByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<int, List<EditOp>>>,
+          Map<int, List<EditOp>>,
+          FutureOr<Map<int, List<EditOp>>>
+        >
+    with
+        $FutureModifier<Map<int, List<EditOp>>>,
+        $FutureProvider<Map<int, List<EditOp>>> {
+  /// Map view for [EditQueue].
+  const EditQueueByIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'editQueueByIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$editQueueByIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<int, List<EditOp>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<int, List<EditOp>>> create(Ref ref) {
+    return editQueueById(ref);
+  }
+}
+
+String _$editQueueByIdHash() => r'6f076ed9dc435cccbcae4eea38cf31fa3e79b2e4';
+
+// **************************************************************************
+// JsonGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+abstract class _$EditQueue extends _$EditQueueBase {
+  /// The default key used by [persist].
+  String get key {
+    const resolvedKey = "EditQueue";
+    return resolvedKey;
+  }
+
+  /// A variant of [persist], for JSON-specific encoding.
+  ///
+  /// You can override [key] to customize the key used for storage.
+  PersistResult persist(
+    FutureOr<Storage<String, String>> storage, {
+    String? key,
+    String Function(List<EditOp> state)? encode,
+    List<EditOp> Function(String encoded)? decode,
+    StorageOptions options = const StorageOptions(),
+  }) {
+    return NotifierPersistX(this).persist<String, String>(
+      storage,
+      key: key ?? this.key,
+      encode: encode ?? $jsonCodex.encode,
+      decode:
+          decode ??
+          (encoded) {
+            final e = $jsonCodex.decode(encoded);
+            return (e as List)
+                .map((e) => EditOp.fromJson(e as Map<String, Object?>))
+                .toList();
+          },
+      options: options,
+    );
+  }
+}
