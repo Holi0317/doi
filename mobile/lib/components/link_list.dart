@@ -50,24 +50,20 @@ class _LinkListState extends ConsumerState<LinkList> {
     ref.invalidate(searchProvider);
   }
 
-  /// Build loading indicator for the first page
-  /// Shows shimmer items and prevents scrolling
-  Widget _buildFirstPageLoadingIndicator() {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 10,
-      itemBuilder: (context, index) => const LinkTileShimmer(),
+  Widget _buildFirstPageLoadingIndicator(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 1.5,
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 50,
+        itemBuilder: (context, index) => const LinkTileShimmer(),
+      ),
     );
   }
 
-  /// Build loading indicator for new pages
-  /// Shows shimmer effect for 3 items
-  Widget _buildNewPageLoadingIndicator() {
+  Widget _buildNewPageLoadingIndicator(BuildContext context) {
     return Column(
-      children: List.generate(
-        3,
-        (index) => const LinkTileShimmer(),
-      ),
+      children: List.generate(3, (index) => const LinkTileShimmer()),
     );
   }
 
@@ -87,8 +83,8 @@ class _LinkListState extends ConsumerState<LinkList> {
         builderDelegate: PagedChildBuilderDelegate(
           itemBuilder: (context, item, index) => LinkTile(item: item),
           animateTransitions: true,
-          firstPageProgressIndicatorBuilder: (context) => _buildFirstPageLoadingIndicator(),
-          newPageProgressIndicatorBuilder: (context) => _buildNewPageLoadingIndicator(),
+          firstPageProgressIndicatorBuilder: _buildFirstPageLoadingIndicator,
+          newPageProgressIndicatorBuilder: _buildNewPageLoadingIndicator,
         ),
       ),
     );
