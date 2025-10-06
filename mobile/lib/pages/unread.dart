@@ -9,7 +9,7 @@ class UnreadPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadSearchQuery = const SearchQuery();
+    final unreadSearchQuery = const SearchQuery(archive: false);
 
     return Scaffold(
       appBar: AppBar(
