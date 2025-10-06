@@ -7,6 +7,7 @@ import 'package:mobile/models/search_query.dart';
 import '../providers/api.dart';
 import '../providers/combine.dart';
 import 'link_tile.dart';
+import 'link_tile_shimmer.dart';
 
 class LinkList extends ConsumerStatefulWidget {
   const LinkList({super.key, required this.query});
@@ -49,6 +50,23 @@ class _LinkListState extends ConsumerState<LinkList> {
     ref.invalidate(searchProvider);
   }
 
+  Widget _buildFirstPageLoadingIndicator(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 1.5,
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 50,
+        itemBuilder: (context, index) => const LinkTileShimmer(),
+      ),
+    );
+  }
+
+  Widget _buildNewPageLoadingIndicator(BuildContext context) {
+    return Column(
+      children: List.generate(3, (index) => const LinkTileShimmer()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(searchPaginatedProvider(widget.query, _cursors));
@@ -65,8 +83,8 @@ class _LinkListState extends ConsumerState<LinkList> {
         builderDelegate: PagedChildBuilderDelegate(
           itemBuilder: (context, item, index) => LinkTile(item: item),
           animateTransitions: true,
-          // FIXME: Fill in remaining builders/widgets
-          // TODO: Use loading shimmer. See https://docs.flutter.dev/cookbook/effects/shimmer-loading
+          firstPageProgressIndicatorBuilder: _buildFirstPageLoadingIndicator,
+          newPageProgressIndicatorBuilder: _buildNewPageLoadingIndicator,
         ),
       ),
     );

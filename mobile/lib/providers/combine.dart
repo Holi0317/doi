@@ -102,11 +102,14 @@ PagingState<String, Link> searchPaginated(
       .map((q) => ref.watch(searchAppliedProvider(q)))
       .toList();
 
+  final loaded = values.map((v) => v.value).nonNulls.toList();
+
   return PagingState(
     isLoading: values.any((v) => v.isLoading),
     hasNextPage: values.last.value?.hasMore ?? false,
     error: values.where((v) => v.error != null).firstOrNull?.error,
-    pages: values.map((v) => v.value?.items ?? []).toList(),
-    keys: values.map((v) => v.value?.cursor ?? '').toList(),
+    // pages and keys need to be null for first page loading state
+    pages: loaded.isEmpty ? null : loaded.map((v) => v.items).toList(),
+    keys: loaded.isEmpty ? null : loaded.map(((v) => v.cursor ?? '')).toList(),
   );
 }
