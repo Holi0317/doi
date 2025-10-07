@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import * as z from "zod";
+import pLimit from "p-limit";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session";
@@ -14,6 +15,7 @@ import {
 } from "../schemas";
 import * as zu from "../zod-utils";
 import { fetchImage } from "../composable/image";
+import { REQUEST_CONCURRENCY } from "./constants";
 
 const app = new Hono<Env>({ strict: false })
   .use(requireSession("throw"))
@@ -88,23 +90,23 @@ const app = new Hono<Env>({ strict: false })
 
     const body = c.req.valid("json");
 
-    const resolved = await Promise.all(
-      body.items.map(async (item) => {
-        if (item.title) {
-          return {
-            title: item.title,
-            url: item.url,
-          };
-        }
+    const limit = pLimit(REQUEST_CONCURRENCY);
 
-        const title = await getHTMLTitle(ky, item.url);
-
+    const resolved = await limit.map(body.items, async (item) => {
+      if (item.title) {
         return {
-          title: title.substring(0, 512),
+          title: item.title,
           url: item.url,
         };
-      }),
-    );
+      }
+
+      const title = await getHTMLTitle(ky, item.url);
+
+      return {
+        title: title.substring(0, 512),
+        url: item.url,
+      };
+    });
 
     const inserted = await stub.insert(resolved);
 

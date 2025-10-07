@@ -67,7 +67,14 @@ export const InsertBodySchema = z.object({
       }),
     )
     .min(1, { error: "At least must have an item" })
-    .max(100, { error: "At most 100 items per request" }),
+    // See https://developers.cloudflare.com/workers/platform/limits/
+    // Free worker can only have at most 50 subrequests. This counts other
+    // feature like session management before fetching title from url.
+    // Choosing 30 here so we are not gonna blow through the subrequests limit.
+    //
+    // If you are using workers paid and needs to bump this limit, open an issue.
+    // I'll figure out how to make this limit dynamic base on actual limit in runtime.
+    .max(30, { error: "At most 30 items per request" }),
 });
 
 export const EditOpSchema = z.discriminatedUnion("op", [
