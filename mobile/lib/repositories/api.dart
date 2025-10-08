@@ -35,11 +35,19 @@ class ApiRepository {
   final String baseUrl;
   final String _authToken;
 
+  /// HTTP headers for requests.
+  late final Map<String, String> headers = Map.unmodifiable({
+    'cookie': Cookie('__Host-doi-auth', _authToken).toString(),
+    // FIXME: Add version
+    'user-agent': 'doi-mobile',
+  });
+
   ApiRepository({
     required http.Client transport,
     required this.baseUrl,
     required String authToken,
-  }) : _authToken = authToken, _client = transport;
+  }) : _authToken = authToken,
+       _client = transport;
 
   /// Send a request to the server.
   ///
@@ -66,12 +74,8 @@ class ApiRepository {
       '$baseUrl$path',
     ).replace(queryParameters: queryParameters);
 
-    final cookie = Cookie('__Host-doi-auth', _authToken);
-
     final req = http.AbortableRequest(method, url, abortTrigger: abortTrigger);
-    req.headers['cookie'] = cookie.toString();
-    // FIXME: What's our agent?
-    req.headers['user-agent'] = '';
+    req.headers.addAll(headers);
 
     if (body != null) {
       assert(method.toLowerCase() != 'get', 'Get request cannot contain body');
@@ -151,5 +155,18 @@ class ApiRepository {
         abortTrigger: abortTrigger,
       );
     }
+  }
+
+  /// Get url for requesting image preview for a link.
+  ///
+  /// This does not download the image, just returns the URL. Mainly for use in `Image.network` or similar widgets.
+  ///
+  /// The URL still needs authentication headers. Pass in [headers] into the widget responsible for making the HTTP request.
+  String imageUrl(String url) {
+    final uri = Uri.parse(
+      '$baseUrl/image',
+    ).replace(queryParameters: {'url': url});
+
+    return uri.toString();
   }
 }

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/edit_op.dart';
 import '../models/link.dart';
+import 'link_image_preview.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree }
 
@@ -69,10 +70,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
             widget.item.title.isEmpty ? uri.toString() : widget.item.title,
           ),
           subtitle: Text(uri.host),
-          leading: Image.network(
-            // FIXME: Use proper preview image
-            "https://github.blog/wp-content/uploads/2025/08/copilot-wallpaper-generic-logo-header.png",
-          ),
+          leading: LinkImagePreview(item: widget.item),
           onTap: _open,
         ),
       ),

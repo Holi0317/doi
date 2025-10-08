@@ -187,7 +187,7 @@ final class SearchPaginatedProvider
   }
 }
 
-String _$searchPaginatedHash() => r'8a0da3bbca2248dcd22da08dc37fa1a51260a19a';
+String _$searchPaginatedHash() => r'c8cca0b1f6b610125b8d33edc0e2a27d1aa47472';
 
 /// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
 ///
