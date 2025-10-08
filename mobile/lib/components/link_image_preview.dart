@@ -5,19 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/link.dart';
 import '../providers/api.dart';
 import '../repositories/api.dart';
+import './shimmer.dart';
 
-class LinkImagePreview extends ConsumerStatefulWidget {
+class LinkImagePreview extends ConsumerWidget {
   const LinkImagePreview({super.key, required this.item});
 
   final Link item;
 
   @override
-  ConsumerState<LinkImagePreview> createState() => _LinkImagePreviewState();
-}
-
-class _LinkImagePreviewState extends ConsumerState<LinkImagePreview> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final apiRepository = ref.watch(apiRepositoryProvider);
 
     return LayoutBuilder(
@@ -36,10 +32,23 @@ class _LinkImagePreviewState extends ConsumerState<LinkImagePreview> {
               height,
             ),
             AsyncValue(error: != null) => const Icon(Icons.error),
-            AsyncValue() => const Center(child: CircularProgressIndicator()),
+            AsyncValue() => _buildShimmer(context, width, height),
           },
         );
       },
+    );
+  }
+
+  Widget _buildShimmer(BuildContext context, double width, double height) {
+    return Shimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
     );
   }
 
@@ -49,15 +58,14 @@ class _LinkImagePreviewState extends ConsumerState<LinkImagePreview> {
     double width,
     double height,
   ) {
-    final imageUrl = api.imageUrl(widget.item.url);
+    final imageUrl = api.imageUrl(item.url);
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
       httpHeaders: api.headers,
       width: width,
       height: height,
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
+      placeholder: (context, url) => _buildShimmer(context, width, height),
       errorWidget: (context, url, error) => const SizedBox.shrink(),
     );
   }
