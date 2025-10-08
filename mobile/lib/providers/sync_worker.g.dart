@@ -10,29 +10,30 @@ part of 'sync_worker.dart';
 // ignore_for_file: type=lint, type=warning
 /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 
-@ProviderFor(SyncWorker)
-const syncWorkerProvider = SyncWorkerProvider._();
+@ProviderFor(EditSyncWorker)
+const editSyncWorkerProvider = EditSyncWorkerProvider._();
 
 /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
-final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
+final class EditSyncWorkerProvider
+    extends $NotifierProvider<EditSyncWorker, int> {
   /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
-  const SyncWorkerProvider._()
+  const EditSyncWorkerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'syncWorkerProvider',
+        name: r'editSyncWorkerProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$syncWorkerHash();
+  String debugGetCreateSourceHash() => _$editSyncWorkerHash();
 
   @$internal
   @override
-  SyncWorker create() => SyncWorker();
+  EditSyncWorker create() => EditSyncWorker();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(int value) {
@@ -43,11 +44,11 @@ final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
   }
 }
 
-String _$syncWorkerHash() => r'92f35088e237840b7333b0b40884188d19e32033';
+String _$editSyncWorkerHash() => r'0eda67951b22a16409166f5a58562e8f9df51b13';
 
 /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 
-abstract class _$SyncWorker extends $Notifier<int> {
+abstract class _$EditSyncWorker extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override

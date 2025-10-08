@@ -10,7 +10,7 @@ part 'sync_worker.g.dart';
 
 /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 @riverpod
-class SyncWorker extends _$SyncWorker {
+class EditSyncWorker extends _$EditSyncWorker {
   bool _isProcessing = false;
 
   final log = Logger('SyncWorker');
