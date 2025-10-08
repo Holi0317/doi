@@ -24,10 +24,23 @@ class EditQueue extends _$EditQueue {
     return List.unmodifiable(state.value ?? const []);
   }
 
-  Future<void> add(EditOp op) async {
+  void add(EditOp op) {
     state = AsyncValue.data(
       List.unmodifiable([...state.value ?? const [], op]),
     );
+  }
+
+  /// Pops [length] items from the front of the queue.
+  ///
+  /// If [length] is 0, does nothing.
+  /// If [length] is greater than the length of the queue, raise [RangeError].
+  void pop(int length) {
+    if (length == 0) {
+      return;
+    }
+
+    final val = state.value ?? const [];
+    state = AsyncValue.data(List.unmodifiable(val.slice(length).toList()));
   }
 }
 

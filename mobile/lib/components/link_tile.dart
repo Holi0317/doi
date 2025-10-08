@@ -127,7 +127,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
 
   Future<void> _archive() async {
     final queue = ref.read(editQueueProvider.notifier);
-    await queue.add(
+    queue.add(
       EditOp.set(field: EditOpField.archive, id: widget.item.id, value: true),
     );
   }
