@@ -1,3 +1,5 @@
+// FIXME: Token expiration and refresh
+
 import type { Context } from "hono";
 import { deleteCookie, setCookie, getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
@@ -7,10 +9,16 @@ import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
 import dayjs from "dayjs";
 import type { KyInstance } from "ky";
 import type { AccessTokenSchema } from "../gh/oauth_token";
-import { exchangeToken } from "../gh/oauth_token";
 import { getUser } from "../gh/user";
-import { useKy } from "./http";
+import * as zu from "../zod-utils";
 
+/**
+ * Name of the cookie to store session ID.
+ *
+ * Note that the actual cookie name is prefixed with `__Host-` to enforce
+ * secure cookie rules.
+ * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie#cookie_prefixes
+ */
 export const COOKIE_NAME = "doi-auth";
 
 const cookieOpt = {
@@ -21,10 +29,14 @@ const cookieOpt = {
 } as const;
 
 /**
- * Generate session ID
+ * Generate session ID.
+ *
+ * This provides 128 bites (16 bytes) of entropy, which is considered secure
+ * enough according to OWASP recommendation of 64 bits.
+ * See https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#session-id-entropy
  */
 function genSessionID() {
-  return uint8ArrayToHex(crypto.getRandomValues(new Uint8Array(8)));
+  return uint8ArrayToHex(crypto.getRandomValues(new Uint8Array(16)));
 }
 
 /**
@@ -41,7 +53,15 @@ async function hashSessionID(sessID: string) {
   return uint8ArrayToHex(toUint8Array(hash));
 }
 
+/**
+ * Schema for session data stored in KV.
+ */
 export const SessionSchema = z.object({
+  /**
+   * Source of the user / IdP provider. Currently this is always "github".
+   *
+   * In the future we may support other providers and use this field as discriminator.
+   */
   source: z.literal("github"),
   uid: z.string(),
   name: z.string(),
@@ -50,7 +70,7 @@ export const SessionSchema = z.object({
   /**
    * Time for access token to expire, in milliseconds since epoch
    */
-  accessTokenExpire: z.number(),
+  accessTokenExpire: zu.unixEpochMs(),
   refreshToken: z.string().optional(),
 });
 
@@ -152,56 +172,10 @@ export async function getSession(
     return null;
   }
 
-  const sess = await refreshSession(c, parsed.data);
-  if (sess == null) {
-    await deleteSession(c);
-    return null;
-  }
-
-  // Update session expiration and content if changed.
-  // No need to set cookie here, we didn't change the session ID
-  // Relies on the fact that refreshSession returns the same object if not changed
-  if (sess !== parsed.data) {
-    await storeSession(c.env, sess, dayjs().add(7, "day"));
-  }
-
   // Cache/memorize session for this request
-  c.set("session", sess);
+  c.set("session", parsed.data);
 
-  return sess;
-}
-
-/**
- * Refresh session if expired.
- *
- * @param sess Current session
- * @returns Existing session (Object.is equal) if not changed/expired;
- * null if refresh failed;
- * new session object if refreshed.
- */
-async function refreshSession(
-  c: Context<Env>,
-  sess: z.output<typeof SessionSchema>,
-): Promise<z.output<typeof SessionSchema> | null> {
-  if (sess.accessTokenExpire >= Date.now()) {
-    // Not expired yet.
-    return sess;
-  }
-
-  const ky = useKy(c);
-
-  console.info("Session expired, trying to refresh", sess.uid);
-
-  if (sess.refreshToken == null) {
-    // FIXME: Try verify access token here, and extend session if valid
-    // Assuming our github app got refresh token enabled for now.
-    return null;
-  }
-
-  const tokens = await exchangeToken(c, ky, sess.refreshToken, "refresh");
-  const newSess = await makeSessionContent(ky, tokens);
-
-  return newSess;
+  return parsed.data;
 }
 
 /**
