@@ -93,7 +93,13 @@ class _LinkTileState extends ConsumerState<LinkTile>
         ),
         subtitle: Row(
           children: [
-            Text(uri.host),
+            Flexible(
+              child: Text(
+                uri.host,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (widget.item.favorite)
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
