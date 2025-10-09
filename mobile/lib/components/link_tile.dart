@@ -2,13 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobile/providers/queue.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/edit_op.dart';
 import '../models/link.dart';
 import 'link_image_preview.dart';
 
-enum SampleItem { itemOne, itemTwo, itemThree }
+enum LinkAction {
+  // FIXME: Fix the colors. They are super ugly right now
+  archive(Icons.archive, 'Archive', Colors.lime),
+  unarchive(Icons.unarchive, 'Unarchive', Colors.lime),
+  favorite(Icons.favorite, 'Favorite', Colors.lightBlue),
+  unfavorite(Icons.favorite_border, 'Unfavorite', Colors.lightBlue),
+  share(Icons.share, 'Share', Colors.amber),
+  delete(Icons.delete, 'Delete', Colors.red),
+  select(Icons.check, 'Select', Colors.pinkAccent);
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const LinkAction(this.icon, this.label, this.color);
+
+  PopupMenuItem<LinkAction> popup() {
+    return PopupMenuItem<LinkAction>(
+      value: this,
+      child: ListTile(leading: Icon(icon), title: Text(label)),
+    );
+  }
+
+  SlidableAction slideable(void Function(BuildContext) onPressed) {
+    return SlidableAction(
+      onPressed: onPressed,
+      backgroundColor: color,
+      foregroundColor: color.computeLuminance() > 0.5
+          ? Colors.black87
+          : Colors.white,
+      icon: icon,
+      label: label,
+    );
+  }
+}
 
 class LinkTile extends ConsumerStatefulWidget {
   const LinkTile({super.key, required this.item});
@@ -38,74 +73,68 @@ class _LinkTileState extends ConsumerState<LinkTile>
       key: ValueKey(widget.item.id),
       controller: controller,
 
-      endActionPane: ActionPane(
+      startActionPane: ActionPane(
         motion: const ScrollMotion(),
         extentRatio: 0.2,
 
-        // FIXME: Archive animation
-        // FIXME: Only allow archive if query is filtering for unarchived items
-        dismissible: DismissiblePane(onDismissed: _archive),
-
         children: [
-          SlidableAction(
-            onPressed: (context) => _archive(),
-            backgroundColor: Colors.lime,
-            foregroundColor: Colors.black87,
-            icon: Icons.archive,
-            label: 'Archive',
-          ),
+          if (widget.item.favorite)
+            LinkAction.unfavorite.slideable(
+              (context) => _edit(EditOpField.favorite, false),
+            )
+          else
+            LinkAction.favorite.slideable(
+              (context) => _edit(EditOpField.favorite, true),
+            ),
         ],
       ),
 
-      child: GestureDetector(
-        onLongPressStart: (details) {
-          Feedback.forLongPress(context);
-          _showContextMenu(context, details.globalPosition);
-        },
-        onSecondaryTapDown: (details) {
-          _showContextMenu(context, details.globalPosition);
-        },
-        child: ListTile(
-          title: Text(
-            widget.item.title.isEmpty ? uri.toString() : widget.item.title,
-          ),
-          subtitle: Text(uri.host),
-          leading: LinkImagePreview(item: widget.item),
-          onTap: _open,
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: 0.4,
+
+        // FIXME: Only allow archive if query is filtering for unarchived items
+        dismissible: DismissiblePane(
+          onDismissed: () => _edit(EditOpField.archive, true),
         ),
+
+        children: [
+          // FIXME: Icon animation....?
+          LinkAction.share.slideable((context) => _share()),
+          if (widget.item.archive)
+            LinkAction.unarchive.slideable(
+              (context) => _edit(EditOpField.archive, false),
+            )
+          else
+            LinkAction.archive.slideable(
+              (context) => _edit(EditOpField.archive, true),
+            ),
+        ],
+      ),
+
+      child: ListTile(
+        title: Text(
+          widget.item.title.isEmpty ? uri.toString() : widget.item.title,
+        ),
+        subtitle: Row(
+          children: [
+            Text(uri.host),
+            if (widget.item.favorite)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Icon(
+                  Icons.favorite,
+                  color: Colors.pink,
+                  size: Theme.of(context).textTheme.bodyMedium!.fontSize,
+                ),
+              ),
+          ],
+        ),
+        leading: LinkImagePreview(item: widget.item),
+        onTap: _open,
+        // TODO: Start selection mode on long press
       ),
     );
-  }
-
-  void _showContextMenu(BuildContext context, Offset globalPosition) async {
-    final overlay = Overlay.of(context).context.findRenderObject();
-    if (overlay == null) return;
-
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(globalPosition, globalPosition),
-      Offset.zero & (overlay as RenderBox).size,
-    );
-
-    final selected = await showMenu<SampleItem>(
-      context: context,
-      position: position,
-      items: [
-        const PopupMenuItem<SampleItem>(
-          value: SampleItem.itemOne,
-          child: Text('Item 1'),
-        ),
-        const PopupMenuItem<SampleItem>(
-          value: SampleItem.itemTwo,
-          child: Text('Item 2'),
-        ),
-        const PopupMenuItem<SampleItem>(
-          value: SampleItem.itemThree,
-          child: Text('Item 3'),
-        ),
-      ],
-    );
-
-    // TODO: Handle selected item command
   }
 
   Future<void> _open() async {
@@ -125,10 +154,12 @@ class _LinkTileState extends ConsumerState<LinkTile>
     await controller.openEndActionPane();
   }
 
-  Future<void> _archive() async {
+  Future<void> _edit(EditOpField field, bool value) async {
     final queue = ref.read(editQueueProvider.notifier);
-    queue.add(
-      EditOp.set(field: EditOpField.archive, id: widget.item.id, value: true),
-    );
+    queue.add(EditOp.set(field: field, id: widget.item.id, value: value));
+  }
+
+  Future<void> _share() async {
+    await SharePlus.instance.share(ShareParams(uri: uri));
   }
 }
