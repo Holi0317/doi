@@ -25,8 +25,12 @@ class EditQueue extends _$EditQueue {
   }
 
   void add(EditOp op) {
+    addAll([op]);
+  }
+
+  void addAll(Iterable<EditOp> ops) {
     state = AsyncValue.data(
-      List.unmodifiable([...state.value ?? const [], op]),
+      List.unmodifiable([...state.value ?? const [], ...ops]),
     );
   }
 

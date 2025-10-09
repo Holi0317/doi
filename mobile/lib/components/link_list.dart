@@ -10,10 +10,17 @@ import 'link_tile.dart';
 import 'link_tile_shimmer.dart';
 
 class LinkList extends ConsumerStatefulWidget {
-  const LinkList({super.key, required this.query});
+  const LinkList({
+    super.key,
+    required this.query,
+    required this.selection,
+    required this.onSelectionChanged,
+  });
 
   /// SearchQuery for the first page
   final SearchQuery query;
+  final Set<int> selection;
+  final void Function(Set<int>) onSelectionChanged;
 
   @override
   ConsumerState<LinkList> createState() => _LinkListState();
@@ -21,6 +28,17 @@ class LinkList extends ConsumerStatefulWidget {
 
 class _LinkListState extends ConsumerState<LinkList> {
   List<String> _cursors = const [];
+
+  void _setSelection(int id, bool selected) {
+    final next = widget.selection.toSet();
+    if (selected) {
+      next.add(id);
+    } else {
+      next.remove(id);
+    }
+
+    widget.onSelectionChanged(next);
+  }
 
   void _fetchNextPage(PagingState<String, Link> state) {
     if (state.isLoading) {
@@ -71,20 +89,33 @@ class _LinkListState extends ConsumerState<LinkList> {
   Widget build(BuildContext context) {
     final state = ref.watch(searchPaginatedProvider(widget.query, _cursors));
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        _refresh();
+    return PopScope(
+      canPop: widget.selection.isEmpty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          widget.onSelectionChanged(const {});
+        }
       },
-      child: PagedListView<String, Link>(
-        state: state,
-        fetchNextPage: () {
-          _fetchNextPage(state);
+      child: RefreshIndicator(
+        onRefresh: () async {
+          _refresh();
         },
-        builderDelegate: PagedChildBuilderDelegate(
-          itemBuilder: (context, item, index) => LinkTile(item: item),
-          animateTransitions: true,
-          firstPageProgressIndicatorBuilder: _buildFirstPageLoadingIndicator,
-          newPageProgressIndicatorBuilder: _buildNewPageLoadingIndicator,
+        child: PagedListView<String, Link>(
+          state: state,
+          fetchNextPage: () {
+            _fetchNextPage(state);
+          },
+          builderDelegate: PagedChildBuilderDelegate(
+            itemBuilder: (context, item, index) => LinkTile(
+              item: item,
+              selecting: widget.selection.isNotEmpty,
+              selected: widget.selection.contains(item.id),
+              onSelect: (selected) => _setSelection(item.id, selected),
+            ),
+            animateTransitions: true,
+            firstPageProgressIndicatorBuilder: _buildFirstPageLoadingIndicator,
+            newPageProgressIndicatorBuilder: _buildNewPageLoadingIndicator,
+          ),
         ),
       ),
     );

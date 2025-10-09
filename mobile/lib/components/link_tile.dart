@@ -7,48 +7,22 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/edit_op.dart';
 import '../models/link.dart';
+import '../models/link_action.dart';
 import 'link_image_preview.dart';
 
-enum LinkAction {
-  // FIXME: Fix the colors. They are super ugly right now
-  archive(Icons.archive, 'Archive', Colors.lime),
-  unarchive(Icons.unarchive, 'Unarchive', Colors.lime),
-  favorite(Icons.favorite, 'Favorite', Colors.lightBlue),
-  unfavorite(Icons.favorite_border, 'Unfavorite', Colors.lightBlue),
-  share(Icons.share, 'Share', Colors.amber),
-  delete(Icons.delete, 'Delete', Colors.red),
-  select(Icons.check, 'Select', Colors.pinkAccent);
-
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const LinkAction(this.icon, this.label, this.color);
-
-  PopupMenuItem<LinkAction> popup() {
-    return PopupMenuItem<LinkAction>(
-      value: this,
-      child: ListTile(leading: Icon(icon), title: Text(label)),
-    );
-  }
-
-  SlidableAction slideable(void Function(BuildContext) onPressed) {
-    return SlidableAction(
-      onPressed: onPressed,
-      backgroundColor: color,
-      foregroundColor: color.computeLuminance() > 0.5
-          ? Colors.black87
-          : Colors.white,
-      icon: icon,
-      label: label,
-    );
-  }
-}
-
 class LinkTile extends ConsumerStatefulWidget {
-  const LinkTile({super.key, required this.item});
+  const LinkTile({
+    super.key,
+    required this.item,
+    this.selecting = false,
+    this.selected = false,
+    this.onSelect,
+  });
 
   final Link item;
+  final bool selecting;
+  final bool selected;
+  final void Function(bool selected)? onSelect;
 
   @override
   ConsumerState<LinkTile> createState() => _LinkTileState();
@@ -72,6 +46,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
     return Slidable(
       key: ValueKey(widget.item.id),
       controller: controller,
+      enabled: !widget.selecting,
 
       startActionPane: ActionPane(
         motion: const ScrollMotion(),
@@ -130,8 +105,28 @@ class _LinkTileState extends ConsumerState<LinkTile>
               ),
           ],
         ),
+        selected: widget.selected,
+        selectedColor: Theme.of(context).colorScheme.onSurface,
+        selectedTileColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.2),
         leading: LinkImagePreview(item: widget.item),
-        onTap: _open,
+        trailing: widget.selecting
+            ? Checkbox(value: widget.selected, onChanged: null)
+            : null,
+        onTap: () {
+          if (widget.selecting) {
+            widget.onSelect?.call(!widget.selected);
+            return;
+          }
+
+          _open();
+        },
+        onLongPress: widget.selecting
+            ? null
+            : () {
+                widget.onSelect?.call(true);
+              },
         // TODO: Start selection mode on long press
       ),
     );
