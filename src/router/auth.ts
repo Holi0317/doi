@@ -1,10 +1,14 @@
 import { Hono } from "hono";
 import dayjs from "dayjs";
 import * as z from "zod";
-import { deleteSession, getSession, setSession } from "../composable/session";
+import {
+  deleteSession,
+  getSession,
+  makeSessionContent,
+  setSession,
+} from "../composable/session";
 import { zv } from "../composable/validator";
-import { getUser } from "../gh/user";
-import { oauthToken } from "../gh/oauth_token";
+import { exchangeToken } from "../gh/oauth_token";
 import { useKy } from "../composable/http";
 import { getAuthorizeUrl } from "../gh/authorize";
 
@@ -32,21 +36,13 @@ const app = new Hono<Env>({ strict: false })
 
       const ky = useKy(c);
 
-      const access_token = await oauthToken(c, ky, code);
-      const userInfo = await getUser(ky, access_token);
+      const tokens = await exchangeToken(c, ky, code, "login");
+      const now = dayjs();
+      const expire = now.add(7, "day");
 
-      const expire = dayjs().add(7, "days");
+      const sess = await makeSessionContent(ky, tokens);
 
-      await setSession(
-        c,
-        {
-          source: "github",
-          uid: userInfo.id.toString(),
-          name: userInfo.name || userInfo.login,
-          avatar_url: userInfo.avatar_url,
-        },
-        expire,
-      );
+      await setSession(c, sess, expire);
 
       return c.redirect("/");
     },

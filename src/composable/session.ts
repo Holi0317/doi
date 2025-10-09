@@ -4,7 +4,12 @@ import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import * as z from "zod";
 import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
-import type dayjs from "dayjs";
+import dayjs from "dayjs";
+import type { KyInstance } from "ky";
+import type { AccessTokenSchema } from "../gh/oauth_token";
+import { exchangeToken } from "../gh/oauth_token";
+import { getUser } from "../gh/user";
+import { useKy } from "./http";
 
 export const COOKIE_NAME = "doi-auth";
 
@@ -40,7 +45,13 @@ export const SessionSchema = z.object({
   source: z.literal("github"),
   uid: z.string(),
   name: z.string(),
-  avatar_url: z.string(),
+  avatarUrl: z.string(),
+  accessToken: z.string(),
+  /**
+   * Time for access token to expire, in milliseconds since epoch
+   */
+  accessTokenExpire: z.number(),
+  refreshToken: z.string().optional(),
 });
 
 /**
@@ -94,7 +105,10 @@ export async function deleteSession(c: Context<Env>) {
  *
  * When this returns some value, the session has been validated.
  *
- * This function is cached/memorized.
+ * When the session has expired, this will try to refresh the access token if available.
+ * If refresh failed, the session will be deleted and null is returned.
+ *
+ * This function is cached/memorized if session isn't null.
  *
  * @see {requireSession} Middleware for requiring session
  * @see {mustSession} For getting session without handling null case
@@ -138,9 +152,78 @@ export async function getSession(
     return null;
   }
 
-  c.set("session", parsed.data);
+  const sess = await refreshSession(c, parsed.data);
+  if (sess == null) {
+    await deleteSession(c);
+    return null;
+  }
 
-  return parsed.data;
+  // Update session expiration and content if changed.
+  // No need to set cookie here, we didn't change the session ID
+  // Relies on the fact that refreshSession returns the same object if not changed
+  if (sess !== parsed.data) {
+    await storeSession(c.env, sess, dayjs().add(7, "day"));
+  }
+
+  // Cache/memorize session for this request
+  c.set("session", sess);
+
+  return sess;
+}
+
+/**
+ * Refresh session if expired.
+ *
+ * @param sess Current session
+ * @returns Existing session (Object.is equal) if not changed/expired;
+ * null if refresh failed;
+ * new session object if refreshed.
+ */
+async function refreshSession(
+  c: Context<Env>,
+  sess: z.output<typeof SessionSchema>,
+): Promise<z.output<typeof SessionSchema> | null> {
+  if (sess.accessTokenExpire >= Date.now()) {
+    // Not expired yet.
+    return sess;
+  }
+
+  const ky = useKy(c);
+
+  console.info("Session expired, trying to refresh", sess.uid);
+
+  if (sess.refreshToken == null) {
+    // FIXME: Try verify access token here, and extend session if valid
+    // Assuming our github app got refresh token enabled for now.
+    return null;
+  }
+
+  const tokens = await exchangeToken(c, ky, sess.refreshToken, "refresh");
+  const newSess = await makeSessionContent(ky, tokens);
+
+  return newSess;
+}
+
+/**
+ * Exchange access token info to session content.
+ */
+export async function makeSessionContent(
+  ky: KyInstance,
+  tokens: z.output<typeof AccessTokenSchema>,
+): Promise<z.output<typeof SessionSchema>> {
+  const now = dayjs();
+
+  const userInfo = await getUser(ky, tokens.access_token);
+  return {
+    source: "github",
+    uid: userInfo.id.toString(),
+    name: userInfo.name || userInfo.login,
+    avatarUrl: userInfo.avatar_url,
+    accessToken: tokens.access_token,
+    // Refresh after 8 hours, even if the GitHub app turned off token expiration.
+    accessTokenExpire: now.add(8, "hour").valueOf(),
+    refreshToken: tokens.refresh_token,
+  };
 }
 
 /**
@@ -175,7 +258,7 @@ export async function mustSession(c: Context<Env>) {
   const sess = await getSession(c);
   if (sess == null) {
     console.warn(
-      "Got null session in `mustSession`. Did the route forget `requreSession` middleware?",
+      "Got null session in `mustSession`. Did the route forget `requireSession` middleware?",
     );
 
     throw new HTTPException(401, { message: "Unauthenticated" });

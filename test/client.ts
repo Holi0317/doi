@@ -7,15 +7,20 @@ import type { AppType } from "../src/router";
 export type ClientType = ReturnType<typeof hc<AppType>>;
 
 export async function createTestClient() {
+  const expire = dayjs().add(1, "day");
+
   const sessID = await storeSession(
     env,
     {
-      avatar_url: "",
+      avatarUrl: "",
       name: "testing user",
       source: "github",
       uid: "1",
+      accessToken: "gho_test_token",
+      accessTokenExpire: expire.valueOf(),
+      refreshToken: "ghr_test_token",
     },
-    dayjs().add(1, "day"),
+    expire,
   );
 
   return hc<AppType>("http://example.com", {
