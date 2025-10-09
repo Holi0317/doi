@@ -9,7 +9,12 @@ import importPlugin from "eslint-plugin-import-x";
 
 export default tseslint.config(
   {
-    ignores: ["dist/", "node_modules/", ".wrangler/"],
+    ignores: [
+      "dist/",
+      "node_modules/",
+      ".wrangler/",
+      "worker-configuration.d.ts",
+    ],
   },
   {
     plugins: {
