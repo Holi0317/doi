@@ -3,7 +3,7 @@ import * as z from "zod";
 import pLimit from "p-limit";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
-import { requireSession } from "../composable/session";
+import { getSession, requireSession } from "../composable/session";
 import { getHTMLTitle, getSocialImageUrl } from "../composable/scraper";
 import { useKy } from "../composable/http";
 import { encodeCursor } from "../composable/cursor";
@@ -18,6 +18,27 @@ import { fetchImage } from "../composable/image";
 import { REQUEST_CONCURRENCY } from "./constants";
 
 const app = new Hono<Env>({ strict: false })
+  /**
+   * Version check / user info endpoint
+   */
+  .get("/", async (c) => {
+    const sess = await getSession(c);
+
+    return c.json({
+      // This name is used for client to probe and verify the correct API endpoint.
+      name: "doi",
+      version: c.env.CF_VERSION_METADATA,
+      session:
+        sess == null
+          ? null
+          : {
+              source: sess.source,
+              name: sess.name,
+              login: sess.login,
+              avatarUrl: sess.avatarUrl,
+            },
+    });
+  })
   .use(requireSession("throw"))
 
   .get("/image", zv("query", z.object({ url: zu.httpUrl() })), async (c) => {

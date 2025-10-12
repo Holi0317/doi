@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/search_query.dart';
 import '../models/search_response.dart';
+import '../models/server_info.dart';
 import '../repositories/api.dart';
 import './shared_preferences.dart';
 import 'http.dart';
@@ -25,6 +26,12 @@ Future<ApiRepository> apiRepository(Ref ref) async {
   );
 
   return client;
+}
+
+@riverpod
+Future<ServerInfo> serverInfo(Ref ref) async {
+  final client = await ref.watch(apiRepositoryProvider.future);
+  return client.info(abortTrigger: ref.abortTrigger());
 }
 
 @riverpod

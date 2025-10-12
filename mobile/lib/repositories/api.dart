@@ -9,6 +9,7 @@ import 'package:mobile/models/search_response.dart';
 import '../models/edit_op.dart';
 import '../models/insert_item.dart';
 import '../models/link.dart';
+import '../models/server_info.dart';
 
 class RequestException implements Exception {
   final String path;
@@ -37,7 +38,8 @@ class ApiRepository {
 
   /// HTTP headers for requests.
   late final Map<String, String> headers = Map.unmodifiable({
-    'cookie': Cookie('__Host-doi-auth', _authToken).toString(),
+    if (_authToken.isNotEmpty)
+      'cookie': Cookie('__Host-doi-auth', _authToken).toString(),
     // FIXME: Add version
     'user-agent': 'doi-mobile',
   });
@@ -97,6 +99,14 @@ class ApiRepository {
     }
 
     return resp;
+  }
+
+  Future<ServerInfo> info({Future<void>? abortTrigger}) async {
+    final resp = await _request('GET', '/', abortTrigger: abortTrigger);
+
+    final responseBodyString = await resp.stream.bytesToString();
+    final jsonResponse = jsonDecode(responseBodyString);
+    return ServerInfo.fromJson(jsonResponse as Map<String, dynamic>);
   }
 
   /// Insert link into server.

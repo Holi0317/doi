@@ -65,6 +65,7 @@ export const SessionSchema = z.object({
   source: z.literal("github"),
   uid: z.string(),
   name: z.string(),
+  login: z.string(),
   avatarUrl: z.string(),
   accessToken: z.string(),
   /**
@@ -192,6 +193,7 @@ export async function makeSessionContent(
     source: "github",
     uid: userInfo.id.toString(),
     name: userInfo.name || userInfo.login,
+    login: userInfo.login,
     avatarUrl: userInfo.avatar_url,
     accessToken: tokens.access_token,
     // Refresh after 8 hours, even if the GitHub app turned off token expiration.
