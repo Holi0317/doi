@@ -16,8 +16,12 @@ part 'api.g.dart';
 Future<ApiRepository> apiRepository(Ref ref) async {
   final httpClient = ref.watch(httpClientProvider);
 
-  final apiUrl = await ref.watch(apiUrlPreferenceProvider.future);
-  final apiToken = await ref.watch(apiTokenPreferenceProvider.future);
+  final apiUrl = await ref.watch(
+    preferenceProvider(SharedPreferenceKey.apiUrl).future,
+  );
+  final apiToken = await ref.watch(
+    preferenceProvider(SharedPreferenceKey.apiToken).future,
+  );
 
   final client = ApiRepository(
     baseUrl: apiUrl,

@@ -3,40 +3,44 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'shared_preferences.g.dart';
 
+/// Underlying SharedPreferences singleton.
 @riverpod
-Future<SharedPreferences> sharedPreferences(Ref ref) async {
+Future<SharedPreferences> _sharedPreferences(Ref ref) async {
   return SharedPreferences.getInstance();
 }
 
-@riverpod
-class ApiUrlPreference extends _$ApiUrlPreference {
-  @override
-  Future<String> build() async {
-    final prefs = await ref.watch(sharedPreferencesProvider.future);
-    return prefs.getString('api_url') ?? 'http://100.66.229.117:8787/api';
-  }
+/// Keys for SharedPreferences.
+///
+/// Currently only supports String values.
+enum SharedPreferenceKey {
+  apiUrl('api_url', ''), // http://100.66.229.117:8787/api
+  apiToken('api_token', '');
 
-  Future<void> set(String url) async {
-    final prefs = await ref.watch(sharedPreferencesProvider.future);
-    await prefs.setString('api_url', url);
-    // Update the state to notify listeners
-    state = AsyncValue.data(url);
-  }
+  final String key;
+  final String defaultValue;
+
+  const SharedPreferenceKey(this.key, this.defaultValue);
 }
 
 @riverpod
-class ApiTokenPreference extends _$ApiTokenPreference {
+class Preference extends _$Preference {
   @override
-  Future<String> build() async {
-    final prefs = await ref.watch(sharedPreferencesProvider.future);
-    return prefs.getString('api_token') ?? '';
-    // 86ed8dece3ba61d2
+  Future<String> build(SharedPreferenceKey key) async {
+    final prefs = await ref.watch(_sharedPreferencesProvider.future);
+    return prefs.getString(key.key) ?? key.defaultValue;
   }
 
-  Future<void> set(String url) async {
-    final prefs = await ref.watch(sharedPreferencesProvider.future);
-    await prefs.setString('api_token', url);
+  Future<void> set(String value) async {
+    final prefs = await ref.read(_sharedPreferencesProvider.future);
+    await prefs.setString(key.key, value);
     // Update the state to notify listeners
-    state = AsyncValue.data(url);
+    state = AsyncValue.data(value);
+  }
+
+  Future<void> reset() async {
+    final prefs = await ref.read(_sharedPreferencesProvider.future);
+    await prefs.setString(key.key, key.defaultValue);
+    // Update the state to notify listeners
+    state = AsyncValue.data(key.defaultValue);
   }
 }

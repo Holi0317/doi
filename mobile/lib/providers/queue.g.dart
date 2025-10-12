@@ -44,7 +44,7 @@ final class EditQueueProvider
   EditQueue create() => EditQueue();
 }
 
-String _$editQueueHash() => r'195e2750f2769d92f4806ddd2b5a155b27c23088';
+String _$editQueueHash() => r'5e169803bd94750a485d89ebf607cc2c5ca803fe';
 
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///

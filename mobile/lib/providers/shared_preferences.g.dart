@@ -8,11 +8,14 @@ part of 'shared_preferences.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Underlying SharedPreferences singleton.
 
-@ProviderFor(sharedPreferences)
-const sharedPreferencesProvider = SharedPreferencesProvider._();
+@ProviderFor(_sharedPreferences)
+const _sharedPreferencesProvider = _SharedPreferencesProvider._();
 
-final class SharedPreferencesProvider
+/// Underlying SharedPreferences singleton.
+
+final class _SharedPreferencesProvider
     extends
         $FunctionalProvider<
           AsyncValue<SharedPreferences>,
@@ -22,19 +25,20 @@ final class SharedPreferencesProvider
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
-  const SharedPreferencesProvider._()
+  /// Underlying SharedPreferences singleton.
+  const _SharedPreferencesProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'sharedPreferencesProvider',
+        name: r'_sharedPreferencesProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
+  String debugGetCreateSourceHash() => _$_sharedPreferencesHash();
 
   @$internal
   @override
@@ -44,90 +48,90 @@ final class SharedPreferencesProvider
 
   @override
   FutureOr<SharedPreferences> create(Ref ref) {
-    return sharedPreferences(ref);
+    return _sharedPreferences(ref);
   }
 }
 
-String _$sharedPreferencesHash() => r'6c03b929f567eb6f97608f6208b95744ffee3bfd';
+String _$_sharedPreferencesHash() =>
+    r'a20d3a2ec6ca1b476d47637177bb4ce55823fb2e';
 
-@ProviderFor(ApiUrlPreference)
-const apiUrlPreferenceProvider = ApiUrlPreferenceProvider._();
+@ProviderFor(Preference)
+const preferenceProvider = PreferenceFamily._();
 
-final class ApiUrlPreferenceProvider
-    extends $AsyncNotifierProvider<ApiUrlPreference, String> {
-  const ApiUrlPreferenceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'apiUrlPreferenceProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+final class PreferenceProvider
+    extends $AsyncNotifierProvider<Preference, String> {
+  const PreferenceProvider._({
+    required PreferenceFamily super.from,
+    required SharedPreferenceKey super.argument,
+  }) : super(
+         retry: null,
+         name: r'preferenceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  String debugGetCreateSourceHash() => _$apiUrlPreferenceHash();
+  String debugGetCreateSourceHash() => _$preferenceHash();
+
+  @override
+  String toString() {
+    return r'preferenceProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
-  ApiUrlPreference create() => ApiUrlPreference();
-}
+  Preference create() => Preference();
 
-String _$apiUrlPreferenceHash() => r'25368420bd91c52e09a0574e7a0c004f3aa291fc';
-
-abstract class _$ApiUrlPreference extends $AsyncNotifier<String> {
-  FutureOr<String> build();
-  @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<AsyncValue<String>, String>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<String>, String>,
-              AsyncValue<String>,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
+  bool operator ==(Object other) {
+    return other is PreferenceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
   }
 }
 
-@ProviderFor(ApiTokenPreference)
-const apiTokenPreferenceProvider = ApiTokenPreferenceProvider._();
+String _$preferenceHash() => r'37461b5a463325dd022dd8b9c75fb69f20d87830';
 
-final class ApiTokenPreferenceProvider
-    extends $AsyncNotifierProvider<ApiTokenPreference, String> {
-  const ApiTokenPreferenceProvider._()
+final class PreferenceFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          Preference,
+          AsyncValue<String>,
+          String,
+          FutureOr<String>,
+          SharedPreferenceKey
+        > {
+  const PreferenceFamily._()
     : super(
-        from: null,
-        argument: null,
         retry: null,
-        name: r'apiTokenPreferenceProvider',
-        isAutoDispose: true,
+        name: r'preferenceProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  @override
-  String debugGetCreateSourceHash() => _$apiTokenPreferenceHash();
+  PreferenceProvider call(SharedPreferenceKey key) =>
+      PreferenceProvider._(argument: key, from: this);
 
-  @$internal
   @override
-  ApiTokenPreference create() => ApiTokenPreference();
+  String toString() => r'preferenceProvider';
 }
 
-String _$apiTokenPreferenceHash() =>
-    r'7b5668024c2e48aebf9bb809afd3018081555aec';
+abstract class _$Preference extends $AsyncNotifier<String> {
+  late final _$args = ref.$arg as SharedPreferenceKey;
+  SharedPreferenceKey get key => _$args;
 
-abstract class _$ApiTokenPreference extends $AsyncNotifier<String> {
-  FutureOr<String> build();
+  FutureOr<String> build(SharedPreferenceKey key);
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
+    final created = build(_$args);
     final ref = this.ref as $Ref<AsyncValue<String>, String>;
     final element =
         ref.element

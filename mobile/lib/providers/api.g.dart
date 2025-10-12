@@ -46,7 +46,45 @@ final class ApiRepositoryProvider
   }
 }
 
-String _$apiRepositoryHash() => r'b8abb8216e2b0c342d43666dbb89307c4e590515';
+String _$apiRepositoryHash() => r'21919f719df517746b7d37a268d7045d48eb84dd';
+
+@ProviderFor(serverInfo)
+const serverInfoProvider = ServerInfoProvider._();
+
+final class ServerInfoProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ServerInfo>,
+          ServerInfo,
+          FutureOr<ServerInfo>
+        >
+    with $FutureModifier<ServerInfo>, $FutureProvider<ServerInfo> {
+  const ServerInfoProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'serverInfoProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$serverInfoHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<ServerInfo> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ServerInfo> create(Ref ref) {
+    return serverInfo(ref);
+  }
+}
+
+String _$serverInfoHash() => r'b8100684fa0ae47c089a3a5236e0b6bb62db599f';
 
 @ProviderFor(search)
 const searchProvider = SearchFamily._();
