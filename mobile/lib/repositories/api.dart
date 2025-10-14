@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' show Cookie;
 
 import 'package:collection/collection.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/search_query.dart';
 import 'package:mobile/models/search_response.dart';
@@ -35,6 +36,15 @@ class ApiRepository {
   final http.Client _client;
   final String baseUrl;
   final String _authToken;
+
+  /// Event bus for emitting failed request.
+  ///
+  /// For use of global event handling, e.g. logging out user on 401 Unauthorized.
+  ///
+  /// For http level error (by status code), [RequestException] will be emitted.
+  /// For transport level error (eg server unreachable), [http.ClientException] will be emitted.
+  /// JSON parsing error will not be emitted.
+  final eventBus = EventBus();
 
   /// HTTP headers for requests.
   late final Map<String, String> headers = Map.unmodifiable({
@@ -86,19 +96,24 @@ class ApiRepository {
       req.body = jsonEncode(body);
     }
 
-    final resp = await _client.send(req);
+    try {
+      final resp = await _client.send(req);
 
-    if (resp.statusCode >= 400) {
-      final respBody = await resp.stream.bytesToString();
-      throw RequestException(
-        method: method,
-        path: path,
-        body: respBody,
-        statusCode: resp.statusCode,
-      );
+      if (resp.statusCode >= 400) {
+        final respBody = await resp.stream.bytesToString();
+        throw RequestException(
+          method: method,
+          path: path,
+          body: respBody,
+          statusCode: resp.statusCode,
+        );
+      }
+
+      return resp;
+    } catch (err) {
+      eventBus.fire(err);
+      rethrow;
     }
-
-    return resp;
   }
 
   Future<ServerInfo> info({Future<void>? abortTrigger}) async {

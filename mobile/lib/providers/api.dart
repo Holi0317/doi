@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:logging/logging.dart';
 import 'package:mobile/providers/extensions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -30,6 +31,49 @@ Future<ApiRepository> apiRepository(Ref ref) async {
   );
 
   return client;
+}
+
+enum AuthStateEnum { authenticated, unauthenticated, loading }
+
+@riverpod
+class AuthState extends _$AuthState {
+  final _logger = Logger('AuthStateProvider');
+
+  @override
+  AuthStateEnum build() {
+    _watchUnauth();
+    _probe();
+
+    return AuthStateEnum.loading;
+  }
+
+  Future<void> _watchUnauth() async {
+    final client = await ref.watch(apiRepositoryProvider.future);
+
+    final subscription = client.eventBus.on<RequestException>().listen((event) {
+      if (event.statusCode == 401) {
+        _logger.info(
+          "Received 401 Unauthorized response on ${event.method} ${event.path}, marking authState unauthenticated. Body = ${event.body}",
+        );
+        state = AuthStateEnum.unauthenticated;
+      }
+    });
+
+    ref.onDispose(subscription.cancel);
+  }
+
+  Future<void> _probe() async {
+    try {
+      final info = await ref.watch(serverInfoProvider.future);
+
+      state = info.session != null
+          ? AuthStateEnum.authenticated
+          : AuthStateEnum.unauthenticated;
+    } catch (err) {
+      _logger.warning("Failed to fetch server info: $err");
+      state = AuthStateEnum.unauthenticated;
+    }
+  }
 }
 
 @riverpod

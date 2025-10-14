@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/pages/login.dart';
 import 'package:mobile/pages/search.dart';
 import 'package:mobile/pages/settings.dart';
 import 'package:mobile/pages/shell.dart';
@@ -11,7 +12,7 @@ final router = GoRouter(
     GoRoute(
       path: '/login',
       builder: (BuildContext context, GoRouterState state) {
-        return const Text('TODO: Login (init setup) page');
+        return const LoginPage();
       },
     ),
     StatefulShellRoute.indexedStack(
