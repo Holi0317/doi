@@ -49,7 +49,7 @@ final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
   }
 }
 
-String _$syncWorkerHash() => r'40559ec85d1d5b8a48fc878b54c872994aca003c';
+String _$syncWorkerHash() => r'dfeedbff3591cf27afc74ff22b486366faf5f177';
 
 /// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
 ///
@@ -73,3 +73,48 @@ abstract class _$SyncWorker extends $Notifier<int> {
     element.handleValue(ref, created);
   }
 }
+
+/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+
+@ProviderFor(shareQueueBridge)
+const shareQueueBridgeProvider = ShareQueueBridgeProvider._();
+
+/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+
+final class ShareQueueBridgeProvider extends $FunctionalProvider<int, int, int>
+    with $Provider<int> {
+  /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+  const ShareQueueBridgeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shareQueueBridgeProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shareQueueBridgeHash();
+
+  @$internal
+  @override
+  $ProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  int create(Ref ref) {
+    return shareQueueBridge(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$shareQueueBridgeHash() => r'f37779ffcecda7a117a54dbf7e3536e75b89b6e1';

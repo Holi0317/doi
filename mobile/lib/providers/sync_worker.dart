@@ -2,6 +2,8 @@ import 'package:logging/logging.dart';
 import 'package:mobile/providers/api.dart';
 import 'package:mobile/providers/extensions.dart';
 import 'package:mobile/providers/queue.dart';
+import 'package:mobile/providers/share_handler.dart';
+import 'package:mobile/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/edit_op.dart';
@@ -88,6 +90,9 @@ class SyncWorker extends _$SyncWorker {
 
       queue.pop(items.length);
 
+      // Refresh all searches to show the newly inserted items.
+      ref.invalidate(searchProvider);
+
       log.info('Processed ${items.length} InsertItem successfully.');
     } catch (e, st) {
       log.severe('Failed to process InsertItem', e, st);
@@ -95,4 +100,37 @@ class SyncWorker extends _$SyncWorker {
       _insertProcessing = false;
     }
   }
+}
+
+/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+@riverpod
+int shareQueueBridge(Ref ref) {
+  final log = Logger('ShareQueueBridge');
+
+  ref.listen(sharedMediaProvider, (previous, next) {
+    final value = next.value;
+    if (value == null) {
+      return;
+    }
+
+    log.fine('Received and cleaning shared media: $value');
+
+    final content = value.content;
+    if (content == null || content.isEmpty) {
+      log.warning("Received shared media with empty content, ignoring. $value");
+      return;
+    }
+
+    final url = isWebUri(content);
+    if (url == null) {
+      log.warning("Received shared media with invalid URL, ignoring. $value");
+      return;
+    }
+
+    log.info("Inserting shared URL into insert queue: $url");
+
+    ref.read(insertQueueProvider.notifier).add(InsertItem(url: url.toString()));
+  });
+
+  return 1;
 }

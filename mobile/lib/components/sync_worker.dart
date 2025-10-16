@@ -16,6 +16,7 @@ class SyncWorkerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(syncWorkerProvider);
+    ref.watch(shareQueueBridgeProvider);
 
     return child ?? const SizedBox.shrink();
   }
