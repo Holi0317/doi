@@ -8,32 +8,37 @@ part of 'sync_worker.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+///
+/// Value of this provider doesn't matter.
 
-@ProviderFor(EditSyncWorker)
-const editSyncWorkerProvider = EditSyncWorkerProvider._();
+@ProviderFor(SyncWorker)
+const syncWorkerProvider = SyncWorkerProvider._();
 
-/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
-final class EditSyncWorkerProvider
-    extends $NotifierProvider<EditSyncWorker, int> {
-  /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
-  const EditSyncWorkerProvider._()
+/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+///
+/// Value of this provider doesn't matter.
+final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
+  /// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+  ///
+  /// Value of this provider doesn't matter.
+  const SyncWorkerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'editSyncWorkerProvider',
+        name: r'syncWorkerProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$editSyncWorkerHash();
+  String debugGetCreateSourceHash() => _$syncWorkerHash();
 
   @$internal
   @override
-  EditSyncWorker create() => EditSyncWorker();
+  SyncWorker create() => SyncWorker();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(int value) {
@@ -44,11 +49,13 @@ final class EditSyncWorkerProvider
   }
 }
 
-String _$editSyncWorkerHash() => r'0eda67951b22a16409166f5a58562e8f9df51b13';
+String _$syncWorkerHash() => r'40559ec85d1d5b8a48fc878b54c872994aca003c';
 
-/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+///
+/// Value of this provider doesn't matter.
 
-abstract class _$EditSyncWorker extends $Notifier<int> {
+abstract class _$SyncWorker extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override
