@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/components/edit_app_bar.dart';
 import 'package:mobile/components/link_list.dart';
+import 'package:mobile/providers/combine.dart';
+import 'package:mobile/providers/extensions.dart';
 
 import '../models/link_action.dart';
 import '../models/search_query.dart';
 
-class UnreadPage extends StatefulWidget {
+class UnreadPage extends ConsumerStatefulWidget {
   const UnreadPage({super.key});
 
   @override
-  State<UnreadPage> createState() => _UnreadPageState();
+  ConsumerState<UnreadPage> createState() => _UnreadPageState();
 }
 
-class _UnreadPageState extends State<UnreadPage> {
+class _UnreadPageState extends ConsumerState<UnreadPage> {
   Set<int> _selection = {};
   SearchOrder _order = SearchOrder.idDesc;
 
@@ -20,11 +24,21 @@ class _UnreadPageState extends State<UnreadPage> {
   Widget build(BuildContext context) {
     final unreadSearchQuery = SearchQuery(archive: false, order: _order);
 
+    final count = ref.watch(
+      searchAppliedProvider(
+        unreadSearchQuery,
+      ).selectData((data) => NumberFormat.compact().format(data.count)),
+    );
+
     final PreferredSizeWidget appBar = _selection.isEmpty
         ? AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            // FIXME: Add unread count
-            title: const Text('Unread'),
+            title: switch (count) {
+              AsyncValue(:final value?, hasValue: true) => Text(
+                'Unread ($value)',
+              ),
+              _ => const Text('Unread'),
+            },
             actions: [_sortAction(context)],
           )
         : EditAppBar(
