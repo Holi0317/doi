@@ -14,16 +14,18 @@ class UnreadPage extends StatefulWidget {
 
 class _UnreadPageState extends State<UnreadPage> {
   Set<int> _selection = {};
+  SearchOrder _order = SearchOrder.idDesc;
 
   @override
   Widget build(BuildContext context) {
-    final unreadSearchQuery = const SearchQuery(archive: false);
+    final unreadSearchQuery = SearchQuery(archive: false, order: _order);
 
     final PreferredSizeWidget appBar = _selection.isEmpty
         ? AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             // FIXME: Add unread count
             title: const Text('Unread'),
+            actions: [_sortAction(context)],
           )
         : EditAppBar(
             selection: _selection,
@@ -38,6 +40,23 @@ class _UnreadPageState extends State<UnreadPage> {
         selection: _selection,
         onSelectionChanged: _onSelectionChanged,
       ),
+    );
+  }
+
+  Widget _sortAction(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        _order == SearchOrder.idAsc ? Icons.arrow_upward : Icons.arrow_downward,
+      ),
+      tooltip:
+          'Toggle sort order (currently ${_order == SearchOrder.idAsc ? "oldest first" : "newest first"})',
+      onPressed: () {
+        setState(() {
+          _order = _order == SearchOrder.idAsc
+              ? SearchOrder.idDesc
+              : SearchOrder.idAsc;
+        });
+      },
     );
   }
 
