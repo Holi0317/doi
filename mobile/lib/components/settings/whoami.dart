@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:mobile/components/shimmer.dart';
 import 'package:mobile/models/server_info.dart';
 import 'package:mobile/providers/api.dart';
+import 'package:mobile/providers/extensions.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 
 class SettingsWhoami extends ConsumerWidget {
@@ -16,9 +17,7 @@ class SettingsWhoami extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(
-      serverInfoProvider.select(
-        (state) => state.whenData((value) => value.session),
-      ),
+      serverInfoProvider.selectData((value) => value.session),
     );
 
     return Padding(
