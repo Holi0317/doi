@@ -34,6 +34,7 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
         ? AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: switch (count) {
+              // FIXME: Count is inaccurate when there are pending edits in queue.
               AsyncValue(:final value?, hasValue: true) => Text(
                 'Unread ($value)',
               ),
