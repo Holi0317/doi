@@ -33,7 +33,7 @@ Future<ApiRepository> apiRepository(Ref ref) async {
   return client;
 }
 
-enum AuthStateEnum { authenticated, unauthenticated, loading }
+enum AuthStateEnum { authenticated, notConfig, unauthenticated, loading }
 
 @riverpod
 class AuthState extends _$AuthState {
@@ -42,13 +42,19 @@ class AuthState extends _$AuthState {
   @override
   AuthStateEnum build() {
     _watchUnauth();
-    _probe();
 
     return AuthStateEnum.loading;
   }
 
   Future<void> _watchUnauth() async {
     final client = await ref.watch(apiRepositoryProvider.future);
+
+    if (client.baseUrl.isEmpty) {
+      state = AuthStateEnum.notConfig;
+      return;
+    }
+
+    await _probe();
 
     final subscription = client.eventBus.on<RequestException>().listen((event) {
       if (event.statusCode == 401) {

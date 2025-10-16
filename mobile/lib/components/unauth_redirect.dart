@@ -20,7 +20,9 @@ class UnauthRedirect extends ConsumerWidget {
 
     return switch (authState) {
       AuthStateEnum.authenticated => child ?? const SizedBox.shrink(),
-      AuthStateEnum.loading || AuthStateEnum.unauthenticated => const Scaffold(
+      AuthStateEnum.loading ||
+      AuthStateEnum.unauthenticated ||
+      AuthStateEnum.notConfig => const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       ),
     };

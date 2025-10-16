@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/shared_preferences.dart';
 
@@ -43,105 +44,71 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       appBar: AppBar(title: const Text("Login")),
       body: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            TextFormField(
-              controller: _apiUrlController,
-              decoration: InputDecoration(
-                labelText: 'API URL',
-                error: apiUrl.error != null
-                    ? Text(apiUrl.error!.toString())
-                    : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextFormField(
+                controller: _apiUrlController,
+                decoration: InputDecoration(
+                  labelText: 'API URL',
+                  error: apiUrl.error != null
+                      ? Text(apiUrl.error!.toString())
+                      : null,
+                ),
+                enabled: apiUrl.hasValue,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+
+                  // Basic URL validation
+                  final uri = Uri.tryParse(value);
+                  if (uri == null || !uri.isAbsolute) {
+                    return 'Please enter a valid URL';
+                  }
+
+                  return null;
+                },
               ),
-              enabled: apiUrl.hasValue,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a value';
-                }
+              const SizedBox(height: 16),
+              // FIXME: Wizard setup for api token
+              TextFormField(
+                controller: _apiTokenController,
+                decoration: InputDecoration(
+                  labelText: 'Api Token',
+                  error: apiToken.error != null
+                      ? Text(apiToken.error!.toString())
+                      : null,
+                ),
+                enabled: apiToken.hasValue,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
 
-                // Basic URL validation
-                // TODO: Check server info on submit
-                final uri = Uri.tryParse(value);
-                if (uri == null || !uri.isAbsolute) {
-                  return 'Please enter a valid URL';
-                }
-
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _apiTokenController,
-              decoration: InputDecoration(
-                labelText: 'Api Token',
-                error: apiToken.error != null
-                    ? Text(apiToken.error!.toString())
-                    : null,
+                  return null;
+                },
               ),
-              enabled: apiToken.hasValue,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a value';
-                }
-
-                return null;
-              },
-            ),
-          ],
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FilledButton(
+                    style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    onPressed: _submit,
+                    child: const Text('Submit'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
-
-    // actions: <Widget>[
-    //   TextButton(
-    //     style: TextButton.styleFrom(
-    //       textStyle: Theme.of(context).textTheme.labelLarge,
-    //     ),
-    //     child: const Text('Discard'),
-    //     onPressed: () {
-    //       Navigator.of(context).pop();
-    //     },
-    //   ),
-    //   TextButton(
-    //     style: TextButton.styleFrom(
-    //       textStyle: Theme.of(context).textTheme.labelLarge,
-    //     ),
-    //     onPressed: () async {
-    //       // Disable button if loading/error
-    //       if (!_formKey.currentState!.validate()) {
-    //         return;
-    //       }
-    //
-    //       final newUrl = _apiUrlController.text;
-    //       final newToken = _apiTokenController.text;
-    //
-    //       try {
-    //         await ref
-    //             .read(preferenceProvider(SharedPreferenceKey.apiUrl).notifier)
-    //             .set(newUrl);
-    //         await ref
-    //             .read(
-    //               preferenceProvider(SharedPreferenceKey.apiToken).notifier,
-    //             )
-    //             .set(newToken);
-    //
-    //         if (context.mounted) {
-    //           Navigator.of(context).pop();
-    //           ScaffoldMessenger.of(context).showSnackBar(
-    //             const SnackBar(content: Text('Updated setttings!')),
-    //           );
-    //         }
-    //       } catch (e) {
-    //         if (context.mounted) {
-    //           ScaffoldMessenger.of(context).showSnackBar(
-    //             SnackBar(content: Text('Failed to save new settings: $e')),
-    //           );
-    //         }
-    //       }
-    //     },
-    //     child: const Text('Save'),
-    //   ),
-    // ],
   }
 
   Future<void> _submit() async {
@@ -153,6 +120,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final newUrl = _apiUrlController.text;
     final newToken = _apiTokenController.text;
 
+    // TODO: Validate server info on URL
+
     try {
       await ref
           .read(preferenceProvider(SharedPreferenceKey.apiUrl).notifier)
@@ -162,10 +131,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           .set(newToken);
 
       if (context.mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Updated setttings!')));
+        context.go('/unread');
       }
     } catch (e) {
       if (context.mounted) {
