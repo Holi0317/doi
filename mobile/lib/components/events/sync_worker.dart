@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/sync_worker.dart';
+import '../../providers/sync_worker.dart';
 
 /// Flutter widget for [SyncWorker] to keep it alive in the widget tree.
 ///

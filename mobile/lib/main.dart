@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile/app_router.dart';
-import 'package:mobile/components/sync_worker.dart';
+import 'package:mobile/components/events/sync_worker.dart';
 import 'package:mobile/providers/logger_observer.dart';
 import 'package:mobile/repositories/retry.dart';
 

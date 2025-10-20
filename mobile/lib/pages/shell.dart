@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../components/unauth_redirect.dart';
+import '../components/events/unauth_redirect.dart';
 
 class Shell extends StatelessWidget {
   const Shell({required this.navigationShell, super.key});
