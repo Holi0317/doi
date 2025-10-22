@@ -17,12 +17,21 @@ class LinkTile extends ConsumerStatefulWidget {
     required this.item,
     this.selecting = false,
     this.selected = false,
+    this.dismissible = false,
     this.onSelect,
   });
 
   final Link item;
   final bool selecting;
   final bool selected;
+
+  /// If true, the tile can be dismissed and archived by swiping.
+  ///
+  /// IMPORTANT: flutter_slidable expects the item will get removed from the list after dismiss.
+  /// Parent widget must make sure they have `archive: true` in `SearchQuery` to prevent the item from re-appearing.
+  /// Failing to do so will cause error in runtime.
+  final bool dismissible;
+
   final void Function(bool selected)? onSelect;
 
   @override
@@ -80,10 +89,12 @@ class _LinkTileState extends ConsumerState<LinkTile>
         motion: const ScrollMotion(),
         extentRatio: 0.4,
 
-        // FIXME: Only allow archive if query is filtering for unarchived items
-        dismissible: DismissiblePane(
-          onDismissed: () => _edit(EditOpField.archive, true),
-        ),
+        // FIXME: Seems we need 2 ticks to remove item after dismiss, and slidable isn't happy about that.
+        dismissible: widget.dismissible && !widget.item.archive
+            ? DismissiblePane(
+                onDismissed: () => _edit(EditOpField.archive, true),
+              )
+            : null,
 
         children: [
           // FIXME: Icon animation....?
@@ -122,6 +133,16 @@ class _LinkTileState extends ConsumerState<LinkTile>
                   size: Theme.of(context).textTheme.bodyMedium!.fontSize,
                 ),
               ),
+
+            if (widget.item.archive)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Icon(
+                  Icons.archive,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: Theme.of(context).textTheme.bodyMedium!.fontSize,
+                ),
+              ),
           ],
         ),
         selected: widget.selected,
@@ -146,7 +167,6 @@ class _LinkTileState extends ConsumerState<LinkTile>
             : () {
                 widget.onSelect?.call(true);
               },
-        // TODO: Start selection mode on long press
       ),
     );
   }

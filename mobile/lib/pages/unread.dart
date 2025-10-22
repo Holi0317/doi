@@ -63,6 +63,7 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
         appBar: appBar,
         body: LinkList(
           query: unreadSearchQuery,
+          dismissible: true,
           selection: _selection,
           onSelectionChanged: _onSelectionChanged,
         ),

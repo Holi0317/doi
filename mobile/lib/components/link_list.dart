@@ -14,12 +14,16 @@ class LinkList extends ConsumerStatefulWidget {
     super.key,
     required this.query,
     required this.selection,
+    this.dismissible = false,
     required this.onSelectionChanged,
   });
 
   /// SearchQuery for the first page
   final SearchQuery query;
   final Set<int> selection;
+
+  /// See [LinkTile.dismissible].
+  final bool dismissible;
   final void Function(Set<int>) onSelectionChanged;
 
   @override
@@ -108,6 +112,7 @@ class _LinkListState extends ConsumerState<LinkList> {
           builderDelegate: PagedChildBuilderDelegate(
             itemBuilder: (context, item, index) => LinkTile(
               item: item,
+              dismissible: widget.dismissible,
               selecting: widget.selection.isNotEmpty,
               selected: widget.selection.contains(item.id),
               onSelect: (selected) => _setSelection(item.id, selected),
