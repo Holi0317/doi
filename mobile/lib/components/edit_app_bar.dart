@@ -77,7 +77,6 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
       case LinkAction.share:
         throw UnimplementedError();
     }
-    ;
   }
 
   Future<void> _showDeleteDialog(BuildContext context, WidgetRef ref) async {
