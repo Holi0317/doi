@@ -13,7 +13,8 @@ class UnauthRedirect extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
 
     ref.listen(authStateProvider, (previous, next) {
-      if (next == AuthStateEnum.unauthenticated) {
+      if (next == AuthStateEnum.unauthenticated ||
+          next == AuthStateEnum.notConfig) {
         context.go("/login");
       }
     });
