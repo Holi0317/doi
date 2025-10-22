@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/edit_op.dart';
 import '../models/link.dart';
 import '../models/link_action.dart';
+import '../utils.dart';
 import 'link_image_preview.dart';
 
 class LinkTile extends ConsumerStatefulWidget {
@@ -111,6 +112,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            Text(' • ${formatRelativeDate(widget.item.createdAt)}'),
             if (widget.item.favorite)
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
