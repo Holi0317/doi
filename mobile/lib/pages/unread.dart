@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/components/edit_app_bar.dart';
 import 'package:mobile/components/link_list.dart';
+import 'package:mobile/components/reselect.dart';
 import 'package:mobile/providers/combine.dart';
 import 'package:mobile/providers/extensions.dart';
 
@@ -48,12 +49,23 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
             actions: [LinkAction.delete, LinkAction.archive],
           );
 
-    return Scaffold(
-      appBar: appBar,
-      body: LinkList(
-        query: unreadSearchQuery,
-        selection: _selection,
-        onSelectionChanged: _onSelectionChanged,
+    return ReselectListener(
+      onReselect: () {
+        // FIXME(desktop): LinkList is probably isn't a primary scroller on desktop
+        // See https://api.flutter.dev/flutter/widgets/PrimaryScrollController-class.html
+        PrimaryScrollController.of(context).animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      },
+      child: Scaffold(
+        appBar: appBar,
+        body: LinkList(
+          query: unreadSearchQuery,
+          selection: _selection,
+          onSelectionChanged: _onSelectionChanged,
+        ),
       ),
     );
   }
