@@ -42,6 +42,17 @@ class _LinkTileState extends ConsumerState<LinkTile>
   }
 
   @override
+  void didUpdateWidget(LinkTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Close slidable when entering selection mode
+    // Seems that disabling the slidable doesn't close it automatically
+    if (widget.selecting && !oldWidget.selecting && controller.ratio != 0) {
+      controller.close(duration: const Duration());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Slidable(
       key: ValueKey(widget.item.id),
