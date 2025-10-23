@@ -13,6 +13,70 @@ import { getUser } from "../gh/user";
 import * as zu from "../zod-utils";
 
 /**
+ * Valid redirect destinations after authentication.
+ */
+export const REDIRECT_DESTINATIONS = ["/", "/basic", "/admin"] as const;
+
+export type REDIRECT_DESTINATIONS = (typeof REDIRECT_DESTINATIONS)[number];
+
+/**
+ * Zod schema to validate redirect destinations.
+ */
+export const redirectDestinationSchema = z.enum(REDIRECT_DESTINATIONS);
+
+/**
+ * Generate OAuth state token.
+ *
+ * This provides 128 bits (16 bytes) of entropy for CSRF protection.
+ * See https://datatracker.ietf.org/doc/html/rfc6749#section-10.12
+ */
+export function genOAuthState() {
+  return uint8ArrayToHex(crypto.getRandomValues(new Uint8Array(16)));
+}
+
+/**
+ * Store OAuth state and redirect destination in KV.
+ */
+export async function storeOAuthState(
+  env: CloudflareBindings,
+  redirect: REDIRECT_DESTINATIONS,
+) {
+  const state = genOAuthState();
+
+  await env.OAUTH_STATE.put(state, redirect, {
+    expirationTtl: 600, // 10 minutes
+  });
+
+  return state;
+}
+
+/**
+ * Retrieve and delete OAuth state redirect destination from KV.
+ * Returns null if state is invalid or expired.
+ */
+export async function getAndDeleteOAuthState(
+  env: CloudflareBindings,
+  state: string,
+): Promise<REDIRECT_DESTINATIONS | null> {
+  const redirect = await env.OAUTH_STATE.get(state);
+
+  if (!redirect) {
+    return null;
+  }
+
+  // Delete the state after retrieval (one-time use)
+  await env.OAUTH_STATE.delete(state);
+
+  // Validate the redirect is in our whitelist using Zod
+  const validationResult = redirectDestinationSchema.safeParse(redirect);
+  if (!validationResult.success) {
+    return null;
+  }
+
+  return validationResult.data;
+}
+
+/**
  * Name of the cookie to store session ID.
  *
  * Note that the actual cookie name is prefixed with `__Host-` to enforce

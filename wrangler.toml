@@ -22,6 +22,10 @@ class_name = "StorageDO"
 binding = "SESSION"
 id = "b4bad374baa14366a481f67e8c9c09bb"
 
+[[kv_namespaces]]
+binding = "OAUTH_STATE"
+id = "d07d0b6a0c16496d859002eedfa611e9"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["StorageDO"]

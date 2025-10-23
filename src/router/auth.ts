@@ -6,6 +6,9 @@ import {
   getSession,
   makeSessionContent,
   setSession,
+  REDIRECT_DESTINATIONS,
+  storeOAuthState,
+  getAndDeleteOAuthState,
 } from "../composable/session";
 import { zv } from "../composable/validator";
 import { exchangeToken } from "../gh/oauth_token";
@@ -21,18 +24,37 @@ const app = new Hono<Env>({ strict: false })
     await deleteSession(c);
     return c.text("You have been successfully logged out!");
   })
-  .get("/github/login", async (c) => {
-    const authUrl = getAuthorizeUrl(c);
+  .get(
+    "/github/login",
+    zv(
+      "query",
+      z.object({
+        redirect: z.enum(REDIRECT_DESTINATIONS).default("/"),
+      }),
+    ),
+    async (c) => {
+      const { redirect } = c.req.valid("query");
 
-    console.log(`Redirecting to login ${authUrl}`);
+      // Store redirect destination in KV and get state token
+      const state = await storeOAuthState(c.env, redirect);
+      const authUrl = getAuthorizeUrl(c, state);
 
-    return c.redirect(authUrl);
-  })
+      console.log(`Redirecting to login ${authUrl}`);
+
+      return c.redirect(authUrl);
+    },
+  )
   .get(
     "/github/callback",
-    zv("query", z.object({ code: z.string() })),
+    zv("query", z.object({ code: z.string(), state: z.string() })),
     async (c) => {
-      const { code } = c.req.valid("query");
+      const { code, state } = c.req.valid("query");
+
+      // Retrieve redirect destination from KV using state
+      const redirect = await getAndDeleteOAuthState(c.env, state);
+      if (!redirect) {
+        return c.text("Invalid or expired state parameter", 400);
+      }
 
       const ky = useKy(c);
 
@@ -44,7 +66,7 @@ const app = new Hono<Env>({ strict: false })
 
       await setSession(c, sess, expire);
 
-      return c.redirect("/");
+      return c.redirect(redirect);
     },
   );
 
