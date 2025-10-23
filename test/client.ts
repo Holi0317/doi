@@ -14,6 +14,7 @@ export async function createTestClient() {
     {
       avatarUrl: "",
       name: "testing user",
+      login: "testing",
       source: "github",
       uid: "1",
       accessToken: "gho_test_token",
