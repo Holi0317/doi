@@ -93,3 +93,13 @@ export const EditOpSchema = z.discriminatedUnion("op", [
 export const EditBodySchema = z.object({
   op: z.array(EditOpSchema).min(1).max(100),
 });
+
+/**
+ * Query parameters for image preview endpoint
+ */
+export const ImageQuerySchema = z.object({
+  url: zu.httpUrl(),
+  dpr: z.coerce.number().positive().optional(),
+  width: z.coerce.number().positive().optional(),
+  height: z.coerce.number().positive().optional(),
+});

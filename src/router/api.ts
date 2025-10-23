@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import * as z from "zod";
 import pLimit from "p-limit";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
@@ -12,9 +11,10 @@ import {
   IDStringSchema,
   InsertBodySchema,
   SearchQuerySchema,
+  ImageQuerySchema,
 } from "../schemas";
-import * as zu from "../zod-utils";
-import { fetchImage } from "../composable/image";
+import { fetchImage, parseAcceptImageFormat } from "../composable/image";
+import { useCache } from "../composable/cache";
 import { REQUEST_CONCURRENCY } from "./constants";
 
 const app = new Hono<Env>({ strict: false })
@@ -41,32 +41,40 @@ const app = new Hono<Env>({ strict: false })
   })
   .use(requireSession("throw"))
 
-  .get("/image", zv("query", z.object({ url: zu.httpUrl() })), async (c) => {
-    // FIXME: Guard this endpoint by user agent so we are not recursively
-    // scraping image.
+  .get("/image", zv("query", ImageQuerySchema), async (c) => {
+    const { url, dpr, width, height } = c.req.valid("query");
+    const format = parseAcceptImageFormat(c);
 
-    const { url } = c.req.valid("query");
-
-    // Create a cache key based on the URL
+    // Create a cache key based on the URL and parameters
     const cacheKey = new URL(url);
-    const cache = caches.default;
 
-    // Try to get from cache first
-    const response = await cache.match(cacheKey);
-    if (response) {
-      return response;
+    // Override search params for cache key
+    // Adding `x-` prefix to avoid (unlikely) collision with original URL params
+    const override = {
+      "x-dpr": dpr?.toString() || "",
+      "x-width": width?.toString() || "",
+      "x-height": height?.toString() || "",
+      "x-format": format,
+    };
+
+    for (const [key, value] of Object.entries(override)) {
+      if (value) {
+        cacheKey.searchParams.append(key, value);
+      }
     }
 
-    // Fetch and extract image URL from the page
-    const ky = useKy(c);
-    const imageUrl = await getSocialImageUrl(ky, url);
+    return useCache(cacheKey, async () => {
+      // Fetch and extract image URL from the page
+      const ky = useKy(c);
+      const imageUrl = await getSocialImageUrl(ky, url);
 
-    const imageResp = await fetchImage(ky, imageUrl);
-
-    // Store in cache
-    await cache.put(cacheKey, imageResp.clone());
-
-    return imageResp;
+      return await fetchImage(ky, imageUrl, {
+        dpr,
+        width,
+        height,
+        format,
+      });
+    });
   })
 
   .get("/item/:id", zv("param", IDStringSchema), async (c) => {
