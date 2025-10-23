@@ -40,24 +40,23 @@ export function parseAcceptImageFormat(
  * Fetch image from given URL, and transform via Cloudflare Image resizing.
  *
  * In case of failure (non-ok response, non-image response), returns 404 Response with empty body.
- *
- * If `url` is null, returns 404 Response with empty body.
  */
 export async function fetchImage(
   ky: KyInstance,
-  url: URL | null,
+  url: URL,
   options?: FetchImageOptions,
 ): Promise<Response> {
   const notFound = new Response("", { status: 404 });
 
-  if (url == null) {
-    return notFound;
-  }
+  console.info("Fetching image from URL", url.toString());
 
   // Build the cf image options, only including provided parameters
   const resp = await ky.get(url, {
     throwHttpErrors: false,
     cf: {
+      // Not including transform options in cache key.
+      // See https://developers.cloudflare.com/images/transform-images/transform-via-workers/#warning-about-cachekey
+      cacheKey: url.toString(),
       // Transform image base on provided options
       // See https://developers.cloudflare.com/images/transform-images/transform-via-workers/#fetch-options
       image: {

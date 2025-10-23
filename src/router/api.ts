@@ -63,17 +63,35 @@ const app = new Hono<Env>({ strict: false })
       }
     }
 
-    return useCache(cacheKey, async () => {
-      // Fetch and extract image URL from the page
-      const ky = useKy(c);
-      const imageUrl = await getSocialImageUrl(ky, url);
+    const ky = useKy(c);
 
-      return await fetchImage(ky, imageUrl, {
-        dpr,
-        width,
-        height,
-        format,
+    // Abuse useCache for caching extracted social image URL
+    const imageUrlResp = await useCache("image_url", new URL(url), async () => {
+      // Fetch and extract image URL from the page
+      const imageUrl = await getSocialImageUrl(ky, url);
+      const body = imageUrl == null ? "" : imageUrl.toString();
+
+      return new Response(body, {
+        status: 200,
+        headers: {
+          "content-type": "text/plain",
+          // Cache for 24 hours. Maybe I should respect Cache-Control from origin instead?
+          "cache-control": "public, max-age=86400",
+        },
       });
+    });
+
+    const imageUrl = await imageUrlResp.text();
+    if (imageUrl === "") {
+      console.info("No social image found for URL", url);
+      return c.text("", 404);
+    }
+
+    return await fetchImage(ky, new URL(imageUrl), {
+      dpr,
+      width,
+      height,
+      format,
     });
   })
 

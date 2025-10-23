@@ -1,11 +1,16 @@
 /**
  * Use Cloudflare Cache API to cache responses
  *
+ * @param name Name of the cache (passed into caches.open)
  * @param key Cache key
  * @param callback Callback to generate the response if cache miss
  */
-export async function useCache(key: URL, callback: () => Promise<Response>) {
-  const cache = caches.default;
+export async function useCache(
+  name: string,
+  key: URL,
+  callback: () => Promise<Response>,
+) {
+  const cache = await caches.open(name);
 
   // Try to get from cache first
   console.debug("Checking cache item", key.toString());
