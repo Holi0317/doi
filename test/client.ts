@@ -1,7 +1,8 @@
 import { hc } from "hono/client";
 import { env, SELF } from "cloudflare:test";
 import dayjs from "dayjs";
-import { COOKIE_NAME, storeSession } from "../src/composable/session";
+import { storeSession } from "../src/composable/session/cookie";
+import { COOKIE_NAME } from "../src/composable/session/constants";
 import type { AppType } from "../src/router";
 
 export type ClientType = ReturnType<typeof hc<AppType>>;

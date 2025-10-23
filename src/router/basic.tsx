@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import * as z from "zod";
-import { mustSession, requireSession } from "../composable/session";
+import { requireSession } from "../composable/session/middleware";
+import { mustSession } from "../composable/session/cookie";
 import type { EditOpSchema } from "../schemas";
 import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";

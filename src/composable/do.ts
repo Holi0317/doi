@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { mustSession } from "./session";
+import { mustSession } from "./session/cookie";
 
 /**
  * Get storage durable object stub for given session.
