@@ -58,11 +58,22 @@ class LinkImagePreview extends ConsumerWidget {
     double width,
     double height,
   ) {
-    final imageUrl = api.imageUrl(item.url);
+    final imageUrl = api.imageUrl(
+      item.url,
+      dpr: MediaQuery.devicePixelRatioOf(context),
+      width: width,
+      height: height,
+    );
+
+    final headers = {
+      ...api.headers,
+      // Flutter's `Image` widget only supports webp. Doesn't seem to have a way to check if we support avif or not.
+      "Accept": "image/webp,image/jpeg",
+    };
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      httpHeaders: api.headers,
+      httpHeaders: headers,
       width: width,
       height: height,
       placeholder: (context, url) => _buildShimmer(context, width, height),

@@ -187,10 +187,21 @@ class ApiRepository {
   /// This does not download the image, just returns the URL. Mainly for use in `Image.network` or similar widgets.
   ///
   /// The URL still needs authentication headers. Pass in [headers] into the widget responsible for making the HTTP request.
-  String imageUrl(String url) {
+  ///
+  /// Use [dpr], [width], and [height] to request image with specific device pixel ratio and size.
+  ///
+  /// For transforming image format, use `Accept` header in the request.
+  String imageUrl(String url, {double? dpr, double? width, double? height}) {
+    final queryParameters = <String, String>{
+      'url': url,
+      if (dpr != null) 'dpr': dpr.toString(),
+      if (width != null) 'width': width.toString(),
+      if (height != null) 'height': height.toString(),
+    };
+
     final uri = Uri.parse(
       '$baseUrl/image',
-    ).replace(queryParameters: {'url': url});
+    ).replace(queryParameters: queryParameters);
 
     return uri.toString();
   }
