@@ -5,6 +5,7 @@ import type dayjs from "dayjs";
 import type { Context } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
+import { useReqCache } from "../cache";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, hashSessionID } from "./id";
 import { SessionSchema } from "./schema";
@@ -71,46 +72,40 @@ export async function deleteSession(c: Context<Env>) {
 export async function getSession(
   c: Context<Env>,
 ): Promise<z.output<typeof SessionSchema> | null> {
-  const cached = c.get("session");
-  if (cached != null) {
-    return cached;
-  }
+  return useReqCache(c, "session", async () => {
+    const sessID = getCookie(c, COOKIE_NAME, cookieOpt.prefix);
 
-  const sessID = getCookie(c, COOKIE_NAME, cookieOpt.prefix);
+    // Cookie doesn't exist. User is unauthenticated.
+    if (!sessID) {
+      await deleteSession(c);
+      return null;
+    }
 
-  // Cookie doesn't exist. User is unauthenticated.
-  if (!sessID) {
-    await deleteSession(c);
-    return null;
-  }
+    const sessHash = await hashSessionID(sessID);
+    const sessData = await c.env.SESSION.get(sessHash, "json");
 
-  const sessHash = await hashSessionID(sessID);
-  const sessData = await c.env.SESSION.get(sessHash, "json");
+    // Session does not exist, or expired
+    if (sessData == null) {
+      await deleteSession(c);
+      return null;
+    }
 
-  // Session does not exist, or expired
-  if (sessData == null) {
-    await deleteSession(c);
-    return null;
-  }
+    const parsed = SessionSchema.safeParse(sessData);
 
-  const parsed = SessionSchema.safeParse(sessData);
+    // Should not happen. This has to be a bug.
+    // Or we changed session schema and messed up
+    if (!parsed.success) {
+      console.warn(
+        `Failed to parse session data from kv: ${z.prettifyError(parsed.error)}`,
+        parsed.error,
+      );
 
-  // Should not happen. This has to be a bug.
-  // Or we changed session schema and messed up
-  if (!parsed.success) {
-    console.warn(
-      `Failed to parse session data from kv: ${z.prettifyError(parsed.error)}`,
-      parsed.error,
-    );
+      await deleteSession(c);
+      return null;
+    }
 
-    await deleteSession(c);
-    return null;
-  }
-
-  // Cache/memorize session for this request
-  c.set("session", parsed.data);
-
-  return parsed.data;
+    return parsed.data;
+  });
 }
 
 /**

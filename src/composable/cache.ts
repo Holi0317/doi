@@ -1,3 +1,5 @@
+import type { Context } from "hono";
+
 /**
  * Use Cloudflare Cache API to cache responses
  *
@@ -28,5 +30,34 @@ export async function useCache(
   await cache.put(key, value.clone());
   console.info("Cache stored", key.toString());
 
+  return value;
+}
+
+/**
+ * In-memory cache for the request lifecycle.
+ *
+ * WARNING: Caller must make sure `key` is unique. The returned type is not checked.
+ *
+ * @param c
+ * @param key Cache key
+ * @param callback Callback to generate the value if cache miss
+ */
+export async function useReqCache<T>(
+  c: Context<Env>,
+  key: string,
+  callback: () => Promise<T>,
+): Promise<T> {
+  let map = c.get("cache");
+  if (map == null) {
+    map = new Map<string, unknown>();
+    c.set("cache", map);
+  }
+
+  if (map.has(key)) {
+    return map.get(key) as T;
+  }
+
+  const value = await callback();
+  map.set(key, value);
   return value;
 }

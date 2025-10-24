@@ -6,10 +6,12 @@
 interface Env {
   Bindings: CloudflareBindings;
   Variables: {
-    // Cached session. Do not use this directly. Instead call `getSession`
-    // function.
-    // This is here for typing purpose only.
-    session: z.output<typeof import("./src/composable/session").SessionSchema>;
+    /**
+     * In-memory cache for the request lifecycle.
+     *
+     * See `useReqCache` for usage.
+     */
+    cache: Map<string, unknown>;
 
     // From `middleware/client`. A semi functional hc client for requesting api
     // from html views
