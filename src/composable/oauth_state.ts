@@ -1,31 +1,32 @@
 import * as z from "zod";
+import dayjs from "dayjs";
 import { genSessionID } from "./session/id";
+import { useOauthStateStorage } from "./kv";
 
 /**
- * Valid redirect destinations after authentication.
+ * Valid redirect destinations after authentication, in zod schema.
  */
-export const REDIRECT_DESTINATIONS = ["/", "/basic", "/admin"] as const;
+export const RedirectDestinationSchema = z.enum([
+  "/",
+  "/basic",
+  "/admin",
+] as const);
 
-export type REDIRECT_DESTINATIONS = (typeof REDIRECT_DESTINATIONS)[number];
-
-/**
- * Zod schema for {@link REDIRECT_DESTINATIONS}.
- */
-export const redirectDestinationSchema = z.enum(REDIRECT_DESTINATIONS);
+export type RedirectDestination = z.output<typeof RedirectDestinationSchema>;
 
 /**
  * Store OAuth state and redirect destination in KV.
  */
 export async function storeOAuthState(
   env: CloudflareBindings,
-  redirect: REDIRECT_DESTINATIONS,
+  redirect: RedirectDestination,
 ) {
   // Reuse session ID generator for state token
   const state = genSessionID();
 
-  await env.OAUTH_STATE.put(state, redirect, {
-    expirationTtl: 600, // 10 minutes
-  });
+  const { write } = useOauthStateStorage(env);
+
+  await write(state, redirect, dayjs().add(10, "minute"));
 
   return state;
 }
@@ -37,21 +38,17 @@ export async function storeOAuthState(
 export async function getAndDeleteOAuthState(
   env: CloudflareBindings,
   state: string,
-): Promise<REDIRECT_DESTINATIONS | null> {
-  const redirect = await env.OAUTH_STATE.get(state);
+): Promise<RedirectDestination | null> {
+  const { read, remove } = useOauthStateStorage(env);
+
+  const redirect = await read(state);
 
   if (!redirect) {
     return null;
   }
 
   // Delete the state after retrieval (one-time use)
-  await env.OAUTH_STATE.delete(state);
+  await remove(state);
 
-  // Validate the redirect is in our whitelist using Zod
-  const validationResult = redirectDestinationSchema.safeParse(redirect);
-  if (!validationResult.success) {
-    return null;
-  }
-
-  return validationResult.data;
+  return redirect;
 }

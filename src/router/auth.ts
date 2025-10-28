@@ -12,7 +12,7 @@ import {
 } from "../composable/session/cookie";
 import {
   getAndDeleteOAuthState,
-  REDIRECT_DESTINATIONS,
+  RedirectDestinationSchema,
   storeOAuthState,
 } from "../composable/oauth_state";
 import { makeSessionContent } from "../composable/session/content";
@@ -31,7 +31,7 @@ const app = new Hono<Env>({ strict: false })
     zv(
       "query",
       z.object({
-        redirect: z.enum(REDIRECT_DESTINATIONS).default("/"),
+        redirect: RedirectDestinationSchema.default("/"),
       }),
     ),
     async (c) => {

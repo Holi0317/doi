@@ -1,7 +1,7 @@
 import { hc } from "hono/client";
 import { env, SELF } from "cloudflare:test";
 import dayjs from "dayjs";
-import { storeSession } from "../src/composable/session/cookie";
+import { __test__storeSession } from "../src/composable/session/cookie";
 import { COOKIE_NAME } from "../src/composable/session/constants";
 import type { AppType } from "../src/router";
 
@@ -10,7 +10,7 @@ export type ClientType = ReturnType<typeof hc<AppType>>;
 export async function createTestClient() {
   const expire = dayjs().add(1, "day");
 
-  const sessID = await storeSession(
+  const sessID = await __test__storeSession(
     env,
     {
       avatarUrl: "",

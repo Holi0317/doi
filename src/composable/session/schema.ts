@@ -22,3 +22,14 @@ export const SessionSchema = z.object({
   accessTokenExpire: zu.unixEpochMs(),
   refreshToken: z.string().optional(),
 });
+
+/**
+ * Session content type.
+ */
+export type Session = z.output<typeof SessionSchema>;
+
+/**
+ * Input type for session data.
+ * Ths should be similar or same as {@link Session}, but technically they are distinct.
+ */
+export type SessionInput = z.input<typeof SessionSchema>;
