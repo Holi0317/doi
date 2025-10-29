@@ -3,10 +3,9 @@ import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { useReqCache } from "../cache";
-import { useSessionStorage } from "../kv";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, hashSessionID } from "./id";
-import type { SessionInput, Session } from "./schema";
+import { type SessionInput, type Session, useSessionStorage } from "./schema";
 
 /**
  * Store session data to KV.

@@ -1,9 +1,16 @@
 import * as z from "zod";
 import type dayjs from "dayjs";
-import { SessionSchema } from "./session/schema";
-import { RedirectDestinationSchema } from "./oauth_state";
 
-function useKv<T extends z.ZodType>(
+/**
+ * Wrapper for Cloudflare KV storage.
+ *
+ * This expects the value to be JSON serializable, validated by zod.
+ *
+ * @param ns KV namespace object. Probably from env binding like `env.MY_KV`.
+ * @param schema Zod schema to validate the data. If validation fails, read will return null and write a warning.
+ * @param name Name of the data type, used in warning messages.
+ */
+export function useKv<T extends z.ZodType>(
   ns: KVNamespace<string>,
   schema: T,
   name: string,
@@ -58,12 +65,4 @@ function useKv<T extends z.ZodType>(
     read,
     remove,
   };
-}
-
-export function useSessionStorage(env: CloudflareBindings) {
-  return useKv(env.SESSION, SessionSchema, "session");
-}
-
-export function useOauthStateStorage(env: CloudflareBindings) {
-  return useKv(env.OAUTH_STATE, RedirectDestinationSchema, "oauth_state");
 }

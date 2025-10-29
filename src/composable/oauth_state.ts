@@ -1,7 +1,7 @@
 import * as z from "zod";
 import dayjs from "dayjs";
 import { genSessionID } from "./session/id";
-import { useOauthStateStorage } from "./kv";
+import { useKv } from "./kv";
 
 /**
  * Valid redirect destinations after authentication, in zod schema.
@@ -13,6 +13,10 @@ export const RedirectDestinationSchema = z.enum([
 ] as const);
 
 export type RedirectDestination = z.output<typeof RedirectDestinationSchema>;
+
+function useOauthStateStorage(env: CloudflareBindings) {
+  return useKv(env.OAUTH_STATE, RedirectDestinationSchema, "oauth_state");
+}
 
 /**
  * Store OAuth state and redirect destination in KV.

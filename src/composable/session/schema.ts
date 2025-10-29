@@ -1,5 +1,6 @@
 import * as z from "zod";
 import * as zu from "../../zod-utils";
+import { useKv } from "../kv";
 
 /**
  * Schema for session data stored in KV.
@@ -33,3 +34,7 @@ export type Session = z.output<typeof SessionSchema>;
  * Ths should be similar or same as {@link Session}, but technically they are distinct.
  */
 export type SessionInput = z.input<typeof SessionSchema>;
+
+export function useSessionStorage(env: CloudflareBindings) {
+  return useKv(env.SESSION, SessionSchema, "session");
+}
