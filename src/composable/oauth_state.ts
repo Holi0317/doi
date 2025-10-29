@@ -14,8 +14,15 @@ export const RedirectDestinationSchema = z.enum([
 
 export type RedirectDestination = z.output<typeof RedirectDestinationSchema>;
 
+/**
+ * OAuth state schema for KV storage.
+ */
+export const OauthStateSchema = z.object({
+  redirect: RedirectDestinationSchema,
+});
+
 function useOauthStateStorage(env: CloudflareBindings) {
-  return useKv(env.OAUTH_STATE, RedirectDestinationSchema, "oauth_state");
+  return useKv(env.OAUTH_STATE, OauthStateSchema, "oauth_state");
 }
 
 /**
@@ -30,7 +37,7 @@ export async function storeOAuthState(
 
   const { write } = useOauthStateStorage(env);
 
-  await write(state, redirect, dayjs().add(10, "minute"));
+  await write(state, { redirect }, dayjs().add(10, "minute"));
 
   return state;
 }
@@ -42,7 +49,7 @@ export async function storeOAuthState(
 export async function getAndDeleteOAuthState(
   env: CloudflareBindings,
   state: string,
-): Promise<RedirectDestination | null> {
+): Promise<z.output<typeof OauthStateSchema> | null> {
   const { read, remove } = useOauthStateStorage(env);
 
   const redirect = await read(state);

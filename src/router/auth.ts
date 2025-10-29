@@ -53,8 +53,8 @@ const app = new Hono<Env>({ strict: false })
       const { code, state } = c.req.valid("query");
 
       // Retrieve redirect destination from KV using state
-      const redirect = await getAndDeleteOAuthState(c.env, state);
-      if (!redirect) {
+      const stateData = await getAndDeleteOAuthState(c.env, state);
+      if (stateData == null) {
         return c.text("Invalid or expired state parameter", 400);
       }
 
@@ -68,7 +68,7 @@ const app = new Hono<Env>({ strict: false })
 
       await setSession(c, sess, expire);
 
-      return c.redirect(redirect);
+      return c.redirect(stateData.redirect);
     },
   );
 
