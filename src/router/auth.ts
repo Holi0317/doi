@@ -11,9 +11,8 @@ import {
   setSession,
 } from "../composable/session/cookie";
 import {
-  getAndDeleteOAuthState,
+  useOauthState,
   RedirectDestinationSchema,
-  storeOAuthState,
 } from "../composable/oauth_state";
 import { makeSessionContent } from "../composable/session/content";
 
@@ -37,8 +36,10 @@ const app = new Hono<Env>({ strict: false })
     async (c) => {
       const { redirect } = c.req.valid("query");
 
+      const { store } = useOauthState(c.env);
+
       // Store redirect destination in KV and get state token
-      const state = await storeOAuthState(c.env, redirect);
+      const state = await store(redirect);
       const authUrl = getAuthorizeUrl(c, state);
 
       console.log(`Redirecting to login ${authUrl}`);
@@ -52,8 +53,10 @@ const app = new Hono<Env>({ strict: false })
     async (c) => {
       const { code, state } = c.req.valid("query");
 
+      const { getAndDelete } = useOauthState(c.env);
+
       // Retrieve redirect destination from KV using state
-      const stateData = await getAndDeleteOAuthState(c.env, state);
+      const stateData = await getAndDelete(state);
       if (stateData == null) {
         return c.text("Invalid or expired state parameter", 400);
       }

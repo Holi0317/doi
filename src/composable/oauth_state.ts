@@ -25,41 +25,40 @@ function useOauthStateStorage(env: CloudflareBindings) {
   return useKv(env.OAUTH_STATE, OauthStateSchema, "oauth_state");
 }
 
-/**
- * Store OAuth state and redirect destination in KV.
- */
-export async function storeOAuthState(
-  env: CloudflareBindings,
-  redirect: RedirectDestination,
-) {
-  // Reuse session ID generator for state token
-  const state = genSessionID();
+export function useOauthState(env: CloudflareBindings) {
+  const { read, write, remove } = useOauthStateStorage(env);
 
-  const { write } = useOauthStateStorage(env);
+  /**
+   * Store OAuth state and redirect destination in KV.
+   */
+  const store = async (redirect: RedirectDestination) => {
+    // Reuse session ID generator for state token
+    const state = genSessionID();
 
-  await write(state, { redirect }, dayjs().add(10, "minute"));
+    await write(state, { redirect }, dayjs().add(10, "minute"));
 
-  return state;
-}
+    return state;
+  };
 
-/**
- * Retrieve and delete OAuth state redirect destination from KV.
- * Returns null if state is invalid or expired.
- */
-export async function getAndDeleteOAuthState(
-  env: CloudflareBindings,
-  state: string,
-): Promise<z.output<typeof OauthStateSchema> | null> {
-  const { read, remove } = useOauthStateStorage(env);
+  /**
+   * Retrieve and delete OAuth state redirect destination from KV.
+   * Returns null if state is invalid or expired.
+   */
+  const getAndDelete = async (state: string) => {
+    const redirect = await read(state);
 
-  const redirect = await read(state);
+    if (!redirect) {
+      return null;
+    }
 
-  if (!redirect) {
-    return null;
-  }
+    // Delete the state after retrieval (one-time use)
+    await remove(state);
 
-  // Delete the state after retrieval (one-time use)
-  await remove(state);
+    return redirect;
+  };
 
-  return redirect;
+  return {
+    store,
+    getAndDelete,
+  };
 }
