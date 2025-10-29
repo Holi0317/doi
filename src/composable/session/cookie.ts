@@ -43,6 +43,8 @@ export async function setSession(
   const sessID = await storeSession(c.env, content, expire);
 
   setCookie(c, COOKIE_NAME, sessID, cookieOpt);
+
+  return sessID;
 }
 
 /**

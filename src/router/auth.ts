@@ -69,9 +69,13 @@ const app = new Hono<Env>({ strict: false })
 
       const sess = await makeSessionContent(ky, tokens);
 
-      await setSession(c, sess, expire);
+      const sessID = await setSession(c, sess, expire);
 
-      return c.redirect(stateData.redirect);
+      const redirect =
+        stateData.redirect === "doi:"
+          ? `doi://login?sess=${sessID}`
+          : stateData.redirect;
+      return c.redirect(redirect);
     },
   );
 
