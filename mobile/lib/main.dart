@@ -8,9 +8,17 @@ import 'package:mobile/repositories/retry.dart';
 
 void main() {
   Logger.root.onRecord.listen((record) {
-    print(
-      '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}',
-    );
+    final sb = StringBuffer()
+      ..writeln(
+        '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}',
+      );
+    if (record.error != null) {
+      sb.writeln('Error (${record.error.runtimeType}): ${record.error}');
+    }
+    if (record.stackTrace != null) {
+      sb.writeln('StackTrace:\n${record.stackTrace}');
+    }
+    print(sb.toString());
   });
 
   runApp(
