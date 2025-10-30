@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import type { KyInstance } from "ky";
+import type { KyInstance, Options } from "ky";
 import * as z from "zod";
 
 export const AccessTokenSchema = z.object({
@@ -57,22 +57,29 @@ export async function exchangeToken(
   code: string,
   codeType: "login" | "refresh",
 ) {
-  const body =
+  const options: Options =
     codeType === "login"
-      ? { code }
+      ? {
+          json: {
+            client_id: c.env.GH_CLIENT_ID,
+            client_secret: c.env.GH_CLIENT_SECRET,
+            code,
+          },
+        }
       : {
-          grant_type: "refresh_token",
-          refresh_token: code,
+          headers: {
+            accept: "application/json",
+          },
+          searchParams: {
+            client_id: c.env.GH_CLIENT_ID,
+            client_secret: c.env.GH_CLIENT_SECRET,
+            grant_type: "refresh_token",
+            refresh_token: code,
+          },
         };
 
   const accessTokenResp = await ky
-    .post("https://github.com/login/oauth/access_token", {
-      json: {
-        client_id: c.env.GH_CLIENT_ID,
-        client_secret: c.env.GH_CLIENT_SECRET,
-        ...body,
-      },
-    })
+    .post("https://github.com/login/oauth/access_token", options)
     .json();
 
   const parsed = AccessTokenSchemaWithError.parse(accessTokenResp);

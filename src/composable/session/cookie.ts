@@ -1,8 +1,10 @@
 import type dayjs from "dayjs";
 import type { Context } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { useReqCache } from "../cache";
+import { revokeToken } from "../../gh/revoke";
+import { useKy } from "../http";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, hashSessionID } from "./id";
 import { type SessionInput, type Session, useSessionStorage } from "./schema";
@@ -51,14 +53,23 @@ export async function setSession(
  * Delete cookie and session
  */
 export async function deleteSession(c: Context<Env>) {
-  const { remove } = useSessionStorage(c.env);
+  const { read, remove } = useSessionStorage(c.env);
 
   const sessID = getCookie(c, COOKIE_NAME);
-  if (sessID) {
-    const sessHash = await hashSessionID(sessID);
+  // Delete cookie regardless of whether session exists
+  deleteCookie(c, COOKIE_NAME, cookieOpt);
 
-    // TODO: Revoke token on github
-    await remove(sessHash);
+  if (sessID == null) {
+    return;
+  }
+
+  const sessHash = await hashSessionID(sessID);
+  const sess = await read(sessHash);
+
+  await remove(sessHash);
+
+  if (sess != null) {
+    await revokeToken(c, useKy(c), sess.accessToken);
   }
 }
 
