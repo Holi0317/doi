@@ -32,7 +32,7 @@ final class _SharedPreferencesProvider
         argument: null,
         retry: null,
         name: r'_sharedPreferencesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -53,7 +53,7 @@ final class _SharedPreferencesProvider
 }
 
 String _$_sharedPreferencesHash() =>
-    r'a20d3a2ec6ca1b476d47637177bb4ce55823fb2e';
+    r'2522b63a74451e60cc7b6b1e3b029adb36117950';
 
 @ProviderFor(Preference)
 const preferenceProvider = PreferenceFamily._();
@@ -66,7 +66,7 @@ final class PreferenceProvider
   }) : super(
          retry: null,
          name: r'preferenceProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -96,7 +96,7 @@ final class PreferenceProvider
   }
 }
 
-String _$preferenceHash() => r'37461b5a463325dd022dd8b9c75fb69f20d87830';
+String _$preferenceHash() => r'8ae969c008048931a86ca139e967212e31a9d517';
 
 final class PreferenceFamily extends $Family
     with
@@ -113,7 +113,7 @@ final class PreferenceFamily extends $Family
         name: r'preferenceProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   PreferenceProvider call(SharedPreferenceKey key) =>

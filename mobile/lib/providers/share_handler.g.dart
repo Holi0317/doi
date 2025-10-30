@@ -26,7 +26,7 @@ final class _ShareHandlerPlatformProvider
         argument: null,
         retry: null,
         name: r'_shareHandlerPlatformProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -55,7 +55,7 @@ final class _ShareHandlerPlatformProvider
 }
 
 String _$_shareHandlerPlatformHash() =>
-    r'4052964f81abf4e80861df010adb514fd541af2a';
+    r'ebcdbfa31323ef5483ca56bbdba25227cb1c3519';
 
 /// Stream of shared media received.
 ///

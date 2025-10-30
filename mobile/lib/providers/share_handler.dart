@@ -3,7 +3,7 @@ import 'package:share_handler/share_handler.dart';
 
 part 'share_handler.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 ShareHandlerPlatform _shareHandlerPlatform(Ref ref) {
   return ShareHandlerPlatform.instance;
 }

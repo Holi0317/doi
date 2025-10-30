@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'shared_preferences.g.dart';
 
 /// Underlying SharedPreferences singleton.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<SharedPreferences> _sharedPreferences(Ref ref) async {
   return SharedPreferences.getInstance();
 }
@@ -22,7 +22,7 @@ enum SharedPreferenceKey {
   const SharedPreferenceKey(this.key, this.defaultValue);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Preference extends _$Preference {
   @override
   Future<String> build(SharedPreferenceKey key) async {

@@ -7,7 +7,7 @@ import 'package:riverpod_sqflite/riverpod_sqflite.dart';
 part 'storage.g.dart';
 
 /// SQFlite-based persistent storage for Riverpod state persistence.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Storage<String, String>> storage(Ref ref) async {
   final dir = await getApplicationDocumentsDirectory();
 
