@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 import '../providers/shared_preferences.dart';
+import '../repositories/api.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -12,133 +16,184 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  final _logger = Logger('LoginPage');
+
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _apiUrlController;
-  late TextEditingController _apiTokenController;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _apiUrlController = TextEditingController();
-    _apiTokenController = TextEditingController();
   }
 
   @override
   void dispose() {
     _apiUrlController.dispose();
-    _apiTokenController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final apiUrl = ref.watch(preferenceProvider(SharedPreferenceKey.apiUrl));
-    apiUrl.whenData((value) => _apiUrlController.text = value);
+    ref.listen(preferenceProvider(SharedPreferenceKey.apiUrl), (
+      previous,
+      next,
+    ) {
+      if (next.value != null && next.value != previous?.value) {
+        _apiUrlController.text = next.value!;
+      }
+    });
 
-    final apiToken = ref.watch(
-      preferenceProvider(SharedPreferenceKey.apiToken),
-    );
-    apiToken.whenData((value) => _apiTokenController.text = value);
+    final apiUrl = ref.watch(preferenceProvider(SharedPreferenceKey.apiUrl));
 
     return Scaffold(
       appBar: AppBar(title: const Text("Login")),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextFormField(
-                controller: _apiUrlController,
-                decoration: InputDecoration(
-                  labelText: 'API URL',
-                  error: apiUrl.error != null
-                      ? Text(apiUrl.error!.toString())
-                      : null,
-                ),
-                enabled: apiUrl.hasValue,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a value';
-                  }
-
-                  // Basic URL validation
-                  final uri = Uri.tryParse(value);
-                  if (uri == null || !uri.isAbsolute) {
-                    return 'Please enter a valid URL';
-                  }
-
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              // FIXME: Wizard setup for api token
-              TextFormField(
-                controller: _apiTokenController,
-                decoration: InputDecoration(
-                  labelText: 'Api Token',
-                  error: apiToken.error != null
-                      ? Text(apiToken.error!.toString())
-                      : null,
-                ),
-                enabled: apiToken.hasValue,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a value';
-                  }
-
-                  return null;
-                },
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FilledButton(
-                    style: TextButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    onPressed: _submit,
-                    child: const Text('Submit'),
+      body: Center(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextFormField(
+                  controller: _apiUrlController,
+                  decoration: InputDecoration(
+                    labelText: 'API URL',
+                    error: apiUrl.error != null
+                        ? Text(apiUrl.error!.toString())
+                        : null,
                   ),
-                ],
-              ),
-            ],
+                  enabled: apiUrl.hasValue && !_isLoading,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+
+                    // Basic URL validation
+                    final uri = Uri.tryParse(value);
+                    if (uri == null || !uri.isAbsolute) {
+                      return 'Please enter a valid URL';
+                    }
+
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (_isLoading)
+                      const SizedBox(
+                        width: 48,
+                        height: 40,
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else
+                      FilledButton(
+                        style: TextButton.styleFrom(
+                          textStyle: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        onPressed: _login,
+                        child: const Text('Login'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Future<void> _submit() async {
+  Future<void> _login() async {
     // Disable button if loading/error
-    if (!_formKey.currentState!.validate()) {
+    if (_isLoading || !_formKey.currentState!.validate()) {
       return;
     }
 
-    final newUrl = _apiUrlController.text;
-    final newToken = _apiTokenController.text;
-
-    // TODO: Validate server info on URL
+    setState(() => _isLoading = true);
 
     try {
-      await ref
-          .read(preferenceProvider(SharedPreferenceKey.apiUrl).notifier)
-          .set(newUrl);
+      final u = Uri.parse(_apiUrlController.text);
+      final apiUrl = u.replace(path: "/api").toString();
+      final loginUrl = u
+          .replace(path: "/auth/github/login", query: "redirect=doi:")
+          .toString();
+
+      // Validate server info on URL
+      await _validateServer(apiUrl);
+
+      // Authenticate with GitHub and get authorized callback URL
+      final token = await _oauthLogin(loginUrl);
+      if (token.isEmpty) {
+        _showSnackBar('Authentication failed: No token received');
+        return;
+      }
+
       await ref
           .read(preferenceProvider(SharedPreferenceKey.apiToken).notifier)
-          .set(newToken);
+          .set(token);
+      await ref
+          .read(preferenceProvider(SharedPreferenceKey.apiUrl).notifier)
+          .set(apiUrl);
 
       if (context.mounted) {
         context.go('/unread');
       }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save new settings: $e')),
-        );
+    } catch (e, st) {
+      _logger.severe('Authentication failed', e, st);
+
+      _showSnackBar('Authentication failed: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _validateServer(String apiUrl) async {
+    final httpClient = http.Client();
+    final apiRepository = ApiRepository(
+      transport: httpClient,
+      baseUrl: apiUrl,
+      authToken: '',
+    );
+
+    _logger.info('Validating server at $apiUrl');
+
+    try {
+      await apiRepository.info();
+    } catch (e) {
+      throw Exception('Unable to connect to server. Is the URL correct?: $e');
+    }
+
+    _logger.info('Server at $apiUrl is valid');
+  }
+
+  Future<String> _oauthLogin(String loginUrl) async {
+    final result = await FlutterWebAuth2.authenticate(
+      url: loginUrl,
+      callbackUrlScheme: 'doi',
+    );
+
+    // Extract token from callback URL
+    final uri = Uri.parse(result);
+    final token = uri.queryParameters['token'] ?? '';
+
+    return token;
+  }
+
+  void _showSnackBar(String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 }

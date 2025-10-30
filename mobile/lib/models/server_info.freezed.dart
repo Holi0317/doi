@@ -232,7 +232,7 @@ return $default(_that.name,_that.version,_that.session);case _:
 @JsonSerializable()
 
 class _ServerInfo implements ServerInfo {
-  const _ServerInfo({required this.name, required this.version, this.session});
+  const _ServerInfo({required this.name, required this.version, this.session}): assert(name == "doi", 'Invalid server info: name must be "doi"');
   factory _ServerInfo.fromJson(Map<String, dynamic> json) => _$ServerInfoFromJson(json);
 
 @override final  String name;

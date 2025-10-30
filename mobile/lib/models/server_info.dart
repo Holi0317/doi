@@ -5,6 +5,7 @@ part 'server_info.g.dart';
 
 @freezed
 abstract class ServerInfo with _$ServerInfo {
+  @Assert('name == "doi"', 'Invalid server info: name must be "doi"')
   const factory ServerInfo({
     required String name,
     required WorkerVersion version,

@@ -73,7 +73,7 @@ const app = new Hono<Env>({ strict: false })
 
       const redirect =
         stateData.redirect === "doi:"
-          ? `doi://login?sess=${sessID}`
+          ? `doi://login?token=${sessID}`
           : stateData.redirect;
       return c.redirect(redirect);
     },
