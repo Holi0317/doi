@@ -53,9 +53,12 @@ export async function setSession(
  * Delete cookie and session
  */
 export async function deleteSession(c: Context<Env>) {
-  const { read, remove } = useSessionStorage(c.env);
+  const { remove } = useSessionStorage(c.env);
 
+  // Read session data first
+  const sess = await getSession(c);
   const sessID = getCookie(c, COOKIE_NAME);
+
   // Delete cookie regardless of whether session exists
   deleteCookie(c, COOKIE_NAME, cookieOpt);
 
@@ -64,12 +67,14 @@ export async function deleteSession(c: Context<Env>) {
   }
 
   const sessHash = await hashSessionID(sessID);
-  const sess = await read(sessHash);
-
   await remove(sessHash);
 
   if (sess != null) {
-    await revokeToken(c, useKy(c), sess.accessToken);
+    try {
+      await revokeToken(c, useKy(c), sess.accessToken);
+    } catch (err) {
+      console.warn("Failed to revoke token on session delete.", err);
+    }
   }
 }
 
