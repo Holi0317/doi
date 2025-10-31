@@ -5,6 +5,7 @@ import 'package:mobile/models/search_query.dart';
 
 import '../components/edit_app_bar.dart';
 import '../components/link_list.dart';
+import '../components/reselect.dart';
 import '../models/link_action.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
@@ -17,6 +18,13 @@ class SearchPage extends ConsumerStatefulWidget {
 class _SearchPageState extends ConsumerState<SearchPage> {
   Set<int> _selection = {};
   var query = const SearchQuery();
+  final _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +35,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               height: kToolbarHeight - 12,
               child: TextField(
                 autofocus: true,
+                focusNode: _focusNode,
                 onChanged: (value) =>
                     setState(() => query = query.copyWith(query: value)),
                 decoration: InputDecoration(
@@ -63,12 +72,17 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ],
           );
 
-    return Scaffold(
-      appBar: appBar,
-      body: LinkList(
-        query: query,
-        selection: _selection,
-        onSelectionChanged: _onSelectionChanged,
+    return ReselectListener(
+      onReselect: () {
+        _focusNode.requestFocus();
+      },
+      child: Scaffold(
+        appBar: appBar,
+        body: LinkList(
+          query: query,
+          selection: _selection,
+          onSelectionChanged: _onSelectionChanged,
+        ),
       ),
     );
   }
