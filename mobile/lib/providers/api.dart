@@ -76,6 +76,7 @@ class AuthState extends _$AuthState {
           ? AuthStateEnum.authenticated
           : AuthStateEnum.unauthenticated;
     } catch (err) {
+      // FIXME: distinguish network error and unauthenticated
       _logger.warning("Failed to fetch server info: $err");
       state = AuthStateEnum.unauthenticated;
     }

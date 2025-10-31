@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/components/settings/app_version_tile.dart';
 import 'package:mobile/components/settings/theme.dart';
 import 'package:mobile/components/settings/whoami.dart';
 
@@ -68,11 +69,7 @@ class SettingsPage extends ConsumerWidget {
           ),
         ),
         // App Version
-        const ListTile(
-          leading: Icon(Icons.info),
-          title: Text('App Version'),
-          subtitle: Text('1.0.0'), // TODO: Get actual app version
-        ),
+        const AppVersionTile(),
         // Help & Support
         ListTile(
           leading: const Icon(Icons.help),
