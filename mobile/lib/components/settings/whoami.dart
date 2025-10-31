@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -20,6 +21,12 @@ class Whoami extends ConsumerWidget {
       serverInfoProvider.selectData((value) => value.session),
     );
 
+    final apiUrl = ref.watch(
+      preferenceProvider(
+        SharedPreferenceKey.apiUrl,
+      ).selectData((value) => value.isEmpty ? null : Uri.parse(value)),
+    );
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: switch (session) {
@@ -27,6 +34,7 @@ class Whoami extends ConsumerWidget {
           context,
           ref,
           value,
+          apiUrl,
         ),
         AsyncValue(value: == null, hasValue: true) => _buildUnauth(context),
         AsyncValue(:final error?) => _buildError(context, error),
@@ -35,7 +43,12 @@ class Whoami extends ConsumerWidget {
     );
   }
 
-  Widget _buildData(BuildContext context, WidgetRef ref, Session session) {
+  Widget _buildData(
+    BuildContext context,
+    WidgetRef ref,
+    Session session,
+    AsyncValue<Uri?> apiUrl,
+  ) {
     return Row(
       spacing: 16,
       children: [
@@ -59,9 +72,24 @@ class Whoami extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                "@${session.login} (${session.source})",
-                style: TextStyle(color: Colors.grey.shade600),
+              GestureDetector(
+                onTap: apiUrl.value == null
+                    ? null
+                    : () {
+                        Clipboard.setData(
+                          ClipboardData(text: apiUrl.value.toString()),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied server url to clipboard'),
+                          ),
+                        );
+                      },
+                child: Text(
+                  "@${session.login} (${session.source}) on ${apiUrl.value?.host ?? ''}",
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
               ),
               const SizedBox(height: 8),
               FilledButton(
