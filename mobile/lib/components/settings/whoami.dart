@@ -9,8 +9,8 @@ import 'package:mobile/providers/api.dart';
 import 'package:mobile/providers/extensions.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 
-class SettingsWhoami extends ConsumerWidget {
-  SettingsWhoami({super.key});
+class Whoami extends ConsumerWidget {
+  Whoami({super.key});
 
   final _logger = Logger('SettingsWhoami');
 

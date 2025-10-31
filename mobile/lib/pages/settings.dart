@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/components/settings/app_version_tile.dart';
-import 'package:mobile/components/settings/theme.dart';
+import 'package:mobile/components/settings/theme_select_tile.dart';
 import 'package:mobile/components/settings/whoami.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -14,7 +14,7 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         children: [
           // User Profile Section
-          SettingsWhoami(),
+          Whoami(),
 
           const Divider(),
 
