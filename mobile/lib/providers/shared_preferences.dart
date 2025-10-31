@@ -13,8 +13,9 @@ Future<SharedPreferences> _sharedPreferences(Ref ref) async {
 ///
 /// Currently only supports String values.
 enum SharedPreferenceKey {
-  apiUrl('api_url', ''), // http://100.66.229.117:8787/api
-  apiToken('api_token', '');
+  apiUrl('api_url', ''),
+  apiToken('api_token', ''),
+  theme('theme', 'system'); // light, dark, system
 
   final String key;
   final String defaultValue;

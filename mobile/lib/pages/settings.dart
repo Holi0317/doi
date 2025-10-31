@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/components/settings/theme.dart';
 import 'package:mobile/components/settings/whoami.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -50,15 +51,7 @@ class SettingsPage extends ConsumerWidget {
           },
         ),
         // Theme Selection
-        ListTile(
-          leading: const Icon(Icons.brightness_6),
-          title: const Text('Theme'),
-          subtitle: const Text('System Default'), // TODO: Get from provider
-          onTap: () {
-            // TODO: Implement theme selection
-            _showThemeSelectionDialog(context);
-          },
-        ),
+        const ThemeSelectTile(),
       ],
     );
   }
@@ -137,50 +130,6 @@ class SettingsPage extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showThemeSelectionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Select Theme'),
-        children: [
-          SimpleDialogOption(
-            onPressed: () {
-              // TODO: Update theme preference to light
-              debugPrint('Theme set to: Light');
-              Navigator.pop(context);
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text('Light'),
-            ),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              // TODO: Update theme preference to dark
-              debugPrint('Theme set to: Dark');
-              Navigator.pop(context);
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text('Dark'),
-            ),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              // TODO: Update theme preference to system
-              debugPrint('Theme set to: System');
-              Navigator.pop(context);
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text('System Default'),
-            ),
           ),
         ],
       ),
