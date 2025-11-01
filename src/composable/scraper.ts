@@ -141,7 +141,7 @@ export async function getSocialImageUrl(
 
   try {
     // FIXME: Validate schema and regex?
-    return new URL(imageUrl);
+    return new URL(imageUrl, url);
   } catch {
     console.warn("Cannot parse image tag as URL", imageUrl);
     return null;
