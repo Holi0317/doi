@@ -7,6 +7,8 @@ import 'package:mobile/providers/logger_observer.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 import 'package:mobile/repositories/retry.dart';
 
+import 'l10n/app_localizations.dart';
+
 void main() {
   Logger.root.onRecord.listen((record) {
     final sb = StringBuffer()
@@ -40,6 +42,8 @@ void main() {
 
             return MaterialApp.router(
               routerConfig: router,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               // FIXME: Replace with a proper title
               title: 'Flutter Demo',
               themeMode: themeMode,
