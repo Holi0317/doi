@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/components/edit_app_bar.dart';
 import 'package:mobile/components/link_list.dart';
 import 'package:mobile/components/reselect.dart';
 import 'package:mobile/providers/combine.dart';
 import 'package:mobile/providers/extensions.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/link_action.dart';
 import '../models/search_query.dart';
 
@@ -23,12 +23,11 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
 
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context)!;
     final unreadSearchQuery = SearchQuery(archive: false, order: _order);
 
     final count = ref.watch(
-      searchAppliedProvider(
-        unreadSearchQuery,
-      ).selectData((data) => NumberFormat.compact().format(data.count)),
+      searchAppliedProvider(unreadSearchQuery).selectData((data) => data.count),
     );
 
     final PreferredSizeWidget appBar = _selection.isEmpty
@@ -37,9 +36,9 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
             title: switch (count) {
               // FIXME: Count is inaccurate when there are pending edits in queue.
               AsyncValue(:final value?, hasValue: true) => Text(
-                'Unread ($value)',
+                t.unreadTitle(value),
               ),
-              _ => const Text('Unread'),
+              _ => Text(t.unread),
             },
             actions: [_sortAction(context)],
           )
@@ -72,12 +71,15 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
   }
 
   Widget _sortAction(BuildContext context) {
+    var t = AppLocalizations.of(context)!;
+
     return IconButton(
       icon: Icon(
         _order == SearchOrder.idAsc ? Icons.arrow_upward : Icons.arrow_downward,
       ),
-      tooltip:
-          'Toggle sort order (currently ${_order == SearchOrder.idAsc ? "oldest first" : "newest first"})',
+      tooltip: _order == SearchOrder.idAsc
+          ? t.toggleSortingAsc
+          : t.toggleSortingDesc,
       onPressed: () {
         setState(() {
           _order = _order == SearchOrder.idAsc

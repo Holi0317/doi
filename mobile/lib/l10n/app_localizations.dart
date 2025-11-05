@@ -104,6 +104,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello World!'**
   String get helloWorld;
+
+  /// No description provided for @unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get unread;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @toggleSortingAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle sort order (currently oldest first)'**
+  String get toggleSortingAsc;
+
+  /// No description provided for @toggleSortingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle sort order (currently newest first)'**
+  String get toggleSortingDesc;
+
+  /// No description provided for @unreadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread ({count})'**
+  String unreadTitle(int count);
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginTitle;
+
+  /// No description provided for @apiUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API URL'**
+  String get apiUrlLabel;
+
+  /// No description provided for @errEmptyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a value'**
+  String get errEmptyValue;
+
+  /// No description provided for @errInvalidURL.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid URL'**
+  String get errInvalidURL;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginButton;
+
+  /// No description provided for @authFailedNoToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed: No token received'**
+  String get authFailedNoToken;
+
+  /// No description provided for @authFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed: {error}'**
+  String authFailedMessage(String error);
+
+  /// No description provided for @filterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filterTooltip;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferences;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @helpSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpSupport;
+
+  /// No description provided for @acknowledgements.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledgements'**
+  String get acknowledgements;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get appVersion;
+
+  /// No description provided for @light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get light;
+
+  /// No description provided for @dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get dark;
+
+  /// No description provided for @systemDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get systemDefault;
+
+  /// No description provided for @selectTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Theme'**
+  String get selectTheme;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @notAuthenticated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not authenticated'**
+  String get notAuthenticated;
+
+  /// No description provided for @errorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorMessage(String error);
+
+  /// No description provided for @copiedServerUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied server url to clipboard'**
+  String get copiedServerUrl;
+
+  /// No description provided for @cancelSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel selection'**
+  String get cancelSelection;
+
+  /// No description provided for @itemsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String itemsSelected(int count);
+
+  /// No description provided for @deleteItemsPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} links permanently?'**
+  String deleteItemsPrompt(int count);
+
+  /// No description provided for @deletePermanentWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This is permanent and cannot be undone.'**
+  String get deletePermanentWarning;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archive;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archived;
+
+  /// No description provided for @notArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Archived'**
+  String get notArchived;
+
+  /// No description provided for @favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get favorite;
+
+  /// No description provided for @favorited.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorited'**
+  String get favorited;
+
+  /// No description provided for @notFavorited.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Favorited'**
+  String get notFavorited;
+
+  /// No description provided for @order.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get order;
+
+  /// No description provided for @newestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest First'**
+  String get newestFirst;
+
+  /// No description provided for @oldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest First'**
+  String get oldestFirst;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate

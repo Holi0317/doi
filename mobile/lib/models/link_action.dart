@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 /// Enum of actions that can be performed on a link.
 enum LinkAction {
   // FIXME: Fix the colors. They are super ugly right now
+  // FIXME: Do translations on labels
   archive(Icons.archive, 'Archive', Colors.lime),
   unarchive(Icons.unarchive, 'Unarchive', Colors.lime),
   favorite(Icons.favorite, 'Favorite', Colors.lightBlue),

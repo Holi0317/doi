@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/shared_preferences.dart';
 import '../repositories/api.dart';
 
@@ -36,6 +37,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     ref.listen(preferenceProvider(SharedPreferenceKey.apiUrl), (
       previous,
       next,
@@ -48,7 +51,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final apiUrl = ref.watch(preferenceProvider(SharedPreferenceKey.apiUrl));
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
+      appBar: AppBar(title: Text(t.loginTitle)),
       body: Center(
         child: Form(
           key: _formKey,
@@ -63,7 +66,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 TextFormField(
                   controller: _apiUrlController,
                   decoration: InputDecoration(
-                    labelText: 'API URL',
+                    labelText: t.apiUrlLabel,
                     error: apiUrl.error != null
                         ? Text(apiUrl.error!.toString())
                         : null,
@@ -71,13 +74,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   enabled: apiUrl.hasValue && !_isLoading,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a value';
+                      return t.errEmptyValue;
                     }
 
                     // Basic URL validation
                     final uri = Uri.tryParse(value);
                     if (uri == null || !uri.isAbsolute) {
-                      return 'Please enter a valid URL';
+                      return t.errInvalidURL;
                     }
 
                     return null;
@@ -99,7 +102,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           textStyle: Theme.of(context).textTheme.labelLarge,
                         ),
                         onPressed: _login,
-                        child: const Text('Login'),
+                        child: Text(t.loginButton),
                       ),
                   ],
                 ),
@@ -117,6 +120,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
+    final t = AppLocalizations.of(context)!;
+
     setState(() => _isLoading = true);
 
     try {
@@ -132,7 +137,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       // Authenticate with GitHub and get authorized callback URL
       final token = await _oauthLogin(loginUrl);
       if (token.isEmpty) {
-        _showSnackBar('Authentication failed: No token received');
+        _showSnackBar(t.authFailedNoToken);
         return;
       }
 
@@ -149,7 +154,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (e, st) {
       _logger.severe('Authentication failed', e, st);
 
-      _showSnackBar('Authentication failed: $e');
+      _showSnackBar(t.authFailedMessage(e.toString()));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

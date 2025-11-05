@@ -6,6 +6,7 @@ import 'package:mobile/models/search_query.dart';
 import '../components/edit_app_bar.dart';
 import '../components/link_list.dart';
 import '../components/reselect.dart';
+import '../l10n/app_localizations.dart';
 import '../models/link_action.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
@@ -28,6 +29,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     final PreferredSizeWidget appBar = _selection.isEmpty
         ? AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -39,7 +42,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 onChanged: (value) =>
                     setState(() => query = query.copyWith(query: value)),
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: t.search,
                   hintStyle: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
@@ -49,7 +52,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   suffixIcon: IconButton(
-                    tooltip: "Filter",
+                    tooltip: t.filterTooltip,
                     icon: Icon(
                       Icons.filter_alt,
                       color: Theme.of(context).colorScheme.secondary,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/models/link_action.dart';
 import 'package:mobile/providers/queue.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/edit_op.dart';
 
 /// [AppBar] used in selection mode
@@ -26,12 +27,14 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       title: Text('${selection.length} items'),
       leading: IconButton(
         icon: const Icon(Icons.close),
-        tooltip: "Cancel selection",
+        tooltip: t.cancelSelection,
         onPressed: _endSelection,
       ),
       actions: [
@@ -45,7 +48,7 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
         if (menuActions.isNotEmpty)
           PopupMenuButton<LinkAction>(
             icon: const Icon(Icons.more_vert),
-            tooltip: "More actions",
+            tooltip: t.moreActions,
             itemBuilder: (context) =>
                 menuActions.map((action) => action.popup()).toList(),
             onSelected: (action) => _handleAction(context, ref, action),
@@ -83,23 +86,21 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
+        final t = AppLocalizations.of(context)!;
+
         return AlertDialog(
-          title: Text('Delete ${selection.length} links permanently?'),
-          content: const SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('This is permanent and cannot be undone.'),
-              ],
-            ),
+          title: Text(t.deleteItemsPrompt(selection.length)),
+          content: SingleChildScrollView(
+            child: ListBody(children: <Widget>[Text(t.deletePermanentWarning)]),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(t.delete),
             ),
           ],
         );

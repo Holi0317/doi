@@ -4,13 +4,17 @@ import 'package:mobile/components/settings/app_version_tile.dart';
 import 'package:mobile/components/settings/theme_select_tile.dart';
 import 'package:mobile/components/settings/whoami.dart';
 
+import '../l10n/app_localizations.dart';
+
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(t.settings)),
       body: ListView(
         children: [
           // User Profile Section
@@ -31,25 +35,17 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildPreferencesSection(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
-            'Preferences',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            t.preferences,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-        ),
-        // Language Selection
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('Language'),
-          subtitle: const Text('English'), // TODO: Get from provider
-          onTap: () {
-            // TODO: Implement language selection
-            _showLanguageSelectionDialog(context);
-          },
         ),
         // Theme Selection
         const ThemeSelectTile(),
@@ -58,14 +54,16 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildAppInfoSection(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
-            'About',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            t.about,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
         // App Version
@@ -73,7 +71,7 @@ class SettingsPage extends ConsumerWidget {
         // Help & Support
         ListTile(
           leading: const Icon(Icons.help),
-          title: const Text('Help & Support'),
+          title: Text(t.helpSupport),
           onTap: () {
             // TODO: Implement help link
             debugPrint('Navigate to help page');
@@ -82,7 +80,7 @@ class SettingsPage extends ConsumerWidget {
         // Acknowledgements
         ListTile(
           leading: const Icon(Icons.bookmark),
-          title: const Text('Acknowledgements'),
+          title: Text(t.acknowledgements),
           onTap: () {
             // TODO: Implement acknowledgements
             _showAcknowledgementsDialog(context);
@@ -92,52 +90,13 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  void _showLanguageSelectionDialog(BuildContext context) {
-    final languages = [
-      'English',
-      'Spanish',
-      'French',
-      'German',
-      'Japanese',
-      'Chinese',
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: languages.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(languages[index]),
-                onTap: () {
-                  // TODO: Update language preference
-                  debugPrint('Selected language: ${languages[index]}');
-                  Navigator.pop(context);
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showAcknowledgementsDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Acknowledgements'),
+        title: Text(t.acknowledgements),
         content: const SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

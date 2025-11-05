@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/search_query.dart';
 
 class FilterForm extends StatelessWidget {
@@ -22,20 +23,22 @@ class FilterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Archive'),
+          Text(t.archive),
           SizedBox(
             width: double.infinity,
             child: SegmentedButton<bool?>(
-              segments: const [
-                ButtonSegment<bool?>(value: null, label: Text('All')),
-                ButtonSegment<bool?>(value: true, label: Text('Archived')),
-                ButtonSegment<bool?>(value: false, label: Text('Not Archived')),
+              segments: [
+                ButtonSegment<bool?>(value: null, label: Text(t.all)),
+                ButtonSegment<bool?>(value: true, label: Text(t.archived)),
+                ButtonSegment<bool?>(value: false, label: Text(t.notArchived)),
               ],
               selected: {archive},
               onSelectionChanged: _handleSelection(onArchiveChanged),
@@ -43,17 +46,14 @@ class FilterForm extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          const Text('Favorite'),
+          Text(t.favorite),
           SizedBox(
             width: double.infinity,
             child: SegmentedButton<bool?>(
-              segments: const [
-                ButtonSegment<bool?>(value: null, label: Text('All')),
-                ButtonSegment<bool?>(value: true, label: Text('Favorited')),
-                ButtonSegment<bool?>(
-                  value: false,
-                  label: Text('Not Favorited'),
-                ),
+              segments: [
+                ButtonSegment<bool?>(value: null, label: Text(t.all)),
+                ButtonSegment<bool?>(value: true, label: Text(t.favorited)),
+                ButtonSegment<bool?>(value: false, label: Text(t.notFavorited)),
               ],
               selected: {favorite},
               onSelectionChanged: _handleSelection(onFavoriteChanged),
@@ -61,18 +61,18 @@ class FilterForm extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          const Text('Order'),
+          Text(t.order),
           SizedBox(
             width: double.infinity,
             child: SegmentedButton<SearchOrder>(
-              segments: const [
+              segments: [
                 ButtonSegment<SearchOrder>(
                   value: SearchOrder.idDesc,
-                  label: Text('Newest First'),
+                  label: Text(t.newestFirst),
                 ),
                 ButtonSegment<SearchOrder>(
                   value: SearchOrder.idAsc,
-                  label: Text('Oldest First'),
+                  label: Text(t.oldestFirst),
                 ),
               ],
               selected: {order},

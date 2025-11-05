@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/components/reselect.dart';
 
 import '../components/events/unauth_redirect.dart';
+import '../l10n/app_localizations.dart';
 
 class Shell extends StatelessWidget {
   const Shell({required this.navigationShell, super.key});
@@ -12,6 +13,7 @@ class Shell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = ReselectNotifier();
+    final t = AppLocalizations.of(context)!;
 
     return ReselectScope(
       notifier: notifier,
@@ -19,12 +21,18 @@ class Shell extends StatelessWidget {
         child: Scaffold(
           body: navigationShell,
           bottomNavigationBar: NavigationBar(
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.inbox), label: 'Unread'),
-              NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.settings),
-                label: 'Settings',
+                icon: const Icon(Icons.inbox),
+                label: t.unread,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.search),
+                label: t.search,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.settings),
+                label: t.settings,
               ),
             ],
             selectedIndex: navigationShell.currentIndex,
