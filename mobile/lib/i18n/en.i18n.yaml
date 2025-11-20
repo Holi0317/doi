@@ -15,7 +15,7 @@ nav:
   search: Search
   settings: Settings
 unread:
-  title: Unread ($count)
+  title: "Unread (${count: compact})"
   toggleSortingAsc: Toggle sort order (currently oldest first)
   toggleSortingDesc: Toggle sort order (currently newest first)
 search:

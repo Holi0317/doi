@@ -124,8 +124,8 @@ class TranslationsUnreadEn {
 
 	// Translations
 
-	/// en: 'Unread ($count)'
-	String title({required Object count}) => 'Unread (${count})';
+	/// en: 'Unread (${count: compact})'
+	String title({required num count}) => 'Unread (${NumberFormat.compact(locale: 'en').format(count)})';
 
 	/// en: 'Toggle sort order (currently oldest first)'
 	String get toggleSortingAsc => 'Toggle sort order (currently oldest first)';
@@ -372,7 +372,7 @@ extension on Translations {
 			'nav.unread' => 'Unread',
 			'nav.search' => 'Search',
 			'nav.settings' => 'Settings',
-			'unread.title' => ({required Object count}) => 'Unread (${count})',
+			'unread.title' => ({required num count}) => 'Unread (${NumberFormat.compact(locale: 'en').format(count)})',
 			'unread.toggleSortingAsc' => 'Toggle sort order (currently oldest first)',
 			'unread.toggleSortingDesc' => 'Toggle sort order (currently newest first)',
 			'search.search' => 'search',
