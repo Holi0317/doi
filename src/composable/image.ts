@@ -53,6 +53,12 @@ export async function fetchImage(
   // Build the cf image options, only including provided parameters
   const resp = await ky.get(url, {
     throwHttpErrors: false,
+    headers: {
+      // Has to pass in proper accept header, in addition to `cf.image.format`
+      // to make format transformation to kick in.
+      accept:
+        options?.format == null ? "image/jpeg" : `image/${options?.format}`,
+    },
     cf: {
       // Not including transform options in cache key.
       // See https://developers.cloudflare.com/images/transform-images/transform-via-workers/#warning-about-cachekey
