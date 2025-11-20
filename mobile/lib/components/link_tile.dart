@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -7,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/edit_op.dart';
 import '../models/link.dart';
 import '../models/link_action.dart';
+import '../providers/api.dart';
 import '../providers/queue.dart';
 import '../utils.dart';
 import 'link_image_preview.dart';
@@ -116,6 +118,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
         ),
         subtitle: Row(
           children: [
+            _buildFavicon(context),
             Flexible(
               child: Text(
                 uri.host,
@@ -167,6 +170,42 @@ class _LinkTileState extends ConsumerState<LinkTile>
             : () {
                 widget.onSelect?.call(true);
               },
+      ),
+    );
+  }
+
+  Widget _buildFavicon(BuildContext context) {
+    final apiRepository = ref.watch(apiRepositoryProvider);
+
+    if (apiRepository is! AsyncData) {
+      return const SizedBox.shrink();
+    }
+
+    final api = apiRepository.value;
+    if (api == null) {
+      return const SizedBox.shrink();
+    }
+
+    final faviconUrl = api.imageUrl(
+      widget.item.url,
+      type: 'favicon',
+      width: 16,
+      height: 16,
+    );
+
+    final headers = {
+      ...api.headers,
+      "Accept": "image/webp,image/x-icon,image/png,image/jpeg",
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 4.0),
+      child: CachedNetworkImage(
+        imageUrl: faviconUrl,
+        httpHeaders: headers,
+        width: 16,
+        height: 16,
+        errorWidget: (context, url, error) => const SizedBox.shrink(),
       ),
     );
   }

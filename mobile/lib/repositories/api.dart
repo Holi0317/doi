@@ -188,12 +188,21 @@ class ApiRepository {
   ///
   /// The URL still needs authentication headers. Pass in [headers] into the widget responsible for making the HTTP request.
   ///
+  /// Use [type] to specify 'social' (default) for og:image/twitter:image or 'favicon' for site favicon.
+  ///
   /// Use [dpr], [width], and [height] to request image with specific device pixel ratio and size.
   ///
   /// For transforming image format, use `Accept` header in the request.
-  String imageUrl(String url, {double? dpr, double? width, double? height}) {
+  String imageUrl(
+    String url, {
+    String type = 'social',
+    double? dpr,
+    double? width,
+    double? height,
+  }) {
     final queryParameters = <String, String>{
       'url': url,
+      'type': type,
       if (dpr != null) 'dpr': dpr.toString(),
       if (width != null) 'width': width.toString(),
       if (height != null) 'height': height.toString(),
