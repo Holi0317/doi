@@ -169,9 +169,6 @@ class TranslationsSettingsEn {
 	/// en: 'Help & Support'
 	String get helpSupport => 'Help & Support';
 
-	/// en: 'Acknowledgements'
-	String get acknowledgements => 'Acknowledgements';
-
 	/// en: 'App Version'
 	String get appVersion => 'App Version';
 
@@ -381,7 +378,6 @@ extension on Translations {
 			'settings.preferences' => 'Preferences',
 			'settings.about' => 'About',
 			'settings.helpSupport' => 'Help & Support',
-			'settings.acknowledgements' => 'Acknowledgements',
 			'settings.appVersion' => 'App Version',
 			'settings.theme.title' => 'Theme',
 			'settings.theme.select' => 'Select Theme',

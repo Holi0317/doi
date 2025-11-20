@@ -12,38 +12,19 @@ class AppVersionDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final line = ref.watch(appVersionLineProvider);
 
-    return AlertDialog(
-      title: Text(t.settings.appVersion),
-      content: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey.shade50,
-          ),
-          child: switch (line) {
-            AsyncValue(:final value?, hasValue: true) => SelectableText(
-              value,
-              style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: value));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.dialogs.copiedToClipboard)),
-                );
-              },
-            ),
-            AsyncValue(:final error?) => Text('Error: $error'),
-            AsyncValue() => const CircularProgressIndicator(),
-          },
-        ),
+    return switch (line) {
+      AsyncValue(:final value?, hasValue: true) => SelectableText(
+        value,
+        style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
+        onTap: () {
+          Clipboard.setData(ClipboardData(text: value));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.dialogs.copiedToClipboard)));
+        },
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(t.dialogs.close),
-        ),
-      ],
-    );
+      AsyncValue(:final error?) => Text('Error: $error'),
+      AsyncValue() => const CircularProgressIndicator(),
+    };
   }
 }

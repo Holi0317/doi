@@ -71,56 +71,7 @@ class SettingsPage extends ConsumerWidget {
             debugPrint('Navigate to help page');
           },
         ),
-        // Acknowledgements
-        ListTile(
-          leading: const Icon(Icons.bookmark),
-          title: Text(t.settings.acknowledgements),
-          onTap: () {
-            // TODO: Implement acknowledgements
-            _showAcknowledgementsDialog(context);
-          },
-        ),
       ],
-    );
-  }
-
-  void _showAcknowledgementsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.settings.acknowledgements),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Libraries and Resources',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '• Flutter - UI toolkit for building beautiful applications',
-              ),
-              Text('• Riverpod - State management solution'),
-              Text('• Other dependencies...'),
-              SizedBox(height: 16),
-              Text(
-                'Contributors',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text('• Team members and contributors'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.dialogs.close),
-          ),
-        ],
-      ),
     );
   }
 }

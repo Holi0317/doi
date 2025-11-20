@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../i18n/strings.g.dart';
-import '../../providers/extensions.dart';
 import '../../providers/package_info.dart';
 import 'app_version_dialog.dart';
 
@@ -11,24 +11,25 @@ class AppVersionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final version = ref.watch(
-      packageInfoProvider.selectData((info) => info.version),
-    );
+    final packageInfo = ref.watch(packageInfoProvider);
 
     return ListTile(
       leading: const Icon(Icons.info),
       title: Text(t.settings.appVersion),
-      subtitle: Text(version.value ?? t.dialogs.loading),
+      subtitle: Text(packageInfo.value?.version ?? t.dialogs.loading),
       onTap: () {
-        _showDialog(context);
+        _showDialog(context, packageInfo.value);
       },
     );
   }
 
-  void _showDialog(BuildContext context) {
-    showDialog(
+  void _showDialog(BuildContext context, PackageInfo? packageInfo) {
+    showAboutDialog(
       context: context,
-      builder: (context) => const AppVersionDialog(),
+      applicationName: packageInfo?.appName,
+      applicationVersion: packageInfo?.version,
+      applicationIcon: const Icon(Icons.info),
+      children: const [AppVersionDialog()],
     );
   }
 }

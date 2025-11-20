@@ -26,7 +26,6 @@ settings:
   preferences: Preferences
   about: About
   helpSupport: Help & Support
-  acknowledgements: Acknowledgements
   appVersion: "App Version"
   theme:
     title: Theme
