@@ -4,7 +4,11 @@ import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session/middleware";
 import { getSession } from "../composable/session/cookie";
-import { getHTMLTitle, getSocialImageUrl } from "../composable/scraper";
+import {
+  getHTMLTitle,
+  getSocialImageUrl,
+  getFaviconUrl,
+} from "../composable/scraper";
 import { useKy } from "../composable/http";
 import { encodeCursor } from "../composable/cursor";
 import {
@@ -43,7 +47,7 @@ const app = new Hono<Env>({ strict: false })
   .use(requireSession("throw"))
 
   .get("/image", zv("query", ImageQuerySchema), async (c) => {
-    const { url, dpr, width, height } = c.req.valid("query");
+    const { url, type, dpr, width, height } = c.req.valid("query");
     const format = parseAcceptImageFormat(c);
 
     // Create a cache key based on the URL and parameters
@@ -52,6 +56,7 @@ const app = new Hono<Env>({ strict: false })
     // Override search params for cache key
     // Adding `x-` prefix to avoid (unlikely) collision with original URL params
     const override = {
+      "x-type": type,
       "x-dpr": dpr?.toString() || "",
       "x-width": width?.toString() || "",
       "x-height": height?.toString() || "",
@@ -66,25 +71,38 @@ const app = new Hono<Env>({ strict: false })
 
     const ky = useKy(c);
 
-    // Abuse useCache for caching extracted social image URL
-    const imageUrlResp = await useCache("image_url", new URL(url), async () => {
-      // Fetch and extract image URL from the page
-      const imageUrl = await getSocialImageUrl(ky, url);
-      const body = imageUrl == null ? "" : imageUrl.toString();
+    // Abuse useCache for caching extracted image URL
+    // Use different cache namespace for social vs favicon
+    const cacheNamespace = type === "favicon" ? "favicon_url" : "image_url";
+    const imageUrlResp = await useCache(
+      cacheNamespace,
+      new URL(url),
+      async () => {
+        // Fetch and extract image URL from the page based on type
+        let imageUrl: URL | null = null;
 
-      return new Response(body, {
-        status: 200,
-        headers: {
-          "content-type": "text/plain",
-          // Cache for 24 hours. Maybe I should respect Cache-Control from origin instead?
-          "cache-control": "public, max-age=86400",
-        },
-      });
-    });
+        if (type === "favicon") {
+          imageUrl = await getFaviconUrl(ky, url);
+        } else {
+          imageUrl = await getSocialImageUrl(ky, url);
+        }
+
+        const body = imageUrl == null ? "" : imageUrl.toString();
+
+        return new Response(body, {
+          status: 200,
+          headers: {
+            "content-type": "text/plain",
+            // Cache for 24 hours. Maybe I should respect Cache-Control from origin instead?
+            "cache-control": "public, max-age=86400",
+          },
+        });
+      },
+    );
 
     const imageUrl = await imageUrlResp.text();
     if (imageUrl === "") {
-      console.info("No social image found for URL", url);
+      console.info(`No ${type} image found for URL`, url);
       return c.text("", 404);
     }
 

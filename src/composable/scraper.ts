@@ -147,3 +147,69 @@ export async function getSocialImageUrl(
     return null;
   }
 }
+
+/**
+ * Get favicon URL from HTML link tags or fallback to /favicon.ico.
+ *
+ * This function scrapes the given URL as HTML and tries to extract favicon
+ * URLs from link tags. It supports:
+ * - <link rel="icon" href="...">
+ * - <link rel="shortcut icon" href="...">
+ * - <link rel="apple-touch-icon" href="...">
+ *
+ * When more than one matching tags exists, this will return the last parsed
+ * tag with preference to "icon" rel values.
+ *
+ * If no favicon link tags are found, this will fallback to /favicon.ico
+ * at the origin of the URL.
+ *
+ * If the we cannot fetch the page because of network error, this will
+ * return the fallback /favicon.ico URL.
+ *
+ * This will still parse HTML document that contains error (>= 400) HTTP status
+ * code.
+ */
+export async function getFaviconUrl(
+  ky: KyInstance,
+  url: string,
+): Promise<URL> {
+  let faviconUrl: string | null = null;
+
+  const rewriter = new HTMLRewriter();
+  rewriter.on("head>link", {
+    element(element) {
+      const rel = element.getAttribute("rel");
+      if (rel == null) {
+        return;
+      }
+
+      // Check for various favicon rel attributes
+      const isIcon =
+        rel === "icon" ||
+        rel === "shortcut icon" ||
+        rel === "apple-touch-icon";
+
+      if (isIcon) {
+        const href = element.getAttribute("href");
+        if (href != null) {
+          faviconUrl = href;
+        }
+      }
+    },
+  });
+
+  await processHTML(ky, url, rewriter);
+
+  // If we found a favicon URL in the HTML, use it
+  if (faviconUrl != null) {
+    try {
+      return new URL(faviconUrl, url);
+    } catch {
+      console.warn("Cannot parse favicon tag as URL", faviconUrl);
+    }
+  }
+
+  // Fallback to /favicon.ico at the origin
+  const parsedUrl = new URL(url);
+  return new URL("/favicon.ico", parsedUrl.origin);
+}

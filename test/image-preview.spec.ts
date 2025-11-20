@@ -197,4 +197,141 @@ describe("Image preview API", () => {
 
     await testReturn404();
   });
+
+  describe("Favicon type", () => {
+    it("should return favicon when type=favicon and link rel=icon is present", async () => {
+      const client = await createTestClient();
+
+      // Mock the HTML page with favicon link
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/page", method: "get" })
+        .reply(
+          200,
+          `<!doctype html>
+          <html>
+            <head>
+              <link rel="icon" href="/custom-favicon.ico" />
+            </head>
+          </html>`,
+        );
+
+      // Mock the favicon fetch
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/custom-favicon.ico", method: "get" })
+        .reply(200, "favicon-data", {
+          headers: { "Content-Type": "image/x-icon" },
+        });
+
+      const resp = await client.api.image.$get({
+        query: { url: "https://example.com/page", type: "favicon" },
+      });
+
+      expect(resp.status).toEqual(200);
+      expect(resp.headers.get("Content-Type")).toEqual("image/x-icon");
+      expect(await resp.text()).toEqual("favicon-data");
+    });
+
+    it("should fallback to /favicon.ico when no favicon link tag is present", async () => {
+      const client = await createTestClient();
+
+      // Mock the HTML page without favicon link
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/page", method: "get" })
+        .reply(
+          200,
+          `<!doctype html>
+          <html>
+            <head>
+              <title>Page without favicon link</title>
+            </head>
+          </html>`,
+        );
+
+      // Mock the fallback favicon fetch
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/favicon.ico", method: "get" })
+        .reply(200, "default-favicon", {
+          headers: { "Content-Type": "image/x-icon" },
+        });
+
+      const resp = await client.api.image.$get({
+        query: { url: "https://example.com/page", type: "favicon" },
+      });
+
+      expect(resp.status).toEqual(200);
+      expect(resp.headers.get("Content-Type")).toEqual("image/x-icon");
+      expect(await resp.text()).toEqual("default-favicon");
+    });
+
+    it("should handle shortcut icon rel attribute", async () => {
+      const client = await createTestClient();
+
+      // Mock the HTML page with shortcut icon
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/page", method: "get" })
+        .reply(
+          200,
+          `<!doctype html>
+          <html>
+            <head>
+              <link rel="shortcut icon" href="/shortcut.ico" />
+            </head>
+          </html>`,
+        );
+
+      // Mock the favicon fetch
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/shortcut.ico", method: "get" })
+        .reply(200, "shortcut-favicon", {
+          headers: { "Content-Type": "image/x-icon" },
+        });
+
+      const resp = await client.api.image.$get({
+        query: { url: "https://example.com/page", type: "favicon" },
+      });
+
+      expect(resp.status).toEqual(200);
+      expect(await resp.text()).toEqual("shortcut-favicon");
+    });
+
+    it("should default to social type when type is not specified", async () => {
+      const client = await createTestClient();
+
+      // Mock the HTML page with both favicon and og:image
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/page", method: "get" })
+        .reply(
+          200,
+          `<!doctype html>
+          <html>
+            <head>
+              <link rel="icon" href="/favicon.ico" />
+              <meta property="og:image" content="https://example.com/social.jpg" />
+            </head>
+          </html>`,
+        );
+
+      // Mock the social image fetch
+      fetchMock
+        .get("https://example.com")
+        .intercept({ path: "/social.jpg", method: "get" })
+        .reply(200, "social-image", {
+          headers: { "Content-Type": "image/jpeg" },
+        });
+
+      const resp = await client.api.image.$get({
+        query: { url: "https://example.com/page" },
+      });
+
+      expect(resp.status).toEqual(200);
+      expect(await resp.text()).toEqual("social-image");
+    });
+  });
 });
