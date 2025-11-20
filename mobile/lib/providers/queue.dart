@@ -47,6 +47,11 @@ class EditQueue extends _$EditQueue {
     final val = state.value ?? const [];
     state = AsyncValue.data(List.unmodifiable(val.slice(length).toList()));
   }
+
+  /// Resets the queue to empty.
+  void reset() {
+    state = const AsyncValue.data([]);
+  }
 }
 
 /// Map view for [EditQueue].
@@ -94,5 +99,10 @@ class InsertQueue extends _$InsertQueue {
 
     final val = state.value ?? const [];
     state = AsyncValue.data(List.unmodifiable(val.slice(length).toList()));
+  }
+
+  /// Resets the queue to empty.
+  void reset() {
+    state = const AsyncValue.data([]);
   }
 }

@@ -9,6 +9,7 @@ import '../../i18n/strings.g.dart';
 import '../../models/server_info.dart';
 import '../../providers/api.dart';
 import '../../providers/extensions.dart';
+import '../../providers/queue.dart';
 import '../../providers/shared_preferences.dart';
 import '../shimmer.dart';
 
@@ -201,6 +202,10 @@ class Whoami extends ConsumerWidget {
     await ref
         .read(preferenceProvider(SharedPreferenceKey.apiToken).notifier)
         .reset();
+
+    // Reset edit queues
+    ref.read(editQueueProvider.notifier).reset();
+    ref.read(insertQueueProvider.notifier).reset();
 
     if (!context.mounted) {
       _logger.warning('Context not mounted after clearing preferences');
