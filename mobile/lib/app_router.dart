@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/pages/login.dart';
-import 'package:mobile/pages/search.dart';
-import 'package:mobile/pages/settings.dart';
-import 'package:mobile/pages/shell.dart';
-import 'package:mobile/pages/unread.dart';
+
+import 'pages/login.dart';
+import 'pages/search.dart';
+import 'pages/settings.dart';
+import 'pages/shell.dart';
+import 'pages/unread.dart';
 
 final router = GoRouter(
   initialLocation: '/unread',

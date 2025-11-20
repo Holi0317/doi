@@ -13,18 +13,23 @@ abstract class SearchQuery with _$SearchQuery {
     /// Search query. This will search both title and url.
     /// null / empty string will all be treated as disable search filter.
     String? query,
+
     /// Cursor for pagination.
     /// null / empty string will be treated as noop.
     /// Note the client must keep other search parameters the same when paginating.
     String? cursor,
+
     /// Archive filter. Null means disable filter.
     /// Boolean means the item must be archived or not archived.
     bool? archive,
+
     /// Favorite filter.
     /// Null means disable filter. Boolean means the item must be favorited or not favorited.
     bool? favorite,
+
     /// Limit items to return.
     @Default(30) int limit,
+
     /// Order in result. Can only sort by id.
     /// id correlates to created_at timestamp, so this sorting is effectively link insert time.
     @Default(SearchOrder.idDesc) SearchOrder order,

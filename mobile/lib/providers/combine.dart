@@ -1,12 +1,12 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:mobile/models/edit_op.dart';
-import 'package:mobile/models/link.dart';
-import 'package:mobile/models/search_response.dart';
-import 'package:mobile/providers/queue.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../models/edit_op.dart';
+import '../models/link.dart';
 import '../models/search_query.dart';
+import '../models/search_response.dart';
 import 'api.dart';
+import 'queue.dart';
 
 part 'combine.g.dart';
 

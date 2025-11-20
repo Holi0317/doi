@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:mobile/components/shimmer.dart';
-import 'package:mobile/models/server_info.dart';
-import 'package:mobile/providers/api.dart';
-import 'package:mobile/providers/extensions.dart';
-import 'package:mobile/providers/shared_preferences.dart';
 
 import '../../i18n/strings.g.dart';
+import '../../models/server_info.dart';
+import '../../providers/api.dart';
+import '../../providers/extensions.dart';
+import '../../providers/shared_preferences.dart';
+import '../shimmer.dart';
 
 class Whoami extends ConsumerWidget {
   Whoami({super.key});

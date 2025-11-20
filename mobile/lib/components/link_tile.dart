@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:mobile/providers/queue.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/edit_op.dart';
 import '../models/link.dart';
 import '../models/link_action.dart';
+import '../providers/queue.dart';
 import '../utils.dart';
 import 'link_image_preview.dart';
 

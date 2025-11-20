@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/components/reselect.dart';
 
 import '../components/events/unauth_redirect.dart';
+import '../components/reselect.dart';
 import '../i18n/strings.g.dart';
 
 class Shell extends StatelessWidget {

@@ -19,9 +19,7 @@ sealed class EditOp with _$EditOp {
     required bool value,
   }) = EditOpSet;
 
-  const factory EditOp.delete({
-    required int id,
-  }) = EditOpDelete;
+  const factory EditOp.delete({required int id}) = EditOpDelete;
 
   factory EditOp.fromJson(Map<String, dynamic> json) => _$EditOpFromJson(json);
 }

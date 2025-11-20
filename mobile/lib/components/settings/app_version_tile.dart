@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/components/settings/app_version_dialog.dart';
-import 'package:mobile/providers/extensions.dart';
-import 'package:mobile/providers/package_info.dart';
 
 import '../../i18n/strings.g.dart';
+import '../../providers/extensions.dart';
+import '../../providers/package_info.dart';
+import 'app_version_dialog.dart';
 
 class AppVersionTile extends ConsumerWidget {
   const AppVersionTile({super.key});

@@ -1,13 +1,13 @@
 import 'package:logging/logging.dart';
-import 'package:mobile/providers/api.dart';
-import 'package:mobile/providers/extensions.dart';
-import 'package:mobile/providers/queue.dart';
-import 'package:mobile/providers/share_handler.dart';
-import 'package:mobile/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/edit_op.dart';
 import '../models/insert_item.dart';
+import '../utils.dart';
+import 'api.dart';
+import 'extensions.dart';
+import 'queue.dart';
+import 'share_handler.dart';
 
 part 'sync_worker.g.dart';
 

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/components/edit_app_bar.dart';
-import 'package:mobile/components/link_list.dart';
-import 'package:mobile/components/reselect.dart';
-import 'package:mobile/providers/combine.dart';
-import 'package:mobile/providers/extensions.dart';
 
+import '../components/edit_app_bar.dart';
+import '../components/link_list.dart';
+import '../components/reselect.dart';
 import '../i18n/strings.g.dart';
 import '../models/link_action.dart';
 import '../models/search_query.dart';
+import '../providers/combine.dart';
+import '../providers/extensions.dart';
 
 class UnreadPage extends ConsumerStatefulWidget {
   const UnreadPage({super.key});

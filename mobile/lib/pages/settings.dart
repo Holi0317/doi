@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/components/settings/app_version_tile.dart';
-import 'package:mobile/components/settings/theme_select_tile.dart';
-import 'package:mobile/components/settings/whoami.dart';
 
+import '../components/settings/app_version_tile.dart';
+import '../components/settings/theme_select_tile.dart';
+import '../components/settings/whoami.dart';
 import '../i18n/strings.g.dart';
 
 class SettingsPage extends ConsumerWidget {

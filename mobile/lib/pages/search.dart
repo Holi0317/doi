@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/components/filter_overlay.dart';
-import 'package:mobile/models/search_query.dart';
 
 import '../components/edit_app_bar.dart';
+import '../components/filter_overlay.dart';
 import '../components/link_list.dart';
 import '../components/reselect.dart';
 import '../i18n/strings.g.dart';
 import '../models/link_action.dart';
+import '../models/search_query.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});

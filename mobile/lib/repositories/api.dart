@@ -4,12 +4,12 @@ import 'dart:io' show Cookie;
 import 'package:collection/collection.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/models/search_query.dart';
-import 'package:mobile/models/search_response.dart';
 
 import '../models/edit_op.dart';
 import '../models/insert_item.dart';
 import '../models/link.dart';
+import '../models/search_query.dart';
+import '../models/search_response.dart';
 import '../models/server_info.dart';
 
 class RequestException implements Exception {

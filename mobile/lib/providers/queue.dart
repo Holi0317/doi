@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/experimental/persist.dart';
-import 'package:mobile/providers/storage.dart';
 import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/edit_op.dart';
 import '../models/insert_item.dart';
+import 'storage.dart';
 
 part 'queue.g.dart';
 

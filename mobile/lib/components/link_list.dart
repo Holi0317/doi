@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:mobile/models/link.dart';
-import 'package:mobile/models/search_query.dart';
 
+import '../models/link.dart';
+import '../models/search_query.dart';
 import '../providers/api.dart';
 import '../providers/combine.dart';
 import 'link_tile.dart';

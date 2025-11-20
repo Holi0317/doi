@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/components/filter_form.dart';
-import 'package:mobile/models/search_query.dart';
+import 'filter_form.dart';
+import '../models/search_query.dart';
 
 /// A stateful overlay that displays a filter form below the app bar.
 ///

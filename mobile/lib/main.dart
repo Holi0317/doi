@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:mobile/app_router.dart';
-import 'package:mobile/components/events/sync_worker.dart';
-import 'package:mobile/providers/logger_observer.dart';
-import 'package:mobile/providers/shared_preferences.dart';
-import 'package:mobile/repositories/retry.dart';
 
+import 'app_router.dart';
+import 'components/events/sync_worker.dart';
 import 'i18n/strings.g.dart';
+import 'providers/logger_observer.dart';
+import 'providers/shared_preferences.dart';
+import 'repositories/retry.dart';
 
 void main() {
   Logger.root.onRecord.listen((record) {
@@ -22,6 +22,8 @@ void main() {
     if (record.stackTrace != null) {
       sb.writeln('StackTrace:\n${record.stackTrace}');
     }
+
+    // ignore: avoid_print
     print(sb.toString());
   });
 
