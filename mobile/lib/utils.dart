@@ -17,6 +17,7 @@ Uri? isWebUri(String uri) {
 /// Format a unix epoch timestamp (in milliseconds) as a relative date string.
 ///
 /// Examples: "2 hours ago", "3 days ago", "2 months ago"
+/// FIXME: Translation
 String formatRelativeDate(int createdAtMs) {
   final createdAt = DateTime.fromMillisecondsSinceEpoch(createdAtMs);
   final now = DateTime.now();

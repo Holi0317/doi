@@ -4,6 +4,8 @@ import 'package:mobile/components/settings/app_version_dialog.dart';
 import 'package:mobile/providers/extensions.dart';
 import 'package:mobile/providers/package_info.dart';
 
+import '../../i18n/strings.g.dart';
+
 class AppVersionTile extends ConsumerWidget {
   const AppVersionTile({super.key});
 
@@ -15,8 +17,8 @@ class AppVersionTile extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.info),
-      title: const Text('App Version'),
-      subtitle: Text(version.value ?? 'Loading...'),
+      title: Text(t.settings.appVersion),
+      subtitle: Text(version.value ?? t.dialogs.loading),
       onTap: () {
         _showDialog(context);
       },

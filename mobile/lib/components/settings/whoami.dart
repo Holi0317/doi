@@ -10,6 +10,8 @@ import 'package:mobile/providers/api.dart';
 import 'package:mobile/providers/extensions.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 
+import '../../i18n/strings.g.dart';
+
 class Whoami extends ConsumerWidget {
   Whoami({super.key});
 
@@ -81,25 +83,27 @@ class Whoami extends ConsumerWidget {
                         );
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied server url to clipboard'),
-                          ),
+                          SnackBar(content: Text(t.settings.copyApiUrl)),
                         );
                       },
                 child: Text(
-                  "@${session.login} (${session.source}) on ${apiUrl.value?.host ?? ''}",
+                  t.settings.userLine(
+                    login: session.login,
+                    source: session.source,
+                    host: apiUrl.value?.host ?? '',
+                  ),
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
               ),
               const SizedBox(height: 8),
               FilledButton(
                 onPressed: () => _logoutDialog(context, ref),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.logout, size: 20),
-                    SizedBox(width: 8),
-                    Text('Logout'),
+                    const Icon(Icons.logout, size: 20),
+                    const SizedBox(width: 8),
+                    Text(t.settings.logout.title),
                   ],
                 ),
               ),
@@ -111,7 +115,7 @@ class Whoami extends ConsumerWidget {
   }
 
   Widget _buildUnauth(BuildContext context) {
-    return const Text('Not authenticated');
+    return Text(t.settings.unauthenticated);
   }
 
   Widget _buildError(BuildContext context, Object error) {
@@ -166,16 +170,16 @@ class Whoami extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(t.settings.logout.confirmDialog),
+        content: Text(t.settings.logout.confirmText),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(t.dialogs.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Logout'),
+            child: Text(t.settings.logout.title),
           ),
         ],
       ),

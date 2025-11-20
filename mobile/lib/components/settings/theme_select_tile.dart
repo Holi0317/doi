@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 
+import '../../i18n/strings.g.dart';
+
 class ThemeSelectTile extends ConsumerWidget {
   const ThemeSelectTile({super.key});
 
@@ -11,11 +13,11 @@ class ThemeSelectTile extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.brightness_6),
-      title: const Text('Theme'),
+      title: Text(t.settings.theme.title),
       subtitle: Text(switch (a.value) {
-        'light' => 'Light',
-        'dark' => 'Dark',
-        'system' || null || _ => 'System Default',
+        'light' => t.settings.theme.light,
+        'dark' => t.settings.theme.dark,
+        'system' || null || _ => t.settings.theme.dark,
       }),
       onTap: () {
         _showThemeSelectionDialog(context, ref);
@@ -27,11 +29,11 @@ class ThemeSelectTile extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Select Theme'),
+        title: Text(t.settings.theme.select),
         children: [
-          _buildOption(context, ref, 'Light', 'light'),
-          _buildOption(context, ref, 'Dark', 'dark'),
-          _buildOption(context, ref, 'System Default', 'system'),
+          _buildOption(context, ref, t.settings.theme.light, 'light'),
+          _buildOption(context, ref, t.settings.theme.dark, 'dark'),
+          _buildOption(context, ref, t.settings.theme.system, 'system'),
         ],
       ),
     );

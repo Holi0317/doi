@@ -3,6 +3,8 @@ dialogs:
   cancel: Cancel
   delete: Delete
   close: Close
+  copiedToClipboard: Copied to clipboard
+  loading: "Loading..."
 formErr:
   emptyValue: This field cannot be empty.
   invalidUrl: Please enter a valid URL.
@@ -25,6 +27,20 @@ settings:
   about: About
   helpSupport: Help & Support
   acknowledgements: Acknowledgements
+  appVersion: "App Version"
+  theme:
+    title: Theme
+    select: "Select Theme"
+    light: Light
+    dark: Dark
+    system: "System Default"
+  logout:
+    title: Logout
+    confirmDialog: Confirm Logout
+    confirmText: "Are you sure you want to logout?"
+  copyApiUrl: "Copy API URL to Clipboard"
+  userLine: "@${login} (${source}) on ${host}"
+  unauthenticated: Not authenticated
 login:
   title: Login
   apiUrlLabel: "API URL"
@@ -55,3 +71,12 @@ filter:
     title: Order
     newestFirst: Newest First
     oldestFirst: Oldest First
+
+# See link_action enum. Must match the enum's key.
+"linkAction(map)":
+  archive: Archive
+  unarchive: Unarchive
+  favorite: Favorite
+  unfavorite: Unfavorite
+  share: Share
+  delete: Delete

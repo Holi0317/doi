@@ -49,6 +49,14 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLoginEn login = TranslationsLoginEn.internal(_root);
 	late final TranslationsEditBarEn editBar = TranslationsEditBarEn.internal(_root);
 	late final TranslationsFilterEn filter = TranslationsFilterEn.internal(_root);
+	Map<String, String> get linkAction => {
+		'archive': 'Archive',
+		'unarchive': 'Unarchive',
+		'favorite': 'Favorite',
+		'unfavorite': 'Unfavorite',
+		'share': 'Share',
+		'delete': 'Delete',
+	};
 }
 
 // Path: dialogs
@@ -67,6 +75,12 @@ class TranslationsDialogsEn {
 
 	/// en: 'Close'
 	String get close => 'Close';
+
+	/// en: 'Copied to clipboard'
+	String get copiedToClipboard => 'Copied to clipboard';
+
+	/// en: 'Loading...'
+	String get loading => 'Loading...';
 }
 
 // Path: formErr
@@ -157,6 +171,21 @@ class TranslationsSettingsEn {
 
 	/// en: 'Acknowledgements'
 	String get acknowledgements => 'Acknowledgements';
+
+	/// en: 'App Version'
+	String get appVersion => 'App Version';
+
+	late final TranslationsSettingsThemeEn theme = TranslationsSettingsThemeEn.internal(_root);
+	late final TranslationsSettingsLogoutEn logout = TranslationsSettingsLogoutEn.internal(_root);
+
+	/// en: 'Copy API URL to Clipboard'
+	String get copyApiUrl => 'Copy API URL to Clipboard';
+
+	/// en: '@${login} (${source}) on ${host}'
+	String userLine({required Object login, required Object source, required Object host}) => '@${login} (${source}) on ${host}';
+
+	/// en: 'Not authenticated'
+	String get unauthenticated => 'Not authenticated';
 }
 
 // Path: login
@@ -217,6 +246,48 @@ class TranslationsFilterEn {
 	late final TranslationsFilterArchiveEn archive = TranslationsFilterArchiveEn.internal(_root);
 	late final TranslationsFilterFavoriteEn favorite = TranslationsFilterFavoriteEn.internal(_root);
 	late final TranslationsFilterOrderEn order = TranslationsFilterOrderEn.internal(_root);
+}
+
+// Path: settings.theme
+class TranslationsSettingsThemeEn {
+	TranslationsSettingsThemeEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Theme'
+	String get title => 'Theme';
+
+	/// en: 'Select Theme'
+	String get select => 'Select Theme';
+
+	/// en: 'Light'
+	String get light => 'Light';
+
+	/// en: 'Dark'
+	String get dark => 'Dark';
+
+	/// en: 'System Default'
+	String get system => 'System Default';
+}
+
+// Path: settings.logout
+class TranslationsSettingsLogoutEn {
+	TranslationsSettingsLogoutEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Logout'
+	String get title => 'Logout';
+
+	/// en: 'Confirm Logout'
+	String get confirmDialog => 'Confirm Logout';
+
+	/// en: 'Are you sure you want to logout?'
+	String get confirmText => 'Are you sure you want to logout?';
 }
 
 // Path: filter.archive
@@ -294,6 +365,8 @@ extension on Translations {
 			'dialogs.cancel' => 'Cancel',
 			'dialogs.delete' => 'Delete',
 			'dialogs.close' => 'Close',
+			'dialogs.copiedToClipboard' => 'Copied to clipboard',
+			'dialogs.loading' => 'Loading...',
 			'formErr.emptyValue' => 'This field cannot be empty.',
 			'formErr.invalidUrl' => 'Please enter a valid URL.',
 			'nav.unread' => 'Unread',
@@ -309,6 +382,18 @@ extension on Translations {
 			'settings.about' => 'About',
 			'settings.helpSupport' => 'Help & Support',
 			'settings.acknowledgements' => 'Acknowledgements',
+			'settings.appVersion' => 'App Version',
+			'settings.theme.title' => 'Theme',
+			'settings.theme.select' => 'Select Theme',
+			'settings.theme.light' => 'Light',
+			'settings.theme.dark' => 'Dark',
+			'settings.theme.system' => 'System Default',
+			'settings.logout.title' => 'Logout',
+			'settings.logout.confirmDialog' => 'Confirm Logout',
+			'settings.logout.confirmText' => 'Are you sure you want to logout?',
+			'settings.copyApiUrl' => 'Copy API URL to Clipboard',
+			'settings.userLine' => ({required Object login, required Object source, required Object host}) => '@${login} (${source}) on ${host}',
+			'settings.unauthenticated' => 'Not authenticated',
 			'login.title' => 'Login',
 			'login.apiUrlLabel' => 'API URL',
 			'login.loginButton' => 'Login',
@@ -330,6 +415,12 @@ extension on Translations {
 			'filter.order.title' => 'Order',
 			'filter.order.newestFirst' => 'Newest First',
 			'filter.order.oldestFirst' => 'Oldest First',
+			'linkAction.archive' => 'Archive',
+			'linkAction.unarchive' => 'Unarchive',
+			'linkAction.favorite' => 'Favorite',
+			'linkAction.unfavorite' => 'Unfavorite',
+			'linkAction.share' => 'Share',
+			'linkAction.delete' => 'Delete',
 			_ => null,
 		};
 	}

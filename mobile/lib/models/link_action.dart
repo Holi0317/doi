@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+import '../i18n/strings.g.dart';
+
 /// Enum of actions that can be performed on a link.
 enum LinkAction {
   // FIXME: Fix the colors. They are super ugly right now
   // FIXME: Do translations on labels
-  archive(Icons.archive, 'Archive', Colors.lime),
-  unarchive(Icons.unarchive, 'Unarchive', Colors.lime),
-  favorite(Icons.favorite, 'Favorite', Colors.lightBlue),
-  unfavorite(Icons.favorite_border, 'Unfavorite', Colors.lightBlue),
-  share(Icons.share, 'Share', Colors.amber),
-  delete(Icons.delete, 'Delete', Colors.red);
+  archive(Icons.archive, Colors.lime),
+  unarchive(Icons.unarchive, Colors.lime),
+  favorite(Icons.favorite, Colors.lightBlue),
+  unfavorite(Icons.favorite_border, Colors.lightBlue),
+  share(Icons.share, Colors.amber),
+  delete(Icons.delete, Colors.red);
 
   final IconData icon;
-  final String label;
   final Color color;
 
-  const LinkAction(this.icon, this.label, this.color);
+  const LinkAction(this.icon, this.color);
+
+  /// Get the localized label for this action.
+  /// Must run in a context where [Translations] is available.
+  String get label {
+    return t.linkAction[name]!;
+  }
 
   /// Create a [PopupMenuItem] for this action for use in menus.
   PopupMenuItem<LinkAction> popup() {

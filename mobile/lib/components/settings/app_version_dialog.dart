@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/providers/version.dart';
 
+import '../../i18n/strings.g.dart';
+
 class AppVersionDialog extends ConsumerWidget {
   const AppVersionDialog({super.key});
 
@@ -11,7 +13,7 @@ class AppVersionDialog extends ConsumerWidget {
     final line = ref.watch(appVersionLineProvider);
 
     return AlertDialog(
-      title: const Text('App Version'),
+      title: Text(t.settings.appVersion),
       content: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(12),
@@ -27,7 +29,7 @@ class AppVersionDialog extends ConsumerWidget {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: value));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
+                  SnackBar(content: Text(t.dialogs.copiedToClipboard)),
                 );
               },
             ),
@@ -39,7 +41,7 @@ class AppVersionDialog extends ConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(t.dialogs.close),
         ),
       ],
     );

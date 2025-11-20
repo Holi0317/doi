@@ -171,6 +171,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     try {
       await apiRepository.info();
     } catch (e) {
+      // FIXME: Error translation
       throw Exception('Unable to connect to server. Is the URL correct?: $e');
     }
 
