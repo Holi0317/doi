@@ -158,7 +158,8 @@ export async function getSocialImageUrl(
  * - <link rel="apple-touch-icon" href="...">
  *
  * When more than one matching tags exists, this will return the last parsed
- * tag with preference to "icon" rel values.
+ * tag. Note: We ignore media, type, and sizes attributes from the spec and
+ * always use the last matching tag.
  *
  * If no favicon link tags are found, this will fallback to /favicon.ico
  * at the origin of the URL.
@@ -184,6 +185,7 @@ export async function getFaviconUrl(
       }
 
       // Check for various favicon rel attributes
+      // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel#icon
       const isIcon =
         rel === "icon" ||
         rel === "shortcut icon" ||
@@ -205,7 +207,10 @@ export async function getFaviconUrl(
     try {
       return new URL(faviconUrl, url);
     } catch {
-      console.warn("Cannot parse favicon tag as URL", faviconUrl);
+      console.warn(
+        "Cannot parse favicon tag as URL. Fallback to /favicon.ico",
+        faviconUrl,
+      );
     }
   }
 

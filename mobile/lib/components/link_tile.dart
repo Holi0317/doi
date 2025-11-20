@@ -195,7 +195,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
 
     final headers = {
       ...api.headers,
-      "Accept": "image/webp,image/x-icon,image/png,image/jpeg",
+      "Accept": "image/webp,image/png,image/jpeg",
     };
 
     return Padding(
