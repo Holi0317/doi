@@ -6,7 +6,7 @@ import 'package:mobile/components/reselect.dart';
 import 'package:mobile/providers/combine.dart';
 import 'package:mobile/providers/extensions.dart';
 
-import '../l10n/app_localizations.dart';
+import '../i18n/strings.g.dart';
 import '../models/link_action.dart';
 import '../models/search_query.dart';
 
@@ -23,7 +23,6 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
 
   @override
   Widget build(BuildContext context) {
-    var t = AppLocalizations.of(context)!;
     final unreadSearchQuery = SearchQuery(archive: false, order: _order);
 
     final count = ref.watch(
@@ -36,9 +35,9 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
             title: switch (count) {
               // FIXME: Count is inaccurate when there are pending edits in queue.
               AsyncValue(:final value?, hasValue: true) => Text(
-                t.unreadTitle(value),
+                t.unread.title(count: value),
               ),
-              _ => Text(t.unread),
+              _ => Text(t.nav.unread),
             },
             actions: [_sortAction(context)],
           )
@@ -71,15 +70,13 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
   }
 
   Widget _sortAction(BuildContext context) {
-    var t = AppLocalizations.of(context)!;
-
     return IconButton(
       icon: Icon(
         _order == SearchOrder.idAsc ? Icons.arrow_upward : Icons.arrow_downward,
       ),
       tooltip: _order == SearchOrder.idAsc
-          ? t.toggleSortingAsc
-          : t.toggleSortingDesc,
+          ? t.unread.toggleSortingAsc
+          : t.unread.toggleSortingDesc,
       onPressed: () {
         setState(() {
           _order = _order == SearchOrder.idAsc

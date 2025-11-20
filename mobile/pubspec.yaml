@@ -61,6 +61,8 @@ dependencies:
   intl: ^0.20.2
   flutter_web_auth_2: ^4.1.0
   package_info_plus: ^9.0.0
+  slang: ^4.10.1
+  slang_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,7 @@ dev_dependencies:
   riverpod_generator: ^3.0.3
   custom_lint: ^0.8.0
   riverpod_lint: ^3.0.3
+  slang_build_runner: ^4.10.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,8 +91,6 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-  generate: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:

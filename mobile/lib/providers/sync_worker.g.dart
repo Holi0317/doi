@@ -75,15 +75,21 @@ abstract class _$SyncWorker extends $Notifier<int> {
 }
 
 /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+///
+/// FIXME(GH-11): Refactor share handling
 
 @ProviderFor(shareQueueBridge)
 const shareQueueBridgeProvider = ShareQueueBridgeProvider._();
 
 /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+///
+/// FIXME(GH-11): Refactor share handling
 
 final class ShareQueueBridgeProvider extends $FunctionalProvider<int, int, int>
     with $Provider<int> {
   /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+  ///
+  /// FIXME(GH-11): Refactor share handling
   const ShareQueueBridgeProvider._()
     : super(
         from: null,

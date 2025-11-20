@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile/app_router.dart';
@@ -7,7 +8,7 @@ import 'package:mobile/providers/logger_observer.dart';
 import 'package:mobile/providers/shared_preferences.dart';
 import 'package:mobile/repositories/retry.dart';
 
-import 'l10n/app_localizations.dart';
+import 'i18n/strings.g.dart';
 
 void main() {
   Logger.root.onRecord.listen((record) {
@@ -24,40 +25,49 @@ void main() {
     print(sb.toString());
   });
 
+  WidgetsFlutterBinding.ensureInitialized();
+  LocaleSettings.useDeviceLocale();
+
   runApp(
     ProviderScope(
       retry: retryStrategy,
       observers: [const LoggerObserver()],
-      child: SyncWorkerWidget(
-        child: Consumer(
-          builder: (context, ref, child) {
-            final themeAsync = ref.watch(
-              preferenceProvider(SharedPreferenceKey.theme),
-            );
-            final themeMode = switch (themeAsync.value) {
-              'light' => ThemeMode.light,
-              'dark' => ThemeMode.dark,
-              'system' || null || _ => ThemeMode.system,
-            };
+      child: TranslationProvider(
+        child: SyncWorkerWidget(
+          child: Consumer(
+            builder: (context, ref, child) {
+              final themeAsync = ref.watch(
+                preferenceProvider(SharedPreferenceKey.theme),
+              );
+              final themeMode = switch (themeAsync.value) {
+                'light' => ThemeMode.light,
+                'dark' => ThemeMode.dark,
+                'system' || null || _ => ThemeMode.system,
+              };
 
-            return MaterialApp.router(
-              routerConfig: router,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              // FIXME: Replace with a proper title
-              title: 'Flutter Demo',
-              themeMode: themeMode,
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              ),
-              darkTheme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: Colors.deepPurple,
-                  brightness: Brightness.dark,
+              return MaterialApp.router(
+                locale: TranslationProvider.of(context).flutterLocale,
+                // use provider
+                supportedLocales: AppLocaleUtils.supportedLocales,
+                localizationsDelegates: GlobalMaterialLocalizations.delegates,
+                routerConfig: router,
+                // FIXME: Replace with a proper title
+                title: 'Flutter Demo',
+                themeMode: themeMode,
+                theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.deepPurple,
+                  ),
                 ),
-              ),
-            );
-          },
+                darkTheme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.deepPurple,
+                    brightness: Brightness.dark,
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/models/link_action.dart';
 import 'package:mobile/providers/queue.dart';
 
-import '../l10n/app_localizations.dart';
+import '../i18n/strings.g.dart';
 import '../models/edit_op.dart';
 
 /// [AppBar] used in selection mode
@@ -27,14 +27,12 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = AppLocalizations.of(context)!;
-
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Text('${selection.length} items'),
+      title: Text(t.editBar.title(count: selection.length)),
       leading: IconButton(
         icon: const Icon(Icons.close),
-        tooltip: t.cancelSelection,
+        tooltip: t.editBar.cancel,
         onPressed: _endSelection,
       ),
       actions: [
@@ -48,7 +46,7 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
         if (menuActions.isNotEmpty)
           PopupMenuButton<LinkAction>(
             icon: const Icon(Icons.more_vert),
-            tooltip: t.moreActions,
+            tooltip: t.editBar.more,
             itemBuilder: (context) =>
                 menuActions.map((action) => action.popup()).toList(),
             onSelected: (action) => _handleAction(context, ref, action),
@@ -86,21 +84,19 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        final t = AppLocalizations.of(context)!;
-
         return AlertDialog(
-          title: Text(t.deleteItemsPrompt(selection.length)),
+          title: Text(t.editBar.deletePrompt(count: selection.length)),
           content: SingleChildScrollView(
-            child: ListBody(children: <Widget>[Text(t.deletePermanentWarning)]),
+            child: ListBody(children: <Widget>[Text(t.editBar.deleteWarning)]),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text(t.cancel),
+              child: Text(t.dialogs.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text(t.delete),
+              child: Text(t.dialogs.delete),
             ),
           ],
         );

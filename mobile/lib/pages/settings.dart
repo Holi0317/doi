@@ -4,17 +4,15 @@ import 'package:mobile/components/settings/app_version_tile.dart';
 import 'package:mobile/components/settings/theme_select_tile.dart';
 import 'package:mobile/components/settings/whoami.dart';
 
-import '../l10n/app_localizations.dart';
+import '../i18n/strings.g.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = AppLocalizations.of(context)!;
-
     return Scaffold(
-      appBar: AppBar(title: Text(t.settings)),
+      appBar: AppBar(title: Text(t.settings.title)),
       body: ListView(
         children: [
           // User Profile Section
@@ -35,15 +33,13 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildPreferencesSection(BuildContext context, WidgetRef ref) {
-    final t = AppLocalizations.of(context)!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
-            t.preferences,
+            t.settings.preferences,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
@@ -54,15 +50,13 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildAppInfoSection(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
-            t.about,
+            t.settings.about,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
@@ -71,7 +65,7 @@ class SettingsPage extends ConsumerWidget {
         // Help & Support
         ListTile(
           leading: const Icon(Icons.help),
-          title: Text(t.helpSupport),
+          title: Text(t.settings.helpSupport),
           onTap: () {
             // TODO: Implement help link
             debugPrint('Navigate to help page');
@@ -80,7 +74,7 @@ class SettingsPage extends ConsumerWidget {
         // Acknowledgements
         ListTile(
           leading: const Icon(Icons.bookmark),
-          title: Text(t.acknowledgements),
+          title: Text(t.settings.acknowledgements),
           onTap: () {
             // TODO: Implement acknowledgements
             _showAcknowledgementsDialog(context);
@@ -91,12 +85,10 @@ class SettingsPage extends ConsumerWidget {
   }
 
   void _showAcknowledgementsDialog(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.acknowledgements),
+        title: Text(t.settings.acknowledgements),
         content: const SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +117,7 @@ class SettingsPage extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(t.dialogs.close),
           ),
         ],
       ),

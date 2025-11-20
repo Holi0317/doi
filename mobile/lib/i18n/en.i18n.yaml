@@ -1,0 +1,57 @@
+# ==== Shared / common ====
+dialogs:
+  cancel: Cancel
+  delete: Delete
+  close: Close
+formErr:
+  emptyValue: This field cannot be empty.
+  invalidUrl: Please enter a valid URL.
+
+# ==== Screen/page specific ====
+nav:
+  unread: Unread
+  search: Search
+  settings: Settings
+unread:
+  title: Unread ($count)
+  toggleSortingAsc: Toggle sort order (currently oldest first)
+  toggleSortingDesc: Toggle sort order (currently newest first)
+search:
+  search: search
+  filterTooltip: Filter
+settings:
+  title: Settings
+  preferences: Preferences
+  about: About
+  helpSupport: Help & Support
+  acknowledgements: Acknowledgements
+login:
+  title: Login
+  apiUrlLabel: "API URL"
+  loginButton: Login
+  authFailedNoToken: "Authentication failed: No token received"
+  authFailedMessage: "Authentication failed: $error"
+
+# ==== Widgets / components ====
+editBar:
+  title: $count items
+  cancel: Cancel selection
+  more: More actions
+  deletePrompt: Delete $count links permanently?
+  deleteWarning: This is permanent and cannot be undone.
+
+filter:
+  archive:
+    title: Archive
+    all: All
+    oui: Archived
+    non: Not Archived
+  favorite:
+    title: Favorite
+    all: All
+    oui: Favorited
+    non: Not Favorited
+  order:
+    title: Order
+    newestFirst: Newest First
+    oldestFirst: Oldest First

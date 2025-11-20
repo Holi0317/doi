@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      slang_build_runner:
+        options:
+          fallback_strategy: base_locale_empty_string
+          input_file_pattern: .i18n.yaml
+          input_directory: "lib/i18n"
