@@ -89,7 +89,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
         motion: const ScrollMotion(),
         extentRatio: 0.4,
 
-        // FIXME: Seems we need 2 ticks to remove item after dismiss, and slidable isn't happy about that.
+        // FIXME(GH-18): Seems we need 2 ticks to remove item after dismiss, and slidable isn't happy about that.
         dismissible: widget.dismissible && !widget.item.archive
             ? DismissiblePane(
                 onDismissed: () => _edit(EditOpField.archive, true),
@@ -172,7 +172,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
   }
 
   Future<void> _open() async {
-    // TODO: Add action button in custom tabs. Might need to write native code for that.
+    // TODO(GH-16): Add action button in custom tabs. Might need to write native code for that.
     // See https://developer.chrome.com/docs/android/custom-tabs/guide-interactivity
     // For now open the drawer after opening the link for archive
     final opened = await launchUrl(

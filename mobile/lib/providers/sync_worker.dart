@@ -55,7 +55,7 @@ class SyncWorker extends _$SyncWorker {
 
       await api.edit(ops, abortTrigger: ref.abortTrigger());
 
-      // FIXME: Wait for refresh to complete before popping the queue?
+      // FIXME(GH-18): Wait for refresh to complete before popping the queue?
       ref.invalidate(searchProvider);
 
       queue.pop(ops.length);
@@ -103,6 +103,8 @@ class SyncWorker extends _$SyncWorker {
 }
 
 /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+///
+/// FIXME(GH-11): Refactor share handling
 @riverpod
 int shareQueueBridge(Ref ref) {
   final log = Logger('ShareQueueBridge');

@@ -7,7 +7,7 @@ import '../../providers/sync_worker.dart';
 ///
 /// Just place this somewhere in the widget tree.
 ///
-/// FIXME: Move the worker to maybe `flutter_workmanager`?
+/// FIXME(GH-19): Move the worker to maybe `flutter_workmanager` or `flutter_background_fetch`
 class SyncWorkerWidget extends ConsumerWidget {
   const SyncWorkerWidget({super.key, this.child});
 
