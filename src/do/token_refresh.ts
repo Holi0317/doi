@@ -1,10 +1,19 @@
 import { DurableObject } from "cloudflare:workers";
 import dayjs from "dayjs";
 import type { KyInstance } from "ky";
-import type * as z from "zod";
-import type { AccessTokenSchema } from "../gh/oauth_token";
+import * as z from "zod";
+import { AccessTokenSchema } from "../gh/oauth_token";
 import { makeSessionContent } from "../composable/session/content";
 import { useSessionStorage } from "../composable/session/schema";
+
+const AccessTokenSchemaWithError = z.union([
+  z.object({
+    error: z.string(),
+    error_description: z.string(),
+    error_uri: z.string(),
+  }),
+  AccessTokenSchema,
+]);
 
 /**
  * Durable Object for handling GitHub token refresh with concurrency control.
@@ -15,7 +24,7 @@ import { useSessionStorage } from "../composable/session/schema";
  * Each session has an associated TokenRefreshDO instance identified by session hash.
  */
 export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
-  private refreshInProgress = false;
+  private refreshPromise: Promise<boolean> | null = null;
   
   /**
    * Refresh the GitHub access token if it has expired.
@@ -28,11 +37,26 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
    * @returns true if token was refreshed, false if it was not needed
    */
   public async refreshIfNeeded(sessionHash: string, ky: KyInstance): Promise<boolean> {
-    // If a refresh is already in progress, wait for it
-    while (this.refreshInProgress) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // If a refresh is already in progress, wait for it and return its result
+    if (this.refreshPromise !== null) {
+      return await this.refreshPromise;
     }
     
+    // Start the refresh and store the promise
+    this.refreshPromise = this.doRefresh(sessionHash, ky);
+    
+    try {
+      return await this.refreshPromise;
+    } finally {
+      // Clear the promise when done
+      this.refreshPromise = null;
+    }
+  }
+  
+  /**
+   * Internal method that performs the actual token refresh.
+   */
+  private async doRefresh(sessionHash: string, ky: KyInstance): Promise<boolean> {
     const { read, write } = useSessionStorage(this.env);
     
     // Read the current session
@@ -57,31 +81,23 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
       return false;
     }
     
-    // Mark refresh as in progress
-    this.refreshInProgress = true;
+    // Exchange refresh token for new access token
+    const tokens = await this.exchangeRefreshToken(ky, session.refreshToken);
     
-    try {
-      // Exchange refresh token for new access token
-      const tokens = await this.exchangeRefreshToken(ky, session.refreshToken);
-      
-      // Create new session content with updated tokens
-      const newSession = await makeSessionContent(ky, tokens);
-      
-      // Preserve the source and user ID from the old session
-      newSession.source = session.source;
-      newSession.uid = session.uid;
-      
-      // Calculate expiration time (7 days from now)
-      const expire = now.add(7, "day");
-      
-      // Write the updated session back to KV
-      await write(sessionHash, newSession, expire);
-      
-      return true;
-    } finally {
-      // Always reset the flag
-      this.refreshInProgress = false;
-    }
+    // Create new session content with updated tokens
+    const newSession = await makeSessionContent(ky, tokens);
+    
+    // Preserve the source and user ID from the old session
+    newSession.source = session.source;
+    newSession.uid = session.uid;
+    
+    // Calculate expiration time (7 days from now)
+    const expire = now.add(7, "day");
+    
+    // Write the updated session back to KV
+    await write(sessionHash, newSession, expire);
+    
+    return true;
   }
   
   /**
@@ -107,8 +123,7 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
       })
       .json();
 
-    // Parse the response (simplified, not using the full error handling)
-    const parsed = accessTokenResp as any;
+    const parsed = AccessTokenSchemaWithError.parse(accessTokenResp);
     
     if ("error" in parsed) {
       throw new Error(
