@@ -149,60 +149,89 @@ export async function getSocialImageUrl(
 }
 
 /**
+ * Favicon rel attribute values to look for, in order of priority.
+ *
+ * See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel#icon
+ */
+const ICON_RELS = [
+  // The standard for favicon rel
+  "icon",
+  // Legacy rel for favicon (thx ie)
+  "shortcut icon",
+  // Apple's non-standard icon rel (think different)
+  "apple-touch-icon",
+];
+
+/**
  * Get favicon URL from HTML link tags or fallback to /favicon.ico.
  *
+ * See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel#icon
+ *
  * This function scrapes the given URL as HTML and tries to extract favicon
- * URLs from link tags. It supports:
+ * URLs from link tags. Like:
  * - <link rel="icon" href="...">
  * - <link rel="shortcut icon" href="...">
  * - <link rel="apple-touch-icon" href="...">
  *
- * When more than one matching tags exists, this will return the last parsed
- * tag. Note: We ignore media, type, and sizes attributes from the spec and
- * always use the last matching tag.
+ * Selection logic (applied in order):
+ * 1. Always rejects icons with type=image/svg+xml. Because flutter doesn't support SVG by default,
+ *    and CloudFlare image doesn't transform SVG into other formats.
+ * 2. When multiple candidates exist with different rel values, prioritizes by order:
+ *    "icon" > "shortcut icon" > "apple-touch-icon"
+ * 3. When multiple candidates exist with the same rel, selects the last parsed element
  *
  * If no favicon link tags are found, this will fallback to /favicon.ico
  * at the origin of the URL.
  *
- * If the we cannot fetch the page because of network error, this will
+ * If we cannot fetch the page because of network error, this will
  * return the fallback /favicon.ico URL.
  *
  * This will still parse HTML document that contains error (>= 400) HTTP status
  * code.
  */
-export async function getFaviconUrl(
-  ky: KyInstance,
-  url: string,
-): Promise<URL> {
-  let faviconUrl: string | null = null;
+export async function getFaviconUrl(ky: KyInstance, url: string): Promise<URL> {
+  // Store icon candidates by rel attribute for rule 2 later
+  const candidates = new Map<string, string>();
+
+  const iconRelsSet = new Set(ICON_RELS);
 
   const rewriter = new HTMLRewriter();
   rewriter.on("head>link", {
     element(element) {
       const rel = element.getAttribute("rel");
-      if (rel == null) {
+      const href = element.getAttribute("href");
+      const type = element.getAttribute("type");
+
+      // Definitely not an icon link
+      if (rel == null || href == null) {
         return;
       }
 
-      // Check for various favicon rel attributes
-      // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel#icon
-      const isIcon =
-        rel === "icon" ||
-        rel === "shortcut icon" ||
-        rel === "apple-touch-icon";
-
-      if (isIcon) {
-        const href = element.getAttribute("href");
-        if (href != null) {
-          faviconUrl = href;
-        }
+      // Ignore non-icon rels
+      if (!iconRelsSet.has(rel)) {
+        return;
       }
+
+      // Reject SVG icons
+      if (type === "image/svg+xml") {
+        return;
+      }
+
+      // No need to test if key already exist.
+      // Last element wins for same rel
+      candidates.set(rel, href);
     },
   });
 
   await processHTML(ky, url, rewriter);
 
-  // If we found a favicon URL in the HTML, use it
+  // Apply prioritization logic (rule 2): select based on rel priority order
+  const faviconUrl = Iterator.from(ICON_RELS)
+    .map((rel) => candidates.get(rel))
+    .filter((rel) => rel != null)
+    .next().value;
+
+  // If we found a favicon URL in the HTML, try use it
   if (faviconUrl != null) {
     try {
       return new URL(faviconUrl, url);
