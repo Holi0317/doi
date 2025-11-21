@@ -40,14 +40,16 @@ export function requireSession(onMissing: "redirect" | "throw" = "throw") {
           const refreshed = await stub.refreshIfNeeded(sessHash, ky);
           
           if (refreshed) {
-            console.info("Token was refreshed successfully for session");
+            console.info("Token refresh completed successfully");
             // Note: The session cache will be stale now, but the actual session
             // in KV has been updated. Subsequent requests will get the fresh token.
             // For this request, we'll continue with the expired token which may
             // cause some API calls to fail, but that's acceptable.
           }
         } catch (err) {
-          console.warn("Token refresh failed:", err);
+          // Log error without exposing sensitive details
+          const errorMessage = err instanceof Error ? err.message : "Unknown error";
+          console.warn("Token refresh failed:", errorMessage);
           // If refresh fails, let the session continue with the expired token
           // The actual API calls will fail and trigger re-authentication
         }
@@ -57,6 +59,4 @@ export function requireSession(onMissing: "redirect" | "throw" = "throw") {
     await next();
   });
 }
-
-
 

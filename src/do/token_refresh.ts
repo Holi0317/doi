@@ -83,11 +83,15 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
     // Exchange refresh token for new access token
     const tokens = await this.exchangeRefreshToken(ky, session.refreshToken);
     
+    // Calculate token expiration based on GitHub's response or default to 8 hours
+    const expiresIn = tokens.expires_in ?? 28800; // Default to 8 hours (28800 seconds)
+    const tokenExpireTime = now.add(expiresIn, "second").valueOf();
+    
     // Update the session with new tokens while preserving user info
     const updatedSession: Session = {
       ...session,
       accessToken: tokens.access_token,
-      accessTokenExpire: now.add(8, "hour").valueOf(),
+      accessTokenExpire: tokenExpireTime,
       refreshToken: tokens.refresh_token,
     };
     
