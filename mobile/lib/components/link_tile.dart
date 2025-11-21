@@ -9,6 +9,7 @@ import '../models/link.dart';
 import '../models/link_action.dart';
 import '../providers/queue.dart';
 import '../utils.dart';
+import 'link_favicon.dart';
 import 'link_image_preview.dart';
 
 class LinkTile extends ConsumerStatefulWidget {
@@ -116,6 +117,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
         ),
         subtitle: Row(
           children: [
+            LinkFavicon(item: widget.item),
             Flexible(
               child: Text(
                 uri.host,
