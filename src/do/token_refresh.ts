@@ -3,8 +3,7 @@ import dayjs from "dayjs";
 import type { KyInstance } from "ky";
 import * as z from "zod";
 import { AccessTokenSchema } from "../gh/oauth_token";
-import { makeSessionContent } from "../composable/session/content";
-import { useSessionStorage } from "../composable/session/schema";
+import { useSessionStorage, type Session } from "../composable/session/schema";
 
 const AccessTokenSchemaWithError = z.union([
   z.object({
@@ -84,18 +83,19 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
     // Exchange refresh token for new access token
     const tokens = await this.exchangeRefreshToken(ky, session.refreshToken);
     
-    // Create new session content with updated tokens
-    const newSession = await makeSessionContent(ky, tokens);
-    
-    // Preserve the source and user ID from the old session
-    newSession.source = session.source;
-    newSession.uid = session.uid;
+    // Update the session with new tokens while preserving user info
+    const updatedSession: Session = {
+      ...session,
+      accessToken: tokens.access_token,
+      accessTokenExpire: now.add(8, "hour").valueOf(),
+      refreshToken: tokens.refresh_token,
+    };
     
     // Calculate expiration time (7 days from now)
     const expire = now.add(7, "day");
     
     // Write the updated session back to KV
-    await write(sessionHash, newSession, expire);
+    await write(sessionHash, updatedSession, expire);
     
     return true;
   }
