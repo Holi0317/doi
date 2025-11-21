@@ -4,6 +4,7 @@ import type { KyInstance } from "ky";
 import * as z from "zod";
 import { AccessTokenSchema } from "../gh/oauth_token";
 import { useSessionStorage, type Session } from "../composable/session/schema";
+import { DEFAULT_TOKEN_EXPIRY_HOURS } from "../composable/session/constants";
 
 const AccessTokenSchemaWithError = z.union([
   z.object({
@@ -83,8 +84,8 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
     // Exchange refresh token for new access token
     const tokens = await this.exchangeRefreshToken(ky, session.refreshToken);
     
-    // Calculate token expiration based on GitHub's response or default to 8 hours
-    const expiresIn = tokens.expires_in ?? 28800; // Default to 8 hours (28800 seconds)
+    // Calculate token expiration based on GitHub's response or default
+    const expiresIn = tokens.expires_in ?? DEFAULT_TOKEN_EXPIRY_HOURS * 3600;
     const tokenExpireTime = now.add(expiresIn, "second").valueOf();
     
     // Update the session with new tokens while preserving user info

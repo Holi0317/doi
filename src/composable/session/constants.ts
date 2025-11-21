@@ -13,3 +13,9 @@ export const cookieOpt = {
   secure: true,
   prefix: "host",
 } as const;
+
+/**
+ * Default token expiration time in hours.
+ * Used when GitHub token doesn't specify an expiration time.
+ */
+export const DEFAULT_TOKEN_EXPIRY_HOURS = 8;
