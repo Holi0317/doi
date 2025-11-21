@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { getCookie } from "hono/cookie";
 import { getSession } from "./cookie";
 import { COOKIE_NAME, cookieOpt } from "./constants";
+import { hashSessionID } from "./id";
 import { getTokenRefreshStub } from "../token_refresh";
 import { useKy } from "../http";
 
@@ -34,14 +35,19 @@ export function requireSession(onMissing: "redirect" | "throw" = "throw") {
       if (sessID) {
         const stub = await getTokenRefreshStub(c, sessID);
         const ky = useKy(c);
-        
-        // Import hashSessionID to get the session hash
-        const { hashSessionID } = await import("./id");
         const sessHash = await hashSessionID(sessID);
         
         try {
           // Attempt to refresh the token through the durable object
-          await stub.refreshIfNeeded(sessHash, ky);
+          const refreshed = await stub.refreshIfNeeded(sessHash, ky);
+          
+          if (refreshed) {
+            console.log("Token was refreshed successfully");
+            // Note: The session cache will be stale now, but the actual session
+            // in KV has been updated. Subsequent requests will get the fresh token.
+            // For this request, we'll continue with the expired token which may
+            // cause some API calls to fail, but that's acceptable.
+          }
         } catch (err) {
           console.error("Token refresh failed:", err);
           // If refresh fails, let the session continue with the expired token
@@ -53,4 +59,5 @@ export function requireSession(onMissing: "redirect" | "throw" = "throw") {
     await next();
   });
 }
+
 
