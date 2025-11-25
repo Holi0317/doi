@@ -1,0 +1,96 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  nodejs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore ESLint cache
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: eslint-cache-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            eslint-cache-${{ github.ref }}-
+            eslint-cache-
+
+      - name: Generate Cloudflare types
+        run: pnpm cf-typegen
+
+      - name: Check for worker-configuration.d.ts changes
+        run: |
+          if git diff --exit-code worker-configuration.d.ts; then
+            echo "worker-configuration.d.ts is up to date"
+          else
+            echo "❌ worker-configuration.d.ts has uncommitted changes"
+            echo "Please run 'pnpm cf-typegen' and commit the changes"
+            exit 1
+          fi
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Check formatting with Prettier
+        run: pnpm fmt --check
+
+  dart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v2
+
+      - name: Get dependencies
+        working-directory: mobile
+        run: dart pub get
+
+      - name: Run Dart analyzer
+        working-directory: mobile
+        run: dart analyze
+
+      - name: Run custom analyzer
+        working-directory: mobile
+        run: dart run custom_lint
+
+      - name: Run Dart formatter check
+        working-directory: mobile
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run build_runner
+        working-directory: mobile
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Check for generated file changes
+        run: |
+          if git diff --exit-code mobile/; then
+            echo "Generated files are up to date"
+          else
+            echo "❌ Generated files have uncommitted changes"
+            echo "Please run 'dart run build_runner build' in mobile/ directory and commit the changes"
+            git diff mobile/
+            exit 1
+          fi

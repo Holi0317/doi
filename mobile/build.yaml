@@ -6,3 +6,5 @@ targets:
           fallback_strategy: base_locale_empty_string
           input_file_pattern: .i18n.yaml
           input_directory: "lib/i18n"
+          # Disable timestamp for CI check on generated files
+          timestamp: false

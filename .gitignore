@@ -45,7 +45,7 @@ jspm_packages/
 .yarn-integrity
 
 # env
-.env
+# .env
 .env.production
 .dev.vars
 

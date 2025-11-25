@@ -44,7 +44,7 @@ final class EditQueueProvider
   EditQueue create() => EditQueue();
 }
 
-String _$editQueueHash() => r'5e169803bd94750a485d89ebf607cc2c5ca803fe';
+String _$editQueueHash() => r'b7e967edb90fff3361cfdc43a48e40cbef8edda3';
 
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
@@ -152,7 +152,7 @@ final class InsertQueueProvider
   InsertQueue create() => InsertQueue();
 }
 
-String _$insertQueueHash() => r'6dd51fb625d11c92f4f03eaefe30196932d83653';
+String _$insertQueueHash() => r'38d357b2510c869e9a2b96a9eeaee9b4644c49cf';
 
 /// A queue (fifo) of insert operations [InsertItem] to be performed when online.
 ///
