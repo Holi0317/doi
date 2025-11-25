@@ -1,0 +1,38 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # Cloudflare/Wrangler dependencies
+      wrangler:
+        patterns:
+          - wrangler
+          - "@cloudflare/*"
+
+      # Linting and code quality
+      linting:
+        patterns:
+          - eslint
+          - "@eslint/*"
+          - prettier
+          - "eslint-*"
+          - "@stylistic/*"
+          - husky
+          - lint-staged
+          - typescript-eslint
+
+      # Hono framework and validators
+      hono:
+        patterns:
+          - hono
+          - "@hono/*"
+          - zod
+
+  # Flutter/Dart mobile app
+  - package-ecosystem: pub
+    directory: /mobile
+    schedule:
+      interval: weekly
