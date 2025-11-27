@@ -22,7 +22,7 @@ const ItemEditSchema = z.object({
  * Basic views for the app
  */
 const app = new Hono<Env>({ strict: false })
-  .use(requireSession("redirect"))
+  .use(requireSession({ action: "redirect", destination: "/basic" }))
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
     const sess = await mustSession(c);

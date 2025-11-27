@@ -44,7 +44,7 @@ const app = new Hono<Env>({ strict: false })
             },
     });
   })
-  .use(requireSession("throw"))
+  .use(requireSession({ action: "throw" }))
 
   .get("/image", zv("query", ImageQuerySchema), async (c) => {
     const { url, type, dpr, width, height } = c.req.valid("query");
