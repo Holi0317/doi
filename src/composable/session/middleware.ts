@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import type { RedirectDestination } from "../oauth_state";
-import { getSession } from "./cookie";
+import { getSession, refreshSession } from "./cookie";
 
 export type RequireSessionOption =
   | {
@@ -32,6 +32,8 @@ export function requireSession(option: RequireSessionOption) {
   return createMiddleware<Env>(async (c, next) => {
     const sess = await getSession(c);
     if (sess != null) {
+      await refreshSession(c);
+
       await next();
       return;
     }

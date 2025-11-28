@@ -1,12 +1,12 @@
 import type dayjs from "dayjs";
 import type { Context } from "hono";
-import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import { useReqCache } from "../cache";
 import { revokeToken } from "../../gh/revoke";
 import { useKy } from "../http";
 import { COOKIE_NAME, cookieOpt } from "./constants";
-import { genSessionID, hashSessionID } from "./id";
+import { genSessionID, getSessHash, hashSessionID } from "./id";
 import { type SessionInput, type Session, useSessionStorage } from "./schema";
 
 /**
@@ -56,16 +56,15 @@ export async function deleteSession(c: Context<Env>) {
   const { remove, read } = useSessionStorage(c.env);
 
   // WARNING: Do **NOT** use `getSession` here. It'll cause recursive call.
-  const sessID = getCookie(c, COOKIE_NAME);
 
   // Delete cookie regardless of whether session exists
   deleteCookie(c, COOKIE_NAME, cookieOpt);
 
-  if (sessID == null) {
+  const sessHash = await getSessHash(c);
+  if (sessHash == null) {
     return;
   }
 
-  const sessHash = await hashSessionID(sessID);
   const sess = await read(sessHash);
 
   await remove(sessHash);
@@ -91,17 +90,15 @@ export async function deleteSession(c: Context<Env>) {
  */
 export async function getSession(c: Context<Env>): Promise<Session | null> {
   return useReqCache(c, "session", async () => {
-    const sessID = getCookie(c, COOKIE_NAME, cookieOpt.prefix);
+    const { read } = useSessionStorage(c.env);
 
+    const sessHash = await getSessHash(c);
     // Cookie doesn't exist. User is unauthenticated.
-    if (!sessID) {
+    if (!sessHash) {
       await deleteSession(c);
       return null;
     }
 
-    const { read } = useSessionStorage(c.env);
-
-    const sessHash = await hashSessionID(sessID);
     const sess = await read(sessHash);
 
     // Session does not exist, or expired
@@ -129,4 +126,20 @@ export async function mustSession(c: Context<Env>): Promise<Session> {
   }
 
   return sess;
+}
+
+/**
+ * Try to refresh session in the background.
+ */
+export async function refreshSession(c: Context<Env>) {
+  const sessHash = await getSessHash(c);
+  if (sessHash == null) {
+    return;
+  }
+
+  const id = c.env.TOKEN_REFRESH.idFromName(sessHash);
+  const stub = c.env.TOKEN_REFRESH.get(id);
+
+  // Trigger token refresh in the background. Don't wait for it to finish in request-response cycle.
+  c.executionCtx.waitUntil(stub.refresh(sessHash));
 }

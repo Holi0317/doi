@@ -1,4 +1,3 @@
-import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { KyInstance, Options } from "ky";
 import * as z from "zod";
@@ -19,13 +18,16 @@ export const AccessTokenSchema = z.object({
    * If you disabled expiration of user access tokens, this parameter will be omitted.
    * The token starts with ghr_.
    */
-  refresh_token: z.string().optional(),
+  refresh_token: z.string({
+    error:
+      "Missing refresh_token from GitHub. Make sure your GitHub App has refresh tokens enabled.",
+  }),
   /**
    * The number of seconds until refresh_token expires.
    * If you disabled expiration of user access tokens, this parameter will be omitted.
    * The value will always be 15897600 (6 months).
    */
-  refresh_token_expires_in: z.number().optional(),
+  refresh_token_expires_in: z.number(),
 });
 
 const AccessTokenSchemaWithError = z.union([
@@ -52,7 +54,7 @@ const AccessTokenSchemaWithError = z.union([
  * reused.
  */
 export async function exchangeToken(
-  c: Context<Env>,
+  env: CloudflareBindings,
   ky: KyInstance,
   code: string,
   codeType: "login" | "refresh",
@@ -61,8 +63,8 @@ export async function exchangeToken(
     codeType === "login"
       ? {
           json: {
-            client_id: c.env.GH_CLIENT_ID,
-            client_secret: c.env.GH_CLIENT_SECRET,
+            client_id: env.GH_CLIENT_ID,
+            client_secret: env.GH_CLIENT_SECRET,
             code,
           },
         }
@@ -71,8 +73,8 @@ export async function exchangeToken(
             accept: "application/json",
           },
           searchParams: {
-            client_id: c.env.GH_CLIENT_ID,
-            client_secret: c.env.GH_CLIENT_SECRET,
+            client_id: env.GH_CLIENT_ID,
+            client_secret: env.GH_CLIENT_SECRET,
             grant_type: "refresh_token",
             refresh_token: code,
           },
