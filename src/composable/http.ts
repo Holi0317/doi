@@ -1,13 +1,11 @@
 import type { Context } from "hono";
 import ky from "ky";
 
+/**
+ * Create a ky instance for the given hono context.
+ */
 export function useKy(c: Context<Env>) {
-  const version = c.env.CF_VERSION_METADATA;
-
-  return ky.create({
-    headers: {
-      "user-agent": `doi-app/${version.id || "unknown"}/${version.tag || "unknown"}`,
-    },
+  return useBasicKy(c.env).extend({
     hooks: {
       beforeRequest: [
         (request) => {
@@ -23,6 +21,19 @@ export function useKy(c: Context<Env>) {
           });
         },
       ],
+    },
+  });
+}
+
+/**
+ * Create a ky instance when no hono context is available.
+ */
+export function useBasicKy(env: CloudflareBindings) {
+  const version = env.CF_VERSION_METADATA;
+
+  return ky.create({
+    headers: {
+      "user-agent": `doi-app/${version.id || "unknown"}/${version.tag || "unknown"}`,
     },
   });
 }

@@ -21,7 +21,7 @@ export const SessionSchema = z.object({
    * Time for access token to expire, in milliseconds since epoch
    */
   accessTokenExpire: zu.unixEpochMs(),
-  refreshToken: z.string().optional(),
+  refreshToken: z.string(),
 });
 
 /**

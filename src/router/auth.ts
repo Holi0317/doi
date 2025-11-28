@@ -63,7 +63,7 @@ const app = new Hono<Env>({ strict: false })
 
       const ky = useKy(c);
 
-      const tokens = await exchangeToken(c, ky, code, "login");
+      const tokens = await exchangeToken(c.env, ky, code, "login");
       const now = dayjs();
       const expire = now.add(7, "day");
 

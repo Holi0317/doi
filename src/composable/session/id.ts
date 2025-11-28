@@ -1,4 +1,7 @@
+import type { Context } from "hono";
 import { toUint8Array, uint8ArrayToHex } from "uint8array-extras";
+import { getCookie } from "hono/cookie";
+import { COOKIE_NAME, cookieOpt } from "./constants";
 
 /**
  * Generate session ID.
@@ -23,4 +26,23 @@ export async function hashSessionID(sessID: string) {
   const hash = await crypto.subtle.digest("SHA-256", Uint8Array.from(sessID));
 
   return uint8ArrayToHex(toUint8Array(hash));
+}
+
+/**
+ * Get session ID from cookie.
+ */
+export function getSessID(c: Context<Env>) {
+  return getCookie(c, COOKIE_NAME, cookieOpt.prefix);
+}
+
+/**
+ * Get session hash from cookie.
+ */
+export async function getSessHash(c: Context<Env>) {
+  const sessID = getSessID(c);
+  if (sessID == null) {
+    return null;
+  }
+
+  return await hashSessionID(sessID);
 }
