@@ -4,8 +4,8 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../models/link.dart';
 import '../models/search_query.dart';
-import '../providers/api.dart';
-import '../providers/combine.dart';
+import '../providers/api/api.dart';
+import '../providers/api/search.dart';
 import 'link_tile.dart';
 import 'link_tile_shimmer.dart';
 

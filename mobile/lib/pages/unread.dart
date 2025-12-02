@@ -7,7 +7,7 @@ import '../components/reselect.dart';
 import '../i18n/strings.g.dart';
 import '../models/link_action.dart';
 import '../models/search_query.dart';
-import '../providers/combine.dart';
+import '../providers/api/search.dart';
 import '../providers/extensions.dart';
 
 class UnreadPage extends ConsumerStatefulWidget {

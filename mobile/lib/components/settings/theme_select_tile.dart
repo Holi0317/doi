@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../i18n/strings.g.dart';
-import '../../providers/shared_preferences.dart';
+import '../../providers/bindings/shared_preferences.dart';
 
 class ThemeSelectTile extends ConsumerWidget {
   const ThemeSelectTile({super.key});

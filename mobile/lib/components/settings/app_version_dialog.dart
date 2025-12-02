@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../i18n/strings.g.dart';
-import '../../providers/version.dart';
+import '../../providers/api/version.dart';
 
 class AppVersionDialog extends ConsumerWidget {
   const AppVersionDialog({super.key});

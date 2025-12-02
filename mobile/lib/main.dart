@@ -6,8 +6,8 @@ import 'package:logging/logging.dart';
 import 'app_router.dart';
 import 'components/events/sync_worker.dart';
 import 'i18n/strings.g.dart';
+import 'providers/bindings/shared_preferences.dart';
 import 'providers/logger_observer.dart';
-import 'providers/shared_preferences.dart';
 import 'repositories/retry.dart';
 
 void main() {

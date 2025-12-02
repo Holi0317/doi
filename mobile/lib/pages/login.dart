@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
 import '../i18n/strings.g.dart';
-import '../providers/shared_preferences.dart';
+import '../providers/bindings/shared_preferences.dart';
 import '../repositories/api.dart';
 
 class LoginPage extends ConsumerStatefulWidget {

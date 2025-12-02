@@ -7,10 +7,10 @@ import 'package:logging/logging.dart';
 
 import '../../i18n/strings.g.dart';
 import '../../models/server_info.dart';
-import '../../providers/api.dart';
+import '../../providers/api/api.dart';
+import '../../providers/bindings/shared_preferences.dart';
 import '../../providers/extensions.dart';
-import '../../providers/queue.dart';
-import '../../providers/shared_preferences.dart';
+import '../../providers/sync/queue.dart';
 import '../shimmer.dart';
 
 class Whoami extends ConsumerWidget {

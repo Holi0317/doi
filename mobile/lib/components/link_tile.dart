@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/edit_op.dart';
 import '../models/link.dart';
 import '../models/link_action.dart';
-import '../providers/queue.dart';
+import '../providers/sync/queue.dart';
 import '../utils.dart';
 import 'link_favicon.dart';
 import 'link_image_preview.dart';

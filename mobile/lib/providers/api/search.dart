@@ -1,14 +1,14 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../models/edit_op.dart';
-import '../models/link.dart';
-import '../models/search_query.dart';
-import '../models/search_response.dart';
+import '../../models/edit_op.dart';
+import '../../models/link.dart';
+import '../../models/search_query.dart';
+import '../../models/search_response.dart';
+import '../sync/queue.dart';
 import 'api.dart';
-import 'queue.dart';
 
-part 'combine.g.dart';
+part 'search.g.dart';
 
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 @riverpod

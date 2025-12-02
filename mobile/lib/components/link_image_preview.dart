@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/link.dart';
-import '../providers/api.dart';
+import '../providers/api/api.dart';
 import '../repositories/api.dart';
 import './shimmer.dart';
 

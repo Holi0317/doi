@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/experimental/persist.dart';
 import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../models/edit_op.dart';
-import '../models/insert_item.dart';
-import 'storage.dart';
+import '../../models/edit_op.dart';
+import '../../models/insert_item.dart';
+import '../bindings/storage.dart';
 
 part 'queue.g.dart';
 

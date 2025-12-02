@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../models/search_query.dart';
-import '../models/search_response.dart';
-import '../models/server_info.dart';
-import '../repositories/api.dart';
-import './shared_preferences.dart';
-import 'extensions.dart';
-import 'http.dart';
+import '../../models/search_query.dart';
+import '../../models/search_response.dart';
+import '../../models/server_info.dart';
+import '../../repositories/api.dart';
+import '../bindings/http.dart';
+import '../extensions.dart';
+import './../bindings/shared_preferences.dart';
 
 part 'api.g.dart';
 

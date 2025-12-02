@@ -1,9 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../models/server_info.dart';
-import 'api.dart';
-import 'package_info.dart';
-import 'shared_preferences.dart';
+import '../../models/server_info.dart';
+import './api.dart';
+import '../bindings/package_info.dart';
+import '../bindings/shared_preferences.dart';
 
 part 'version.g.dart';
 

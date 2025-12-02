@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../i18n/strings.g.dart';
 import '../models/edit_op.dart';
 import '../models/link_action.dart';
-import '../providers/queue.dart';
+import '../providers/sync/queue.dart';
 
 /// [AppBar] used in selection mode
 class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
