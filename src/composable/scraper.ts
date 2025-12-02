@@ -1,5 +1,5 @@
 import type { KyInstance } from "ky";
-import { unescape } from "@std/html/entities";
+import { decode } from "html-entities";
 
 /**
  * Global timeout for scraping requests, in ms.
@@ -84,7 +84,7 @@ export async function getHTMLTitle(
 
   await processHTML(ky, url, rewriter);
 
-  return unescape(title.join("").trim());
+  return decode(title.join("").trim());
 }
 
 /**

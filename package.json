@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.5",
-    "@std/html": "jsr:^1.0.4",
+    "html-entities": "^2.5.2",
     "@truto/sqlite-builder": "^1.0.4",
     "dayjs": "^1.11.19",
     "hono": "^4.10.6",
