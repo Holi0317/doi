@@ -156,7 +156,10 @@ const app = new Hono<Env>({ strict: false })
     const body = c.req.valid("json");
 
     // Separate insert operations from other operations
-    const insertOps = body.op.filter((op) => op.op === "insert");
+    const insertOps = body.op.filter(
+      (op): op is { op: "insert"; title?: string | null; url: string } =>
+        op.op === "insert",
+    );
     const modifyOps = body.op.filter((op) => op.op !== "insert");
 
     // Process insert operations with title fetching
@@ -164,11 +167,6 @@ const app = new Hono<Env>({ strict: false })
       const limit = pLimit(REQUEST_CONCURRENCY);
 
       const resolved = await limit.map(insertOps, async (op) => {
-        // TypeScript knows op is insert type after filter
-        if (op.op !== "insert") {
-          return null;
-        }
-
         if (op.title) {
           return {
             title: op.title,
@@ -184,11 +182,7 @@ const app = new Hono<Env>({ strict: false })
         };
       });
 
-      // Filter out nulls (shouldn't happen but for type safety)
-      const items = resolved.filter((item) => item != null);
-      if (items.length > 0) {
-        await stub.insert(items);
-      }
+      await stub.insert(resolved);
     }
 
     // Process modify operations (set, delete)
