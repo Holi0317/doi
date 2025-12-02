@@ -56,28 +56,10 @@ export const SearchQuerySchema = z.object({
 });
 
 /**
- * JSON body for inserting links
+ * Edit operations that only modify existing links (no insert).
+ * Used internally by the storage layer.
  */
-export const InsertBodySchema = z.object({
-  items: z
-    .array(
-      z.object({
-        title: z.string().nullish(),
-        url: zu.httpUrl(),
-      }),
-    )
-    .min(1, { error: "At least must have an item" })
-    // See https://developers.cloudflare.com/workers/platform/limits/
-    // Free worker can only have at most 50 subrequests. This counts other
-    // feature like session management before fetching title from url.
-    // Choosing 30 here so we are not gonna blow through the subrequests limit.
-    //
-    // If you are using workers paid and needs to bump this limit, open an issue.
-    // I'll figure out how to make this limit dynamic base on actual limit in runtime.
-    .max(30, { error: "At most 30 items per request" }),
-});
-
-export const EditOpSchema = z.discriminatedUnion("op", [
+export const ModifyOpSchema = z.discriminatedUnion("op", [
   z.object({
     op: z.literal("set"),
     id: z.number(),
@@ -87,11 +69,32 @@ export const EditOpSchema = z.discriminatedUnion("op", [
   z.object({ op: z.literal("delete"), id: z.number() }),
 ]);
 
+export const EditOpSchema = z.discriminatedUnion("op", [
+  z.object({
+    op: z.literal("set"),
+    id: z.number(),
+    field: z.literal(["archive", "favorite"]),
+    value: z.boolean(),
+  }),
+  z.object({ op: z.literal("delete"), id: z.number() }),
+  z.object({
+    op: z.literal("insert"),
+    title: z.string().nullish(),
+    url: zu.httpUrl(),
+  }),
+]);
+
 /**
- * JSON body for editing stored links
+ * JSON body for editing stored links.
+ *
+ * Note the limit is 30 to keep it compatible with Cloudflare Workers free tier
+ * subrequest limit. Insert operations may trigger title fetching which counts
+ * as subrequests.
+ *
+ * @see https://developers.cloudflare.com/workers/platform/limits/
  */
 export const EditBodySchema = z.object({
-  op: z.array(EditOpSchema).min(1).max(100),
+  op: z.array(EditOpSchema).min(1).max(30),
 });
 
 /**

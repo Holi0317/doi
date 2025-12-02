@@ -21,5 +21,8 @@ sealed class EditOp with _$EditOp {
 
   const factory EditOp.delete({required int id}) = EditOpDelete;
 
+  const factory EditOp.insert({required String url, String? title}) =
+      EditOpInsert;
+
   factory EditOp.fromJson(Map<String, dynamic> json) => _$EditOpFromJson(json);
 }

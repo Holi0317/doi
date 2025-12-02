@@ -60,10 +60,11 @@ const app = new Hono<Env>({ strict: false })
   .post("/insert", zv("form", z.object({ url: z.string() })), async (c) => {
     const { url } = c.req.valid("form");
 
-    const resp = await c.get("client").insert.$post({
+    const resp = await c.get("client").edit.$post({
       json: {
-        items: [
+        op: [
           {
+            op: "insert",
             url,
           },
         ],

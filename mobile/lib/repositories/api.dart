@@ -129,12 +129,16 @@ class ApiRepository {
     List<InsertItem> items, {
     Future<void>? abortTrigger,
   }) async {
-    // Each batch only support at most 100 items
-    for (final chunk in items.slices(100)) {
+    // Convert InsertItem to EditOp.insert operations
+    final ops =
+        items.map((item) => EditOp.insert(url: item.url, title: item.title));
+
+    // Each batch only supports at most 30 items due to worker subrequest limits
+    for (final chunk in ops.slices(30)) {
       await _request(
         'POST',
-        '/insert',
-        body: {'items': chunk},
+        '/edit',
+        body: {'op': chunk},
         abortTrigger: abortTrigger,
       );
     }
@@ -171,8 +175,8 @@ class ApiRepository {
 
   /// Edit links.
   Future<void> edit(List<EditOp> op, {Future<void>? abortTrigger}) async {
-    // Each batch only support at most 100 items
-    for (final chunk in op.slices(100)) {
+    // Each batch only supports at most 30 items due to worker subrequest limits
+    for (final chunk in op.slices(30)) {
       await _request(
         'POST',
         '/edit',

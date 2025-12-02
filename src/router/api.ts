@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import pLimit from "p-limit";
+import type * as z from "zod";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session/middleware";
@@ -14,9 +15,9 @@ import { encodeCursor } from "../composable/cursor";
 import {
   EditBodySchema,
   IDStringSchema,
-  InsertBodySchema,
   SearchQuerySchema,
   ImageQuerySchema,
+  type ModifyOpSchema,
 } from "../schemas";
 import { fetchImage, parseAcceptImageFormat } from "../composable/image";
 import { useCache } from "../composable/cache";
@@ -149,41 +150,52 @@ const app = new Hono<Env>({ strict: false })
     });
   })
 
-  .post("/insert", zv("json", InsertBodySchema), async (c) => {
-    const stub = await getStorageStub(c);
-
-    const ky = useKy(c);
-
-    const body = c.req.valid("json");
-
-    const limit = pLimit(REQUEST_CONCURRENCY);
-
-    const resolved = await limit.map(body.items, async (item) => {
-      if (item.title) {
-        return {
-          title: item.title,
-          url: item.url,
-        };
-      }
-
-      const title = await getHTMLTitle(ky, item.url);
-
-      return {
-        title: title.substring(0, 512),
-        url: item.url,
-      };
-    });
-
-    const inserted = await stub.insert(resolved);
-
-    return c.json(inserted, 201);
-  })
-
   .post("/edit", zv("json", EditBodySchema), async (c) => {
     const stub = await getStorageStub(c);
-
+    const ky = useKy(c);
     const body = c.req.valid("json");
-    await stub.edit(body);
+
+    // Separate insert operations from other operations
+    const insertOps = body.op.filter((op) => op.op === "insert");
+    const modifyOps = body.op.filter((op) => op.op !== "insert");
+
+    // Process insert operations with title fetching
+    if (insertOps.length > 0) {
+      const limit = pLimit(REQUEST_CONCURRENCY);
+
+      const resolved = await limit.map(insertOps, async (op) => {
+        // TypeScript knows op is insert type after filter
+        if (op.op !== "insert") {
+          return null;
+        }
+
+        if (op.title) {
+          return {
+            title: op.title,
+            url: op.url,
+          };
+        }
+
+        const title = await getHTMLTitle(ky, op.url);
+
+        return {
+          title: title.substring(0, 512),
+          url: op.url,
+        };
+      });
+
+      // Filter out nulls (shouldn't happen but for type safety)
+      const items = resolved.filter((item) => item != null);
+      if (items.length > 0) {
+        await stub.insert(items);
+      }
+    }
+
+    // Process modify operations (set, delete)
+    if (modifyOps.length > 0) {
+      // Type assertion is safe because we filtered out insert ops
+      await stub.edit(modifyOps as Array<z.output<typeof ModifyOpSchema>>);
+    }
 
     return c.text("", 201);
   });

@@ -23,6 +23,10 @@ EditOp _$EditOpFromJson(
           return EditOpDelete.fromJson(
             json
           );
+                case 'insert':
+          return EditOpInsert.fromJson(
+            json
+          );
         
           default:
             throw CheckedFromJsonException(
@@ -38,12 +42,12 @@ EditOp _$EditOpFromJson(
 /// @nodoc
 mixin _$EditOp implements DiagnosticableTreeMixin {
 
- int get id;
+
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$EditOpCopyWith<EditOp> get copyWith => _$EditOpCopyWithImpl<EditOp>(this as EditOp, _$identity);
+$EditOpCopyWith<EditOp> get copyWith => throw _privateConstructorUsedError;
 
   /// Serializes this EditOp to a JSON map.
   Map<String, dynamic> toJson();
@@ -51,22 +55,21 @@ $EditOpCopyWith<EditOp> get copyWith => _$EditOpCopyWithImpl<EditOp>(this as Edi
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
-    ..add(DiagnosticsProperty('type', 'EditOp'))
-    ..add(DiagnosticsProperty('id', id));
+    ..add(DiagnosticsProperty('type', 'EditOp'));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOp&&(identical(other.id, id) || other.id == id));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOp);
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id);
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'EditOp(id: $id)';
+  return 'EditOp()';
 }
 
 
@@ -75,10 +78,6 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpCopyWith<$Res>  {
   factory $EditOpCopyWith(EditOp value, $Res Function(EditOp) _then) = _$EditOpCopyWithImpl;
-@useResult
-$Res call({
- int id
-});
 
 
 
@@ -94,12 +93,6 @@ class _$EditOpCopyWithImpl<$Res>
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,}) {
-  return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
 
 }
 
@@ -118,12 +111,13 @@ extension EditOpPatterns on EditOp {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( EditOpSet value)?  set,TResult Function( EditOpDelete value)?  delete,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( EditOpSet value)?  set,TResult Function( EditOpDelete value)?  delete,TResult Function( EditOpInsert value)?  insert,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case EditOpSet() when set != null:
 return set(_that);case EditOpDelete() when delete != null:
-return delete(_that);case _:
+return delete(_that);case EditOpInsert() when insert != null:
+return insert(_that);case _:
   return orElse();
 
 }
@@ -141,12 +135,13 @@ return delete(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( EditOpSet value)  set,required TResult Function( EditOpDelete value)  delete,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( EditOpSet value)  set,required TResult Function( EditOpDelete value)  delete,required TResult Function( EditOpInsert value)  insert,}){
 final _that = this;
 switch (_that) {
 case EditOpSet():
 return set(_that);case EditOpDelete():
-return delete(_that);}
+return delete(_that);case EditOpInsert():
+return insert(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -160,12 +155,13 @@ return delete(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( EditOpSet value)?  set,TResult? Function( EditOpDelete value)?  delete,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( EditOpSet value)?  set,TResult? Function( EditOpDelete value)?  delete,TResult? Function( EditOpInsert value)?  insert,}){
 final _that = this;
 switch (_that) {
 case EditOpSet() when set != null:
 return set(_that);case EditOpDelete() when delete != null:
-return delete(_that);case _:
+return delete(_that);case EditOpInsert() when insert != null:
+return insert(_that);case _:
   return null;
 
 }
@@ -182,11 +178,12 @@ return delete(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int id,  EditOpField field,  bool value)?  set,TResult Function( int id)?  delete,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int id,  EditOpField field,  bool value)?  set,TResult Function( int id)?  delete,TResult Function( String url,  String? title)?  insert,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case EditOpSet() when set != null:
 return set(_that.id,_that.field,_that.value);case EditOpDelete() when delete != null:
-return delete(_that.id);case _:
+return delete(_that.id);case EditOpInsert() when insert != null:
+return insert(_that.url,_that.title);case _:
   return orElse();
 
 }
@@ -204,11 +201,12 @@ return delete(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int id,  EditOpField field,  bool value)  set,required TResult Function( int id)  delete,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int id,  EditOpField field,  bool value)  set,required TResult Function( int id)  delete,required TResult Function( String url,  String? title)  insert,}) {final _that = this;
 switch (_that) {
 case EditOpSet():
 return set(_that.id,_that.field,_that.value);case EditOpDelete():
-return delete(_that.id);}
+return delete(_that.id);case EditOpInsert():
+return insert(_that.url,_that.title);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -222,11 +220,12 @@ return delete(_that.id);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int id,  EditOpField field,  bool value)?  set,TResult? Function( int id)?  delete,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int id,  EditOpField field,  bool value)?  set,TResult? Function( int id)?  delete,TResult? Function( String url,  String? title)?  insert,}) {final _that = this;
 switch (_that) {
 case EditOpSet() when set != null:
 return set(_that.id,_that.field,_that.value);case EditOpDelete() when delete != null:
-return delete(_that.id);case _:
+return delete(_that.id);case EditOpInsert() when insert != null:
+return insert(_that.url,_that.title);case _:
   return null;
 
 }
@@ -241,7 +240,7 @@ class EditOpSet with DiagnosticableTreeMixin implements EditOp {
   const EditOpSet({required this.id, required this.field, required this.value, final  String? $type}): $type = $type ?? 'set';
   factory EditOpSet.fromJson(Map<String, dynamic> json) => _$EditOpSetFromJson(json);
 
-@override final  int id;
+ final  int id;
  final  EditOpField field;
  final  bool value;
 
@@ -286,7 +285,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpSetCopyWith<$Res> implements $EditOpCopyWith<$Res> {
   factory $EditOpSetCopyWith(EditOpSet value, $Res Function(EditOpSet) _then) = _$EditOpSetCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int id, EditOpField field, bool value
 });
@@ -324,7 +323,7 @@ class EditOpDelete with DiagnosticableTreeMixin implements EditOp {
   const EditOpDelete({required this.id, final  String? $type}): $type = $type ?? 'delete';
   factory EditOpDelete.fromJson(Map<String, dynamic> json) => _$EditOpDeleteFromJson(json);
 
-@override final  int id;
+ final  int id;
 
 @JsonKey(name: 'op')
 final String $type;
@@ -367,7 +366,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpDeleteCopyWith<$Res> implements $EditOpCopyWith<$Res> {
   factory $EditOpDeleteCopyWith(EditOpDelete value, $Res Function(EditOpDelete) _then) = _$EditOpDeleteCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int id
 });
@@ -390,6 +389,87 @@ class _$EditOpDeleteCopyWithImpl<$Res>
   return _then(EditOpDelete(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class EditOpInsert with DiagnosticableTreeMixin implements EditOp {
+  const EditOpInsert({required this.url, this.title, final  String? $type}): $type = $type ?? 'insert';
+  factory EditOpInsert.fromJson(Map<String, dynamic> json) => _$EditOpInsertFromJson(json);
+
+ final  String url;
+ final  String? title;
+
+@JsonKey(name: 'op')
+final String $type;
+
+
+/// Create a copy of EditOp
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EditOpInsertCopyWith<EditOpInsert> get copyWith => _$EditOpInsertCopyWithImpl<EditOpInsert>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$EditOpInsertToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditOp.insert'))
+    ..add(DiagnosticsProperty('url', url))..add(DiagnosticsProperty('title', title));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOpInsert&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,url,title);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'EditOp.insert(url: $url, title: $title)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $EditOpInsertCopyWith<$Res> implements $EditOpCopyWith<$Res> {
+  factory $EditOpInsertCopyWith(EditOpInsert value, $Res Function(EditOpInsert) _then) = _$EditOpInsertCopyWithImpl;
+@useResult
+$Res call({
+ String url, String? title
+});
+
+
+
+
+}
+/// @nodoc
+class _$EditOpInsertCopyWithImpl<$Res>
+    implements $EditOpInsertCopyWith<$Res> {
+  _$EditOpInsertCopyWithImpl(this._self, this._then);
+
+  final EditOpInsert _self;
+  final $Res Function(EditOpInsert) _then;
+
+/// Create a copy of EditOp
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? url = null,Object? title = freezed,}) {
+  return _then(EditOpInsert(
+url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

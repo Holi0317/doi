@@ -30,3 +30,16 @@ EditOpDelete _$EditOpDeleteFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$EditOpDeleteToJson(EditOpDelete instance) =>
     <String, dynamic>{'id': instance.id, 'op': instance.$type};
+
+EditOpInsert _$EditOpInsertFromJson(Map<String, dynamic> json) => EditOpInsert(
+  url: json['url'] as String,
+  title: json['title'] as String?,
+  $type: json['op'] as String?,
+);
+
+Map<String, dynamic> _$EditOpInsertToJson(EditOpInsert instance) =>
+    <String, dynamic>{
+      'url': instance.url,
+      'title': instance.title,
+      'op': instance.$type,
+    };

@@ -5,7 +5,7 @@ import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import type { EditBodySchema, SearchQuerySchema } from "../schemas";
+import type { ModifyOpSchema, SearchQuerySchema } from "../schemas";
 
 const migrations: DBMigration[] = [
   {
@@ -157,8 +157,8 @@ ORDER BY id ASC;
     );
   }
 
-  public edit(param: z.output<typeof EditBodySchema>) {
-    for (const op of param.op) {
+  public edit(ops: Array<z.output<typeof ModifyOpSchema>>) {
+    for (const op of ops) {
       switch (op.op) {
         case "set": {
           const column =

@@ -1,16 +1,15 @@
 import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import type { InferRequestType } from "hono/client";
-import type { ClientType } from "./client";
 import { createTestClient } from "./client";
 
-describe("Link insert", () => {
+describe("Link insert via edit", () => {
   interface TestCase {
-    insert: InferRequestType<
-      ClientType["api"]["insert"]["$post"]
-    >["json"]["items"];
+    insert: Array<{
+      title?: string | null;
+      url: string;
+    }>;
 
-    insertResponse: Array<{
+    expectedSearchResult: Array<{
       id: number;
       title: string;
       url: string;
@@ -20,14 +19,33 @@ describe("Link insert", () => {
   async function testInsert(tc: TestCase) {
     const client = await createTestClient();
 
-    const insert = await client.api.insert.$post({
+    const editResp = await client.api.edit.$post({
       json: {
-        items: tc.insert,
+        op: tc.insert.map((item) => ({
+          op: "insert" as const,
+          title: item.title,
+          url: item.url,
+        })),
       },
     });
 
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual(tc.insertResponse);
+    expect(editResp.status).toEqual(201);
+    expect(await editResp.text()).toEqual("");
+
+    // Verify inserts via search
+    const search = await client.api.search.$get({
+      query: { order: "id_asc" },
+    });
+    const items = (await search.json()).items;
+
+    expect(items).toEqual(
+      tc.expectedSearchResult.map((expected) => ({
+        ...expected,
+        archive: false,
+        created_at: expect.any(Number),
+        favorite: false,
+      })),
+    );
   }
 
   beforeAll(() => {
@@ -40,7 +58,9 @@ describe("Link insert", () => {
   it("should insert link and store it", async () => {
     await testInsert({
       insert: [{ title: "asdf", url: "https://google.com" }],
-      insertResponse: [{ id: 1, title: "asdf", url: "https://google.com/" }],
+      expectedSearchResult: [
+        { id: 1, title: "asdf", url: "https://google.com/" },
+      ],
     });
   });
 
@@ -55,7 +75,7 @@ describe("Link insert", () => {
 
     await testInsert({
       insert: [{ title: "", url: "https://google.com" }],
-      insertResponse: [
+      expectedSearchResult: [
         {
           id: 1,
           title: "You should still use this 404 title",
@@ -68,7 +88,7 @@ describe("Link insert", () => {
   it("should use empty string as title if document fetch failed", async () => {
     await testInsert({
       insert: [{ title: "", url: "https://google.com" }],
-      insertResponse: [
+      expectedSearchResult: [
         {
           id: 1,
           title: "",
@@ -79,27 +99,39 @@ describe("Link insert", () => {
   });
 
   it("should deduplicate same URL in different request", async () => {
-    await testInsert({
-      insert: [{ title: "first", url: "https://google.com" }],
-      insertResponse: [
-        {
-          id: 1,
-          title: "first",
-          url: "https://google.com/",
-        },
-      ],
+    const client = await createTestClient();
+
+    // First insert
+    await client.api.edit.$post({
+      json: {
+        op: [{ op: "insert", title: "first", url: "https://google.com" }],
+      },
     });
 
-    await testInsert({
-      insert: [{ title: "second", url: "https://google.com" }],
-      insertResponse: [
-        {
-          id: 2,
-          title: "second",
-          url: "https://google.com/",
-        },
-      ],
+    // Second insert with same URL
+    await client.api.edit.$post({
+      json: {
+        op: [{ op: "insert", title: "second", url: "https://google.com" }],
+      },
     });
+
+    // Verify via search
+    const search = await client.api.search.$get({
+      query: { order: "id_asc" },
+    });
+    const items = (await search.json()).items;
+
+    // Last insert wins, URL is deduplicated
+    expect(items).toEqual([
+      {
+        id: 2,
+        title: "second",
+        url: "https://google.com/",
+        archive: false,
+        created_at: expect.any(Number),
+        favorite: false,
+      },
+    ]);
   });
 
   it("should deduplicate same URL in same request", async () => {
@@ -109,7 +141,7 @@ describe("Link insert", () => {
         { title: "first", url: "https://google.com#123" },
         { title: "second", url: "https://google.com#456" },
       ],
-      insertResponse: [
+      expectedSearchResult: [
         {
           id: 2,
           title: "second",
@@ -127,7 +159,7 @@ describe("Link insert", () => {
           url: "https://username:password@google.com?query=123&query=456#hash",
         },
       ],
-      insertResponse: [
+      expectedSearchResult: [
         {
           id: 1,
           title: "asdf",
@@ -145,7 +177,7 @@ describe("Link insert", () => {
           url: "https://google.com?utm_content=buffercf3b2&utm_medium=social&utm_source=snapchat.com&utm_campaign=buffer",
         },
       ],
-      insertResponse: [
+      expectedSearchResult: [
         {
           id: 1,
           title: "asdf",
@@ -156,7 +188,7 @@ describe("Link insert", () => {
   });
 });
 
-describe("HTML title scraping", () => {
+describe("HTML title scraping via edit insert", () => {
   interface TestCase {
     title: string;
     document?: string;
@@ -175,18 +207,28 @@ describe("HTML title scraping", () => {
 
     const client = await createTestClient();
 
-    const insert = await client.api.insert.$post({
+    const editResp = await client.api.edit.$post({
       json: {
-        items: [{ title: "", url: "https://google.com" }],
+        op: [{ op: "insert", title: "", url: "https://google.com" }],
       },
     });
 
-    expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
+    expect(editResp.status).toEqual(201);
+
+    // Verify via search
+    const search = await client.api.search.$get({
+      query: { order: "id_asc" },
+    });
+    const items = (await search.json()).items;
+
+    expect(items).toEqual([
       {
         id: 1,
         title: tc.expected,
         url: "https://google.com/",
+        archive: false,
+        created_at: expect.any(Number),
+        favorite: false,
       },
     ]);
   }
