@@ -77,11 +77,11 @@ class _LinkTileState extends ConsumerState<LinkTile>
         children: [
           if (widget.item.favorite)
             LinkAction.unfavorite.slideable(
-              (context) => _edit(EditOpField.favorite, false),
+              (context) => _edit(EditOpBoolField.favorite, false),
             )
           else
             LinkAction.favorite.slideable(
-              (context) => _edit(EditOpField.favorite, true),
+              (context) => _edit(EditOpBoolField.favorite, true),
             ),
         ],
       ),
@@ -93,7 +93,7 @@ class _LinkTileState extends ConsumerState<LinkTile>
         // FIXME(GH-18): Seems we need 2 ticks to remove item after dismiss, and slidable isn't happy about that.
         dismissible: widget.dismissible && !widget.item.archive
             ? DismissiblePane(
-                onDismissed: () => _edit(EditOpField.archive, true),
+                onDismissed: () => _edit(EditOpBoolField.archive, true),
               )
             : null,
 
@@ -102,11 +102,11 @@ class _LinkTileState extends ConsumerState<LinkTile>
           LinkAction.share.slideable((context) => _share()),
           if (widget.item.archive)
             LinkAction.unarchive.slideable(
-              (context) => _edit(EditOpField.archive, false),
+              (context) => _edit(EditOpBoolField.archive, false),
             )
           else
             LinkAction.archive.slideable(
-              (context) => _edit(EditOpField.archive, true),
+              (context) => _edit(EditOpBoolField.archive, true),
             ),
         ],
       ),
@@ -190,9 +190,9 @@ class _LinkTileState extends ConsumerState<LinkTile>
     await controller.openEndActionPane();
   }
 
-  Future<void> _edit(EditOpField field, bool value) async {
+  Future<void> _edit(EditOpBoolField field, bool value) async {
     final queue = ref.read(editQueueProvider.notifier);
-    queue.add(EditOp.set(field: field, id: widget.item.id, value: value));
+    queue.add(EditOp.setBool(field: field, id: widget.item.id, value: value));
   }
 
   Future<void> _share() async {

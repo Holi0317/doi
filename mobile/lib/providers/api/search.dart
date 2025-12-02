@@ -38,15 +38,17 @@ extension on Link {
 
     for (var op in ops) {
       switch (op) {
-        case EditOpSet():
+        case EditOpSetBool():
           result = result.copyWith(
-            favorite: op.field == EditOpField.favorite
+            favorite: op.field == EditOpBoolField.favorite
                 ? op.value
                 : result.favorite,
-            archive: op.field == EditOpField.archive
+            archive: op.field == EditOpBoolField.archive
                 ? op.value
                 : result.archive,
           );
+        case EditOpSetString():
+          result = result.copyWith(note: op.value);
         case EditOpDelete():
           return null;
       }

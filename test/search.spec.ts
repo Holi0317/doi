@@ -12,6 +12,8 @@ interface TestCase {
 
   search: InferRequestType<ClientType["api"]["search"]["$get"]>["query"];
 
+  edit?: InferRequestType<ClientType["api"]["edit"]["$post"]>["json"]["op"];
+
   resp: InferResponseType<ClientType["api"]["search"]["$get"]>;
 }
 
@@ -26,6 +28,15 @@ async function testInsert(tc: TestCase) {
     });
 
     expect(insert.status).toEqual(201);
+  }
+
+  const edit = tc.edit ?? [];
+  if (edit.length > 0) {
+    await client.api.edit.$post({
+      json: {
+        op: edit,
+      },
+    });
   }
 
   const search = await client.api.search.$get({
@@ -77,6 +88,7 @@ describe("Link search", () => {
             id: 3,
             title: "3",
             url: "http://3.com/",
+            note: "",
           },
           {
             archive: false,
@@ -85,6 +97,7 @@ describe("Link search", () => {
             id: 2,
             title: "2",
             url: "http://2.com/",
+            note: "",
           },
           {
             archive: false,
@@ -93,6 +106,7 @@ describe("Link search", () => {
             id: 1,
             title: "1",
             url: "http://1.com/",
+            note: "",
           },
         ],
       },
@@ -114,6 +128,111 @@ describe("Link search", () => {
         cursor: null,
         hasMore: false,
         items: [],
+      },
+    });
+  });
+
+  it("should search by title", async () => {
+    await testInsert({
+      insert: [
+        { url: "http://1.com", title: "one" },
+        { url: "http://2.com", title: "two" },
+        { url: "http://3.com", title: "three" },
+      ],
+      search: {
+        query: "1",
+      },
+      resp: {
+        count: 1,
+        cursor: null,
+        hasMore: false,
+        items: [
+          {
+            archive: false,
+            created_at: expect.any(Number),
+            favorite: false,
+            id: 1,
+            title: "one",
+            url: "http://1.com/",
+            note: "",
+          },
+        ],
+      },
+    });
+  });
+
+  it("should search by url", async () => {
+    await testInsert({
+      insert: [
+        { url: "http://example.com/aaaa", title: "one" },
+        { url: "http://example.com/bbbb", title: "two" },
+        { url: "http://3.com", title: "three" },
+      ],
+      search: {
+        query: "example.com",
+      },
+      resp: {
+        count: 2,
+        cursor: null,
+        hasMore: false,
+        items: [
+          {
+            archive: false,
+            created_at: expect.any(Number),
+            favorite: false,
+            id: 2,
+            title: "two",
+            url: "http://example.com/bbbb",
+            note: "",
+          },
+          {
+            archive: false,
+            created_at: expect.any(Number),
+            favorite: false,
+            id: 1,
+            title: "one",
+            url: "http://example.com/aaaa",
+            note: "",
+          },
+        ],
+      },
+    });
+  });
+
+  it("should search by note", async () => {
+    await testInsert({
+      insert: [
+        { url: "http://example.com/aaaa", title: "one" },
+        { url: "http://example.com/bbbb", title: "two" },
+        { url: "http://3.com", title: "three" },
+      ],
+      edit: [
+        {
+          op: "set_string",
+          id: 1,
+          field: "note",
+          value: "this is an example note",
+        },
+        { op: "set_string", id: 2, field: "note", value: "another note" },
+      ],
+      search: {
+        query: "Another",
+      },
+      resp: {
+        count: 1,
+        cursor: null,
+        hasMore: false,
+        items: [
+          {
+            archive: false,
+            created_at: expect.any(Number),
+            favorite: false,
+            id: 2,
+            title: "two",
+            url: "http://example.com/bbbb",
+            note: "another note",
+          },
+        ],
       },
     });
   });
@@ -140,6 +259,7 @@ describe("Link search", () => {
             id: 1,
             title: "1",
             url: "http://1.com/",
+            note: "",
           },
           {
             archive: false,
@@ -148,6 +268,7 @@ describe("Link search", () => {
             id: 2,
             title: "2",
             url: "http://2.com/",
+            note: "",
           },
           {
             archive: false,
@@ -156,6 +277,7 @@ describe("Link search", () => {
             id: 3,
             title: "3",
             url: "http://3.com/",
+            note: "",
           },
         ],
       },
@@ -186,6 +308,7 @@ describe("Link search", () => {
             id: 2,
             title: "2",
             url: "http://2.com/",
+            note: "",
           },
         ],
       },
@@ -215,6 +338,7 @@ describe("Link search", () => {
             id: 3,
             title: "3",
             url: "http://3.com/",
+            note: "",
           },
         ],
       },

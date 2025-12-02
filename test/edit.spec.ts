@@ -58,10 +58,11 @@ describe("Link edit", () => {
 
     await testEdit({
       edit: [
-        { op: "set", field: "archive", value: true, id: 1 },
+        { op: "set_bool", field: "archive", value: true, id: 1 },
         { op: "delete", id: 2 },
-        { op: "set", field: "archive", value: true, id: 2 },
-        { op: "set", field: "favorite", value: true, id: 1 },
+        { op: "set_bool", field: "archive", value: true, id: 2 },
+        { op: "set_bool", field: "favorite", value: true, id: 1 },
+        { op: "set_string", field: "note", value: "Hello world", id: 1 },
       ],
       query: {
         order: "id_asc",
@@ -74,6 +75,7 @@ describe("Link edit", () => {
           id: 1,
           title: "1",
           url: "http://1.com/",
+          note: "Hello world",
         },
         {
           archive: false,
@@ -82,6 +84,7 @@ describe("Link edit", () => {
           id: 3,
           title: "3",
           url: "http://3.com/",
+          note: "",
         },
       ],
     });
@@ -101,6 +104,7 @@ describe("Link edit", () => {
         id: 1,
         title: "1",
         url: "http://1.com/",
+        note: "Hello world",
       },
     ]);
 
@@ -119,6 +123,7 @@ describe("Link edit", () => {
         id: 3,
         title: "3",
         url: "http://3.com/",
+        note: "",
       },
     ]);
   });
@@ -126,9 +131,9 @@ describe("Link edit", () => {
   it("should apply edit in sequence", async () => {
     await testEdit({
       edit: [
-        { op: "set", field: "archive", value: true, id: 1 },
-        { op: "set", field: "archive", value: true, id: 2 },
-        { op: "set", field: "archive", value: false, id: 2 },
+        { op: "set_bool", field: "archive", value: true, id: 1 },
+        { op: "set_bool", field: "archive", value: true, id: 2 },
+        { op: "set_bool", field: "archive", value: false, id: 2 },
       ],
       query: {
         order: "id_asc",
@@ -141,6 +146,7 @@ describe("Link edit", () => {
           id: 1,
           title: "1",
           url: "http://1.com/",
+          note: "",
         },
         {
           archive: false,
@@ -149,6 +155,7 @@ describe("Link edit", () => {
           id: 2,
           title: "2",
           url: "http://2.com/",
+          note: "",
         },
         {
           archive: false,
@@ -157,6 +164,7 @@ describe("Link edit", () => {
           id: 3,
           title: "3",
           url: "http://3.com/",
+          note: "",
         },
       ],
     });
@@ -164,7 +172,7 @@ describe("Link edit", () => {
 
   it("should not raise error for non-existing id", async () => {
     await testEdit({
-      edit: [{ op: "set", field: "archive", value: true, id: 100 }],
+      edit: [{ op: "set_bool", field: "archive", value: true, id: 100 }],
       query: {
         order: "id_asc",
       },
@@ -176,6 +184,7 @@ describe("Link edit", () => {
           id: 1,
           title: "1",
           url: "http://1.com/",
+          note: "",
         },
         {
           archive: false,
@@ -184,6 +193,7 @@ describe("Link edit", () => {
           id: 2,
           title: "2",
           url: "http://2.com/",
+          note: "",
         },
         {
           archive: false,
@@ -192,6 +202,7 @@ describe("Link edit", () => {
           id: 3,
           title: "3",
           url: "http://3.com/",
+          note: "",
         },
       ],
     });

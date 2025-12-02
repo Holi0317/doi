@@ -46,6 +46,15 @@ export function LinkItemForm(props: LinkItemFormProps) {
       </div>
 
       <div>
+        <label>
+          Note
+          <textarea name="note" maxLength={4096}>
+            {item.note}
+          </textarea>
+        </label>
+      </div>
+
+      <div>
         <label>Created at {dayjs(item.created_at).toISOString()}</label>
       </div>
 

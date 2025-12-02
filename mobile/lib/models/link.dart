@@ -14,6 +14,7 @@ abstract class Link with _$Link {
     required bool favorite,
     required bool archive,
     @JsonKey(name: 'created_at') required int createdAt,
+    required String note,
   }) = _Link;
 
   factory Link.fromJson(Map<String, dynamic> json) => _$LinkFromJson(json);

@@ -13,6 +13,7 @@ _Link _$LinkFromJson(Map<String, dynamic> json) => _Link(
   favorite: json['favorite'] as bool,
   archive: json['archive'] as bool,
   createdAt: (json['created_at'] as num).toInt(),
+  note: json['note'] as String,
 );
 
 Map<String, dynamic> _$LinkToJson(_Link instance) => <String, dynamic>{
@@ -22,4 +23,5 @@ Map<String, dynamic> _$LinkToJson(_Link instance) => <String, dynamic>{
   'favorite': instance.favorite,
   'archive': instance.archive,
   'created_at': instance.createdAt,
+  'note': instance.note,
 };

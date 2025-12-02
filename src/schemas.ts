@@ -79,10 +79,16 @@ export const InsertBodySchema = z.object({
 
 export const EditOpSchema = z.discriminatedUnion("op", [
   z.object({
-    op: z.literal("set"),
+    op: z.literal("set_bool"),
     id: z.number(),
     field: z.literal(["archive", "favorite"]),
     value: z.boolean(),
+  }),
+  z.object({
+    op: z.literal("set_string"),
+    id: z.number(),
+    field: z.literal(["note"]),
+    value: z.string(),
   }),
   z.object({ op: z.literal("delete"), id: z.number() }),
 ]);

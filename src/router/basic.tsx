@@ -14,8 +14,10 @@ import { LinkList } from "../component/LinkList";
 import { SearchToolbar } from "../component/SearchToolbar";
 
 const ItemEditSchema = z.object({
+  // FIXME: <input type="checkbox"> won't send anything if unchecked.
   archive: zu.queryBool(),
   favorite: zu.queryBool(),
+  note: z.string().max(4096).optional(),
 });
 
 /**
@@ -82,7 +84,7 @@ const app = new Hono<Env>({ strict: false })
 
     await c.get("client").edit.$post({
       json: {
-        op: [{ op: "set", field: "archive", id, value: true }],
+        op: [{ op: "set_bool", field: "archive", id, value: true }],
       },
     });
 
@@ -128,7 +130,7 @@ const app = new Hono<Env>({ strict: false })
 
       if (form.archive != null) {
         op.push({
-          op: "set",
+          op: "set_bool",
           field: "archive",
           id,
           value: form.archive,
@@ -137,10 +139,19 @@ const app = new Hono<Env>({ strict: false })
 
       if (form.favorite != null) {
         op.push({
-          op: "set",
+          op: "set_bool",
           field: "favorite",
           id,
           value: form.favorite,
+        });
+      }
+
+      if (form.note != null) {
+        op.push({
+          op: "set_string",
+          field: "note",
+          id,
+          value: form.note,
         });
       }
 

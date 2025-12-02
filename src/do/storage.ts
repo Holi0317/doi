@@ -40,6 +40,12 @@ CREATE INDEX idx_link_favorite ON link(favorite);
 CREATE INDEX idx_link_archive ON link(archive);
 `,
   },
+  {
+    name: "20250612-add-note-column",
+    script: sql`
+ALTER TABLE link ADD COLUMN note text NOT NULL DEFAULT '' CHECK (length(note) <= 4096);
+`,
+  },
 ];
 
 const LinkItemSchema = z.strictObject({
@@ -49,6 +55,7 @@ const LinkItemSchema = z.strictObject({
   favorite: zu.sqlBool(),
   archive: zu.sqlBool(),
   created_at: zu.unixEpochMs(),
+  note: z.string(),
 });
 
 export type LinkItem = z.output<typeof LinkItemSchema>;
@@ -160,13 +167,19 @@ ORDER BY id ASC;
   public edit(param: z.output<typeof EditBodySchema>) {
     for (const op of param.op) {
       switch (op.op) {
-        case "set": {
+        case "set_bool": {
           const column =
             op.field === "archive"
               ? sql.ident("archive")
               : sql.ident("favorite");
           this.conn.void_(
             sql`UPDATE link SET ${column} = ${Number(op.value)} WHERE id = ${op.id}`,
+          );
+          break;
+        }
+        case "set_string": {
+          this.conn.void_(
+            sql`UPDATE link SET note = ${op.value} WHERE id = ${op.id}`,
           );
           break;
         }
@@ -190,10 +203,11 @@ ORDER BY id ASC;
 
     const cursor = decodeCursor(param.cursor);
 
+    // FIXME: Getting "LIKE or GLOB pattern too complex" here. Probably need to investigate fts5 extension here.
     const frag = sql`
   FROM link
   WHERE 1=1
-    AND (${query} = '' OR title like ${queryLike} OR url like ${queryLike})
+    AND (${query} = '' OR title like ${queryLike} OR url like ${queryLike} OR note like ${queryLike})
     AND (${param.archive ?? null} IS NULL OR ${Number(param.archive)} = link.archive)
     AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;

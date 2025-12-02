@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Link implements DiagnosticableTreeMixin {
 
- int get id; String get title; String get url; bool get favorite; bool get archive;@JsonKey(name: 'created_at') int get createdAt;
+ int get id; String get title; String get url; bool get favorite; bool get archive;@JsonKey(name: 'created_at') int get createdAt; String get note;
 /// Create a copy of Link
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,21 +29,21 @@ $LinkCopyWith<Link> get copyWith => _$LinkCopyWithImpl<Link>(this as Link, _$ide
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Link'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('url', url))..add(DiagnosticsProperty('favorite', favorite))..add(DiagnosticsProperty('archive', archive))..add(DiagnosticsProperty('createdAt', createdAt));
+    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('url', url))..add(DiagnosticsProperty('favorite', favorite))..add(DiagnosticsProperty('archive', archive))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('note', note));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Link&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.archive, archive) || other.archive == archive)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Link&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.archive, archive) || other.archive == archive)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.note, note) || other.note == note));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,url,favorite,archive,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,url,favorite,archive,createdAt,note);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Link(id: $id, title: $title, url: $url, favorite: $favorite, archive: $archive, createdAt: $createdAt)';
+  return 'Link(id: $id, title: $title, url: $url, favorite: $favorite, archive: $archive, createdAt: $createdAt, note: $note)';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $LinkCopyWith<$Res>  {
   factory $LinkCopyWith(Link value, $Res Function(Link) _then) = _$LinkCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String url, bool favorite, bool archive,@JsonKey(name: 'created_at') int createdAt
+ int id, String title, String url, bool favorite, bool archive,@JsonKey(name: 'created_at') int createdAt, String note
 });
 
 
@@ -71,7 +71,7 @@ class _$LinkCopyWithImpl<$Res>
 
 /// Create a copy of Link
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? url = null,Object? favorite = null,Object? archive = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? url = null,Object? favorite = null,Object? archive = null,Object? createdAt = null,Object? note = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -79,7 +79,8 @@ as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nul
 as String,favorite: null == favorite ? _self.favorite : favorite // ignore: cast_nullable_to_non_nullable
 as bool,archive: null == archive ? _self.archive : archive // ignore: cast_nullable_to_non_nullable
 as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as int,
+as int,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -164,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt,  String note)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Link() when $default != null:
-return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt,_that.note);case _:
   return orElse();
 
 }
@@ -185,10 +186,10 @@ return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt,  String note)  $default,) {final _that = this;
 switch (_that) {
 case _Link():
-return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt,_that.note);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +206,10 @@ return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String url,  bool favorite,  bool archive, @JsonKey(name: 'created_at')  int createdAt,  String note)?  $default,) {final _that = this;
 switch (_that) {
 case _Link() when $default != null:
-return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_that.createdAt,_that.note);case _:
   return null;
 
 }
@@ -220,7 +221,7 @@ return $default(_that.id,_that.title,_that.url,_that.favorite,_that.archive,_tha
 @JsonSerializable()
 
 class _Link with DiagnosticableTreeMixin implements Link {
-  const _Link({required this.id, required this.title, required this.url, required this.favorite, required this.archive, @JsonKey(name: 'created_at') required this.createdAt});
+  const _Link({required this.id, required this.title, required this.url, required this.favorite, required this.archive, @JsonKey(name: 'created_at') required this.createdAt, required this.note});
   factory _Link.fromJson(Map<String, dynamic> json) => _$LinkFromJson(json);
 
 @override final  int id;
@@ -229,6 +230,7 @@ class _Link with DiagnosticableTreeMixin implements Link {
 @override final  bool favorite;
 @override final  bool archive;
 @override@JsonKey(name: 'created_at') final  int createdAt;
+@override final  String note;
 
 /// Create a copy of Link
 /// with the given fields replaced by the non-null parameter values.
@@ -244,21 +246,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Link'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('url', url))..add(DiagnosticsProperty('favorite', favorite))..add(DiagnosticsProperty('archive', archive))..add(DiagnosticsProperty('createdAt', createdAt));
+    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('url', url))..add(DiagnosticsProperty('favorite', favorite))..add(DiagnosticsProperty('archive', archive))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('note', note));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Link&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.archive, archive) || other.archive == archive)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Link&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.favorite, favorite) || other.favorite == favorite)&&(identical(other.archive, archive) || other.archive == archive)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.note, note) || other.note == note));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,url,favorite,archive,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,url,favorite,archive,createdAt,note);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Link(id: $id, title: $title, url: $url, favorite: $favorite, archive: $archive, createdAt: $createdAt)';
+  return 'Link(id: $id, title: $title, url: $url, favorite: $favorite, archive: $archive, createdAt: $createdAt, note: $note)';
 }
 
 
@@ -269,7 +271,7 @@ abstract mixin class _$LinkCopyWith<$Res> implements $LinkCopyWith<$Res> {
   factory _$LinkCopyWith(_Link value, $Res Function(_Link) _then) = __$LinkCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String url, bool favorite, bool archive,@JsonKey(name: 'created_at') int createdAt
+ int id, String title, String url, bool favorite, bool archive,@JsonKey(name: 'created_at') int createdAt, String note
 });
 
 
@@ -286,7 +288,7 @@ class __$LinkCopyWithImpl<$Res>
 
 /// Create a copy of Link
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? url = null,Object? favorite = null,Object? archive = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? url = null,Object? favorite = null,Object? archive = null,Object? createdAt = null,Object? note = null,}) {
   return _then(_Link(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -294,7 +296,8 @@ as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nul
 as String,favorite: null == favorite ? _self.favorite : favorite // ignore: cast_nullable_to_non_nullable
 as bool,archive: null == archive ? _self.archive : archive // ignore: cast_nullable_to_non_nullable
 as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as int,
+as int,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

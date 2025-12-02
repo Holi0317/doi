@@ -1,23 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'edit_op.freezed.dart';
 part 'edit_op.g.dart';
 
-enum EditOpField {
+enum EditOpBoolField {
   @JsonValue('archive')
   archive,
   @JsonValue('favorite')
   favorite,
 }
 
-@Freezed(unionKey: 'op')
+enum EditOpStringField {
+  @JsonValue('note')
+  note,
+}
+
+@Freezed(unionKey: 'op', unionValueCase: FreezedUnionCase.snake)
 sealed class EditOp with _$EditOp {
-  const factory EditOp.set({
+  const factory EditOp.setBool({
     required int id,
-    required EditOpField field,
+    required EditOpBoolField field,
     required bool value,
-  }) = EditOpSet;
+  }) = EditOpSetBool;
+
+  const factory EditOp.setString({
+    required int id,
+    required EditOpStringField field,
+    required String value,
+  }) = EditOpSetString;
 
   const factory EditOp.delete({required int id}) = EditOpDelete;
 

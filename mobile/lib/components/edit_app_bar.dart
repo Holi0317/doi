@@ -68,13 +68,13 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
       case LinkAction.delete:
         _showDeleteDialog(context, ref);
       case LinkAction.archive:
-        _edit(ref, EditOpField.archive, true);
+        _edit(ref, EditOpBoolField.archive, true);
       case LinkAction.unarchive:
-        _edit(ref, EditOpField.archive, false);
+        _edit(ref, EditOpBoolField.archive, false);
       case LinkAction.favorite:
-        _edit(ref, EditOpField.favorite, true);
+        _edit(ref, EditOpBoolField.favorite, true);
       case LinkAction.unfavorite:
-        _edit(ref, EditOpField.favorite, false);
+        _edit(ref, EditOpBoolField.favorite, false);
       case LinkAction.share:
         throw UnimplementedError();
     }
@@ -113,10 +113,10 @@ class EditAppBar extends ConsumerWidget implements PreferredSizeWidget {
     _endSelection();
   }
 
-  void _edit(WidgetRef ref, EditOpField field, bool value) {
+  void _edit(WidgetRef ref, EditOpBoolField field, bool value) {
     final queue = ref.read(editQueueProvider.notifier);
     queue.addAll(
-      selection.map((id) => EditOp.set(id: id, field: field, value: value)),
+      selection.map((id) => EditOp.setBool(id: id, field: field, value: value)),
     );
 
     _endSelection();
