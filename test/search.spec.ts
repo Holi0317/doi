@@ -32,11 +32,13 @@ async function testInsert(tc: TestCase) {
 
   const edit = tc.edit ?? [];
   if (edit.length > 0) {
-    await client.api.edit.$post({
+    const ed = await client.api.edit.$post({
       json: {
         op: edit,
       },
     });
+
+    expect(ed.status).toEqual(201);
   }
 
   const search = await client.api.search.$get({
@@ -341,6 +343,25 @@ describe("Link search", () => {
             note: "",
           },
         ],
+      },
+    });
+  });
+
+  it("should work on complex query pattern", async () => {
+    await testInsert({
+      insert: [],
+      search: {
+        // Yeah for whatever reason searching by long hex (session hash) causes
+        // "LIKE or GLOB pattern too complex" error in SQLite when using LIKE.
+        // This is to test the new instr-based search method.
+        query:
+          "1b23827ff2fdd972040369f40878bdb7f0256c5ee759dec7b9cc88d38391f1b2",
+      },
+      resp: {
+        count: 0,
+        cursor: null,
+        hasMore: false,
+        items: [],
       },
     });
   });

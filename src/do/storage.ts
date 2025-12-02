@@ -199,15 +199,23 @@ ORDER BY id ASC;
 
   public search(param: z.output<typeof SearchQuerySchema>) {
     const query = param.query || "";
-    const queryLike = `%${query}%`;
 
     const cursor = decodeCursor(param.cursor);
 
-    // FIXME: Getting "LIKE or GLOB pattern too complex" here. Probably need to investigate fts5 extension here.
+    // For text search (param.query):
+    // Was using LIKE but got "LIKE or GLOB pattern too complex" error on large search string.
+    // Tried fts5 but that isn't what we want. We actually want substring search here, not token
+    // search. Like, I wanna see "github" for all links stored in github.
+    // Currently settling on instr + lower method for case-insensitive substring search.
+    // The lower function isn't foolproof for all languages but should be fine for most cases.
     const frag = sql`
   FROM link
   WHERE 1=1
-    AND (${query} = '' OR title like ${queryLike} OR url like ${queryLike} OR note like ${queryLike})
+    AND (${query} = ''
+      OR instr(lower(title), lower(${query})) != 0
+      OR instr(lower(url), lower(${query})) != 0
+      OR instr(lower(note), lower(${query})) != 0
+    )
     AND (${param.archive ?? null} IS NULL OR ${Number(param.archive)} = link.archive)
     AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;
