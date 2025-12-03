@@ -5,7 +5,7 @@ import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import type { EditBodySchema, SearchQuerySchema } from "../schemas";
+import type { EditOpSchema, SearchQuerySchema } from "../schemas";
 
 const migrations: DBMigration[] = [
   {
@@ -164,9 +164,14 @@ ORDER BY id ASC;
     );
   }
 
-  public edit(param: z.output<typeof EditBodySchema>) {
-    for (const op of param.op) {
+  public edit(ops: Array<z.output<typeof EditOpSchema>>) {
+    for (const op of ops) {
       switch (op.op) {
+        case "insert": {
+          throw new Error(
+            "Insert operation not supported in edit method. Use insert method instead.",
+          );
+        }
         case "set_bool": {
           const column =
             op.field === "archive"

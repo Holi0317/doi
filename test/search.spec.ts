@@ -6,9 +6,10 @@ import type { ClientType } from "./client";
 import { createTestClient } from "./client";
 
 interface TestCase {
-  insert: InferRequestType<
-    ClientType["api"]["insert"]["$post"]
-  >["json"]["items"];
+  insert: Array<{
+    title?: string;
+    url: string;
+  }>;
 
   search: InferRequestType<ClientType["api"]["search"]["$get"]>["query"];
 
@@ -21,9 +22,9 @@ async function testInsert(tc: TestCase) {
   const client = await createTestClient();
 
   if (tc.insert.length > 0) {
-    const insert = await client.api.insert.$post({
+    const insert = await client.api.edit.$post({
       json: {
-        items: tc.insert,
+        op: tc.insert.map((item) => ({ op: "insert", ...item })),
       },
     });
 

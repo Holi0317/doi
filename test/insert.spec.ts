@@ -1,14 +1,13 @@
 import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import type { InferRequestType } from "hono/client";
-import type { ClientType } from "./client";
 import { createTestClient } from "./client";
 
 describe("Link insert", () => {
   interface TestCase {
-    insert: InferRequestType<
-      ClientType["api"]["insert"]["$post"]
-    >["json"]["items"];
+    insert: Array<{
+      title?: string;
+      url: string;
+    }>;
 
     insertResponse: Array<{
       id: number;
@@ -20,14 +19,23 @@ describe("Link insert", () => {
   async function testInsert(tc: TestCase) {
     const client = await createTestClient();
 
-    const insert = await client.api.insert.$post({
+    const insert = await client.api.edit.$post({
       json: {
-        items: tc.insert,
+        op: tc.insert.map((item) => ({ op: "insert", ...item })),
       },
     });
 
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual(tc.insertResponse);
+
+    const search = await client.api.search.$get({ query: {} });
+    expect(search.status).toEqual(200);
+    const j = await search.json();
+    const items = j.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      url: item.url,
+    }));
+    expect(items).toEqual(tc.insertResponse);
   }
 
   beforeAll(() => {
@@ -175,18 +183,27 @@ describe("HTML title scraping", () => {
 
     const client = await createTestClient();
 
-    const insert = await client.api.insert.$post({
+    const insert = await client.api.edit.$post({
       json: {
-        items: [{ title: "", url: "https://google.com" }],
+        op: [{ op: "insert", title: "", url: "https://google.com" }],
       },
     });
-
     expect(insert.status).toEqual(201);
-    expect(await insert.json()).toEqual([
+
+    const search = await client.api.search.$get({ query: {} });
+    expect(search.status).toEqual(200);
+
+    const j = await search.json();
+
+    expect(j.items).toEqual([
       {
         id: 1,
         title: tc.expected,
         url: "https://google.com/",
+        created_at: expect.any(Number),
+        favorite: false,
+        note: "",
+        archive: false,
       },
     ]);
   }

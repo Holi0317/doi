@@ -55,29 +55,12 @@ export const SearchQuerySchema = z.object({
     }),
 });
 
-/**
- * JSON body for inserting links
- */
-export const InsertBodySchema = z.object({
-  items: z
-    .array(
-      z.object({
-        title: z.string().nullish(),
-        url: zu.httpUrl(),
-      }),
-    )
-    .min(1, { error: "At least must have an item" })
-    // See https://developers.cloudflare.com/workers/platform/limits/
-    // Free worker can only have at most 50 subrequests. This counts other
-    // feature like session management before fetching title from url.
-    // Choosing 30 here so we are not gonna blow through the subrequests limit.
-    //
-    // If you are using workers paid and needs to bump this limit, open an issue.
-    // I'll figure out how to make this limit dynamic base on actual limit in runtime.
-    .max(30, { error: "At most 30 items per request" }),
-});
-
 export const EditOpSchema = z.discriminatedUnion("op", [
+  z.object({
+    op: z.literal("insert"),
+    title: z.string().nullish(),
+    url: zu.httpUrl(),
+  }),
   z.object({
     op: z.literal("set_bool"),
     id: z.number(),
@@ -94,10 +77,25 @@ export const EditOpSchema = z.discriminatedUnion("op", [
 ]);
 
 /**
- * JSON body for editing stored links
+ * JSON body for editing stored links or inserting new items
  */
 export const EditBodySchema = z.object({
-  op: z.array(EditOpSchema).min(1).max(100),
+  op: z
+    .array(EditOpSchema)
+    .min(1, { error: "At least must have an operation" })
+    // Free worker can only have at most 50 subrequests. This counts other
+    // feature like session management before fetching title from url.
+    //
+    // This affects only insert operations where we might need to fetch (subrequest)
+    // the title from the URL. Other operations are just simple DB edits and only
+    // contribute to +1 subrequest limits.
+    //
+    // Choosing 30 here so we are not gonna blow through the subrequests limit.
+    // See https://developers.cloudflare.com/workers/platform/limits/
+    //
+    // If you are using workers paid and needs to bump this limit, open an issue.
+    // I'll figure out how to make this limit dynamic base on actual limit in runtime.
+    .max(30, { error: "At most 30 operations per request" }),
 });
 
 /**

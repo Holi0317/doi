@@ -203,9 +203,8 @@ class Whoami extends ConsumerWidget {
         .read(preferenceProvider(SharedPreferenceKey.apiToken).notifier)
         .reset();
 
-    // Reset edit queues
+    // Reset edit queue
     ref.read(editQueueProvider.notifier).reset();
-    ref.read(insertQueueProvider.notifier).reset();
 
     if (!context.mounted) {
       _logger.warning('Context not mounted after clearing preferences');

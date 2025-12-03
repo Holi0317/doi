@@ -14,7 +14,6 @@ import { encodeCursor } from "../composable/cursor";
 import {
   EditBodySchema,
   IDStringSchema,
-  InsertBodySchema,
   SearchQuerySchema,
   ImageQuerySchema,
 } from "../schemas";
@@ -149,16 +148,17 @@ const app = new Hono<Env>({ strict: false })
     });
   })
 
-  .post("/insert", zv("json", InsertBodySchema), async (c) => {
-    const stub = await getStorageStub(c);
-
-    const ky = useKy(c);
-
+  .post("/edit", zv("json", EditBodySchema), async (c) => {
     const body = c.req.valid("json");
 
+    const stub = await getStorageStub(c);
+    const ky = useKy(c);
     const limit = pLimit(REQUEST_CONCURRENCY);
 
-    const resolved = await limit.map(body.items, async (item) => {
+    const inserts = body.op.filter((op) => op.op === "insert");
+    const edits = body.op.filter((op) => op.op !== "insert");
+
+    const resolved = await limit.map(inserts, async (item) => {
       if (item.title) {
         return {
           title: item.title,
@@ -174,16 +174,15 @@ const app = new Hono<Env>({ strict: false })
       };
     });
 
-    const inserted = await stub.insert(resolved);
+    // Apply edits before inserts. We don't want to allow user to edit newly inserted
+    // items by predicting their IDs.
+    if (edits.length) {
+      await stub.edit(edits);
+    }
 
-    return c.json(inserted, 201);
-  })
-
-  .post("/edit", zv("json", EditBodySchema), async (c) => {
-    const stub = await getStorageStub(c);
-
-    const body = c.req.valid("json");
-    await stub.edit(body);
+    if (resolved.length) {
+      await stub.insert(resolved);
+    }
 
     return c.text("", 201);
   });

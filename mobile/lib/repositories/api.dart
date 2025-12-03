@@ -6,7 +6,6 @@ import 'package:event_bus/event_bus.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/edit_op.dart';
-import '../models/insert_item.dart';
 import '../models/link.dart';
 import '../models/search_query.dart';
 import '../models/search_response.dart';
@@ -124,22 +123,6 @@ class ApiRepository {
     return ServerInfo.fromJson(jsonResponse as Map<String, dynamic>);
   }
 
-  /// Insert link into server.
-  Future<void> insert(
-    List<InsertItem> items, {
-    Future<void>? abortTrigger,
-  }) async {
-    // Each batch only support at most 100 items
-    for (final chunk in items.slices(100)) {
-      await _request(
-        'POST',
-        '/insert',
-        body: {'items': chunk},
-        abortTrigger: abortTrigger,
-      );
-    }
-  }
-
   /// Search (or list) links from server.
   Future<SearchResponse> search(
     SearchQuery query, {
@@ -169,10 +152,10 @@ class ApiRepository {
     return Link.fromJson(jsonResponse as Map<String, dynamic>);
   }
 
-  /// Edit links.
+  /// Edit or insert links.
   Future<void> edit(List<EditOp> op, {Future<void>? abortTrigger}) async {
-    // Each batch only support at most 100 items
-    for (final chunk in op.slices(100)) {
+    // Each batch only supports at most 30 items
+    for (final chunk in op.slices(30)) {
       await _request(
         'POST',
         '/edit',

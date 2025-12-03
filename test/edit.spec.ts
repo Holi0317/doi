@@ -15,12 +15,12 @@ interface TestCase {
 async function testEdit(tc: TestCase) {
   const client = await createTestClient();
 
-  const insert = await client.api.insert.$post({
+  const insert = await client.api.edit.$post({
     json: {
-      items: [
-        { url: "http://1.com", title: "1" },
-        { url: "http://2.com", title: "2" },
-        { url: "http://3.com", title: "3" },
+      op: [
+        { op: "insert", url: "http://1.com", title: "1" },
+        { op: "insert", url: "http://2.com", title: "2" },
+        { op: "insert", url: "http://3.com", title: "3" },
       ],
     },
   });

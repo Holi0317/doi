@@ -2,7 +2,6 @@ import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../models/edit_op.dart';
-import '../../models/insert_item.dart';
 import '../../utils.dart';
 import '../api/api.dart';
 import '../extensions.dart';
@@ -11,30 +10,25 @@ import 'queue.dart';
 
 part 'sync_worker.g.dart';
 
-/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 ///
 /// Value of this provider doesn't matter.
 @riverpod
 class SyncWorker extends _$SyncWorker {
   bool _editProcessing = false;
-  bool _insertProcessing = false;
 
   final log = Logger('SyncWorker');
 
   @override
   int build() {
     ref.listen(editQueueProvider, (previous, next) {
-      _processEdit(next.value ?? const []);
-    });
-
-    ref.listen(insertQueueProvider, (previous, next) {
-      _processInsert(next.value ?? const []);
+      _process(next.value ?? const []);
     });
 
     return 1;
   }
 
-  Future<void> _processEdit(List<EditOp> ops) async {
+  Future<void> _process(List<EditOp> ops) async {
     if (ops.isEmpty) {
       log.info('No pending operations, skipping processing.');
       return;
@@ -66,43 +60,9 @@ class SyncWorker extends _$SyncWorker {
       _editProcessing = false;
     }
   }
-
-  Future<void> _processInsert(List<InsertItem> items) async {
-    if (items.isEmpty) {
-      log.info('No pending insert items, skipping processing.');
-      return;
-    }
-
-    if (_insertProcessing) {
-      log.info('Another process is running, skipping this trigger.');
-      return;
-    }
-
-    _insertProcessing = true;
-
-    log.info('Processing ${items.length} InsertItem');
-
-    try {
-      final api = await ref.read(apiRepositoryProvider.future);
-      final queue = ref.read(insertQueueProvider.notifier);
-
-      await api.insert(items, abortTrigger: ref.abortTrigger());
-
-      queue.pop(items.length);
-
-      // Refresh all searches to show the newly inserted items.
-      ref.invalidate(searchProvider);
-
-      log.info('Processed ${items.length} InsertItem successfully.');
-    } catch (e, st) {
-      log.severe('Failed to process InsertItem', e, st);
-    } finally {
-      _insertProcessing = false;
-    }
-  }
 }
 
-/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+/// Bridge between [sharedMediaProvider] and [editQueueProvider].
 ///
 /// FIXME(GH-11): Refactor share handling
 @riverpod
@@ -131,7 +91,9 @@ int shareQueueBridge(Ref ref) {
 
     log.info("Inserting shared URL into insert queue: $url");
 
-    ref.read(insertQueueProvider.notifier).add(InsertItem(url: url.toString()));
+    ref
+        .read(editQueueProvider.notifier)
+        .add(EditOp.insert(url: url.toString()));
   });
 
   return 1;

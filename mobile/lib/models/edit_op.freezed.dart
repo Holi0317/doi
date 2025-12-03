@@ -15,7 +15,11 @@ EditOp _$EditOpFromJson(
   Map<String, dynamic> json
 ) {
         switch (json['op']) {
-                  case 'set_bool':
+                  case 'insert':
+          return EditOpInsert.fromJson(
+            json
+          );
+                case 'set_bool':
           return EditOpSetBool.fromJson(
             json
           );
@@ -40,71 +44,34 @@ EditOp _$EditOpFromJson(
 }
 
 /// @nodoc
-mixin _$EditOp implements DiagnosticableTreeMixin {
+mixin _$EditOp {
 
- int get id;
-/// Create a copy of EditOp
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$EditOpCopyWith<EditOp> get copyWith => _$EditOpCopyWithImpl<EditOp>(this as EditOp, _$identity);
+
 
   /// Serializes this EditOp to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'EditOp'))
-    ..add(DiagnosticsProperty('id', id));
-}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOp&&(identical(other.id, id) || other.id == id));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOp);
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id);
+int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'EditOp(id: $id)';
+String toString() {
+  return 'EditOp()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $EditOpCopyWith<$Res>  {
-  factory $EditOpCopyWith(EditOp value, $Res Function(EditOp) _then) = _$EditOpCopyWithImpl;
-@useResult
-$Res call({
- int id
-});
-
-
-
-
-}
-/// @nodoc
-class _$EditOpCopyWithImpl<$Res>
-    implements $EditOpCopyWith<$Res> {
-  _$EditOpCopyWithImpl(this._self, this._then);
-
-  final EditOp _self;
-  final $Res Function(EditOp) _then;
-
-/// Create a copy of EditOp
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,}) {
-  return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
+class $EditOpCopyWith<$Res>  {
+$EditOpCopyWith(EditOp _, $Res Function(EditOp) __);
 }
 
 
@@ -122,10 +89,11 @@ extension EditOpPatterns on EditOp {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( EditOpSetBool value)?  setBool,TResult Function( EditOpSetString value)?  setString,TResult Function( EditOpDelete value)?  delete,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( EditOpInsert value)?  insert,TResult Function( EditOpSetBool value)?  setBool,TResult Function( EditOpSetString value)?  setString,TResult Function( EditOpDelete value)?  delete,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case EditOpSetBool() when setBool != null:
+case EditOpInsert() when insert != null:
+return insert(_that);case EditOpSetBool() when setBool != null:
 return setBool(_that);case EditOpSetString() when setString != null:
 return setString(_that);case EditOpDelete() when delete != null:
 return delete(_that);case _:
@@ -146,10 +114,11 @@ return delete(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( EditOpSetBool value)  setBool,required TResult Function( EditOpSetString value)  setString,required TResult Function( EditOpDelete value)  delete,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( EditOpInsert value)  insert,required TResult Function( EditOpSetBool value)  setBool,required TResult Function( EditOpSetString value)  setString,required TResult Function( EditOpDelete value)  delete,}){
 final _that = this;
 switch (_that) {
-case EditOpSetBool():
+case EditOpInsert():
+return insert(_that);case EditOpSetBool():
 return setBool(_that);case EditOpSetString():
 return setString(_that);case EditOpDelete():
 return delete(_that);}
@@ -166,10 +135,11 @@ return delete(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( EditOpSetBool value)?  setBool,TResult? Function( EditOpSetString value)?  setString,TResult? Function( EditOpDelete value)?  delete,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( EditOpInsert value)?  insert,TResult? Function( EditOpSetBool value)?  setBool,TResult? Function( EditOpSetString value)?  setString,TResult? Function( EditOpDelete value)?  delete,}){
 final _that = this;
 switch (_that) {
-case EditOpSetBool() when setBool != null:
+case EditOpInsert() when insert != null:
+return insert(_that);case EditOpSetBool() when setBool != null:
 return setBool(_that);case EditOpSetString() when setString != null:
 return setString(_that);case EditOpDelete() when delete != null:
 return delete(_that);case _:
@@ -189,9 +159,10 @@ return delete(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int id,  EditOpBoolField field,  bool value)?  setBool,TResult Function( int id,  EditOpStringField field,  String value)?  setString,TResult Function( int id)?  delete,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? title,  String url)?  insert,TResult Function( int id,  EditOpBoolField field,  bool value)?  setBool,TResult Function( int id,  EditOpStringField field,  String value)?  setString,TResult Function( int id)?  delete,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case EditOpSetBool() when setBool != null:
+case EditOpInsert() when insert != null:
+return insert(_that.title,_that.url);case EditOpSetBool() when setBool != null:
 return setBool(_that.id,_that.field,_that.value);case EditOpSetString() when setString != null:
 return setString(_that.id,_that.field,_that.value);case EditOpDelete() when delete != null:
 return delete(_that.id);case _:
@@ -212,9 +183,10 @@ return delete(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int id,  EditOpBoolField field,  bool value)  setBool,required TResult Function( int id,  EditOpStringField field,  String value)  setString,required TResult Function( int id)  delete,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? title,  String url)  insert,required TResult Function( int id,  EditOpBoolField field,  bool value)  setBool,required TResult Function( int id,  EditOpStringField field,  String value)  setString,required TResult Function( int id)  delete,}) {final _that = this;
 switch (_that) {
-case EditOpSetBool():
+case EditOpInsert():
+return insert(_that.title,_that.url);case EditOpSetBool():
 return setBool(_that.id,_that.field,_that.value);case EditOpSetString():
 return setString(_that.id,_that.field,_that.value);case EditOpDelete():
 return delete(_that.id);}
@@ -231,9 +203,10 @@ return delete(_that.id);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int id,  EditOpBoolField field,  bool value)?  setBool,TResult? Function( int id,  EditOpStringField field,  String value)?  setString,TResult? Function( int id)?  delete,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? title,  String url)?  insert,TResult? Function( int id,  EditOpBoolField field,  bool value)?  setBool,TResult? Function( int id,  EditOpStringField field,  String value)?  setString,TResult? Function( int id)?  delete,}) {final _that = this;
 switch (_that) {
-case EditOpSetBool() when setBool != null:
+case EditOpInsert() when insert != null:
+return insert(_that.title,_that.url);case EditOpSetBool() when setBool != null:
 return setBool(_that.id,_that.field,_that.value);case EditOpSetString() when setString != null:
 return setString(_that.id,_that.field,_that.value);case EditOpDelete() when delete != null:
 return delete(_that.id);case _:
@@ -247,11 +220,86 @@ return delete(_that.id);case _:
 /// @nodoc
 @JsonSerializable()
 
-class EditOpSetBool with DiagnosticableTreeMixin implements EditOp {
-  const EditOpSetBool({required this.id, required this.field, required this.value, final  String? $type}): $type = $type ?? 'set_bool';
+class EditOpInsert extends EditOp {
+  const EditOpInsert({this.title, required this.url, final  String? $type}): $type = $type ?? 'insert',super._();
+  factory EditOpInsert.fromJson(Map<String, dynamic> json) => _$EditOpInsertFromJson(json);
+
+ final  String? title;
+ final  String url;
+
+@JsonKey(name: 'op')
+final String $type;
+
+
+/// Create a copy of EditOp
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EditOpInsertCopyWith<EditOpInsert> get copyWith => _$EditOpInsertCopyWithImpl<EditOpInsert>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$EditOpInsertToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditOpInsert&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,url);
+
+@override
+String toString() {
+  return 'EditOp.insert(title: $title, url: $url)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $EditOpInsertCopyWith<$Res> implements $EditOpCopyWith<$Res> {
+  factory $EditOpInsertCopyWith(EditOpInsert value, $Res Function(EditOpInsert) _then) = _$EditOpInsertCopyWithImpl;
+@useResult
+$Res call({
+ String? title, String url
+});
+
+
+
+
+}
+/// @nodoc
+class _$EditOpInsertCopyWithImpl<$Res>
+    implements $EditOpInsertCopyWith<$Res> {
+  _$EditOpInsertCopyWithImpl(this._self, this._then);
+
+  final EditOpInsert _self;
+  final $Res Function(EditOpInsert) _then;
+
+/// Create a copy of EditOp
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? url = null,}) {
+  return _then(EditOpInsert(
+title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class EditOpSetBool extends EditOp {
+  const EditOpSetBool({required this.id, required this.field, required this.value, final  String? $type}): $type = $type ?? 'set_bool',super._();
   factory EditOpSetBool.fromJson(Map<String, dynamic> json) => _$EditOpSetBoolFromJson(json);
 
-@override final  int id;
+ final  int id;
  final  EditOpBoolField field;
  final  bool value;
 
@@ -261,19 +309,13 @@ final String $type;
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $EditOpSetBoolCopyWith<EditOpSetBool> get copyWith => _$EditOpSetBoolCopyWithImpl<EditOpSetBool>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
   return _$EditOpSetBoolToJson(this, );
-}
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'EditOp.setBool'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('field', field))..add(DiagnosticsProperty('value', value));
 }
 
 @override
@@ -286,7 +328,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,field,value);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'EditOp.setBool(id: $id, field: $field, value: $value)';
 }
 
@@ -296,7 +338,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpSetBoolCopyWith<$Res> implements $EditOpCopyWith<$Res> {
   factory $EditOpSetBoolCopyWith(EditOpSetBool value, $Res Function(EditOpSetBool) _then) = _$EditOpSetBoolCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int id, EditOpBoolField field, bool value
 });
@@ -315,7 +357,7 @@ class _$EditOpSetBoolCopyWithImpl<$Res>
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? field = null,Object? value = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? id = null,Object? field = null,Object? value = null,}) {
   return _then(EditOpSetBool(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
@@ -330,11 +372,11 @@ as bool,
 /// @nodoc
 @JsonSerializable()
 
-class EditOpSetString with DiagnosticableTreeMixin implements EditOp {
-  const EditOpSetString({required this.id, required this.field, required this.value, final  String? $type}): $type = $type ?? 'set_string';
+class EditOpSetString extends EditOp {
+  const EditOpSetString({required this.id, required this.field, required this.value, final  String? $type}): $type = $type ?? 'set_string',super._();
   factory EditOpSetString.fromJson(Map<String, dynamic> json) => _$EditOpSetStringFromJson(json);
 
-@override final  int id;
+ final  int id;
  final  EditOpStringField field;
  final  String value;
 
@@ -344,19 +386,13 @@ final String $type;
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $EditOpSetStringCopyWith<EditOpSetString> get copyWith => _$EditOpSetStringCopyWithImpl<EditOpSetString>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
   return _$EditOpSetStringToJson(this, );
-}
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'EditOp.setString'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('field', field))..add(DiagnosticsProperty('value', value));
 }
 
 @override
@@ -369,7 +405,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,field,value);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'EditOp.setString(id: $id, field: $field, value: $value)';
 }
 
@@ -379,7 +415,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpSetStringCopyWith<$Res> implements $EditOpCopyWith<$Res> {
   factory $EditOpSetStringCopyWith(EditOpSetString value, $Res Function(EditOpSetString) _then) = _$EditOpSetStringCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int id, EditOpStringField field, String value
 });
@@ -398,7 +434,7 @@ class _$EditOpSetStringCopyWithImpl<$Res>
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? field = null,Object? value = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? id = null,Object? field = null,Object? value = null,}) {
   return _then(EditOpSetString(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
@@ -413,11 +449,11 @@ as String,
 /// @nodoc
 @JsonSerializable()
 
-class EditOpDelete with DiagnosticableTreeMixin implements EditOp {
-  const EditOpDelete({required this.id, final  String? $type}): $type = $type ?? 'delete';
+class EditOpDelete extends EditOp {
+  const EditOpDelete({required this.id, final  String? $type}): $type = $type ?? 'delete',super._();
   factory EditOpDelete.fromJson(Map<String, dynamic> json) => _$EditOpDeleteFromJson(json);
 
-@override final  int id;
+ final  int id;
 
 @JsonKey(name: 'op')
 final String $type;
@@ -425,19 +461,13 @@ final String $type;
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $EditOpDeleteCopyWith<EditOpDelete> get copyWith => _$EditOpDeleteCopyWithImpl<EditOpDelete>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
   return _$EditOpDeleteToJson(this, );
-}
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'EditOp.delete'))
-    ..add(DiagnosticsProperty('id', id));
 }
 
 @override
@@ -450,7 +480,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'EditOp.delete(id: $id)';
 }
 
@@ -460,7 +490,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $EditOpDeleteCopyWith<$Res> implements $EditOpCopyWith<$Res> {
   factory $EditOpDeleteCopyWith(EditOpDelete value, $Res Function(EditOpDelete) _then) = _$EditOpDeleteCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  int id
 });
@@ -479,7 +509,7 @@ class _$EditOpDeleteCopyWithImpl<$Res>
 
 /// Create a copy of EditOp
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? id = null,}) {
   return _then(EditOpDelete(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,

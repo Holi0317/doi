@@ -8,18 +8,18 @@ part of 'sync_worker.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 ///
 /// Value of this provider doesn't matter.
 
 @ProviderFor(SyncWorker)
 const syncWorkerProvider = SyncWorkerProvider._();
 
-/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 ///
 /// Value of this provider doesn't matter.
 final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
-  /// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+  /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
   ///
   /// Value of this provider doesn't matter.
   const SyncWorkerProvider._()
@@ -49,9 +49,9 @@ final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
   }
 }
 
-String _$syncWorkerHash() => r'dfeedbff3591cf27afc74ff22b486366faf5f177';
+String _$syncWorkerHash() => r'ff6b5b95e984d8fbcab0e631bc1ca121b5191a25';
 
-/// Background worker that listens to [EditQueue] and [InsertQueue] and processes the queue when there are pending operations.
+/// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 ///
 /// Value of this provider doesn't matter.
 
@@ -74,20 +74,20 @@ abstract class _$SyncWorker extends $Notifier<int> {
   }
 }
 
-/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+/// Bridge between [sharedMediaProvider] and [editQueueProvider].
 ///
 /// FIXME(GH-11): Refactor share handling
 
 @ProviderFor(shareQueueBridge)
 const shareQueueBridgeProvider = ShareQueueBridgeProvider._();
 
-/// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+/// Bridge between [sharedMediaProvider] and [editQueueProvider].
 ///
 /// FIXME(GH-11): Refactor share handling
 
 final class ShareQueueBridgeProvider extends $FunctionalProvider<int, int, int>
     with $Provider<int> {
-  /// Bridge between [sharedMediaProvider] and [insertQueueProvider].
+  /// Bridge between [sharedMediaProvider] and [editQueueProvider].
   ///
   /// FIXME(GH-11): Refactor share handling
   const ShareQueueBridgeProvider._()
@@ -123,4 +123,4 @@ final class ShareQueueBridgeProvider extends $FunctionalProvider<int, int, int>
   }
 }
 
-String _$shareQueueBridgeHash() => r'f37779ffcecda7a117a54dbf7e3536e75b89b6e1';
+String _$shareQueueBridgeHash() => r'3031b6d5ec88904dd5d511e87e1c05fddf2a1482';

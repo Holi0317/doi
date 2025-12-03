@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/experimental/json_persist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../models/edit_op.dart';
-import '../../models/insert_item.dart';
 import '../bindings/storage.dart';
 
 part 'queue.g.dart';
@@ -55,54 +54,12 @@ class EditQueue extends _$EditQueue {
 }
 
 /// Map view for [EditQueue].
+/// This will exclude insert operations since they don't have an associated id.
 @riverpod
 Future<Map<int, List<EditOp>>> editQueueById(Ref ref) async {
   final queue = await ref.watch(editQueueProvider.future);
 
-  return queue.groupListsBy((op) => op.id);
-}
-
-/// A queue (fifo) of insert operations [InsertItem] to be performed when online.
-///
-/// This queue is persisted to sqlite local storage.
-@riverpod
-@JsonPersist()
-class InsertQueue extends _$InsertQueue {
-  @override
-  Future<List<InsertItem>> build() async {
-    await persist(
-      ref.watch(storageProvider.future),
-      options: const StorageOptions(destroyKey: 'insert-queue:v1'),
-    ).future;
-
-    return List.unmodifiable(state.value ?? const []);
-  }
-
-  void add(InsertItem op) {
-    addAll([op]);
-  }
-
-  void addAll(Iterable<InsertItem> ops) {
-    state = AsyncValue.data(
-      List.unmodifiable([...state.value ?? const [], ...ops]),
-    );
-  }
-
-  /// Pops [length] items from the front of the queue.
-  ///
-  /// If [length] is 0, does nothing.
-  /// If [length] is greater than the length of the queue, raise [RangeError].
-  void pop(int length) {
-    if (length == 0) {
-      return;
-    }
-
-    final val = state.value ?? const [];
-    state = AsyncValue.data(List.unmodifiable(val.slice(length).toList()));
-  }
-
-  /// Resets the queue to empty.
-  void reset() {
-    state = const AsyncValue.data([]);
-  }
+  return queue
+      .where((op) => op.maybeId != null)
+      .groupListsBy((op) => op.maybeId!);
 }

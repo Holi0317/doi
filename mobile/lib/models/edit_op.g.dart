@@ -6,6 +6,19 @@ part of 'edit_op.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+EditOpInsert _$EditOpInsertFromJson(Map<String, dynamic> json) => EditOpInsert(
+  title: json['title'] as String?,
+  url: json['url'] as String,
+  $type: json['op'] as String?,
+);
+
+Map<String, dynamic> _$EditOpInsertToJson(EditOpInsert instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'url': instance.url,
+      'op': instance.$type,
+    };
+
 EditOpSetBool _$EditOpSetBoolFromJson(Map<String, dynamic> json) =>
     EditOpSetBool(
       id: (json['id'] as num).toInt(),

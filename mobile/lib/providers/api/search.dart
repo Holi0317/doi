@@ -37,6 +37,14 @@ extension on Link {
     var result = this;
 
     for (var op in ops) {
+      // Do ID check before the switch case so that dart can catch the expression
+      // when we add more EditOp types in the future.
+      //
+      // This case should never happen since we filter by ID when building the map.
+      if (op.maybeId != id) {
+        continue;
+      }
+
       switch (op) {
         case EditOpSetBool():
           result = result.copyWith(
@@ -51,6 +59,8 @@ extension on Link {
           result = result.copyWith(note: op.value);
         case EditOpDelete():
           return null;
+        case EditOpInsert():
+        // Insert ops are not applicable to existing links
       }
     }
 

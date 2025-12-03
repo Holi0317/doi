@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'edit_op.freezed.dart';
@@ -18,6 +17,11 @@ enum EditOpStringField {
 
 @Freezed(unionKey: 'op', unionValueCase: FreezedUnionCase.snake)
 sealed class EditOp with _$EditOp {
+  const EditOp._();
+
+  const factory EditOp.insert({String? title, required String url}) =
+      EditOpInsert;
+
   const factory EditOp.setBool({
     required int id,
     required EditOpBoolField field,
@@ -33,4 +37,12 @@ sealed class EditOp with _$EditOp {
   const factory EditOp.delete({required int id}) = EditOpDelete;
 
   factory EditOp.fromJson(Map<String, dynamic> json) => _$EditOpFromJson(json);
+
+  /// Returns the associated link ID if applicable, or null for insert operations.
+  int? get maybeId => switch (this) {
+    EditOpInsert() => null,
+    EditOpSetBool(:final id) => id,
+    EditOpSetString(:final id) => id,
+    EditOpDelete(:final id) => id,
+  };
 }

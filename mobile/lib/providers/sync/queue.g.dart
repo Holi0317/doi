@@ -71,11 +71,13 @@ abstract class _$EditQueueBase extends $AsyncNotifier<List<EditOp>> {
 }
 
 /// Map view for [EditQueue].
+/// This will exclude insert operations since they don't have an associated id.
 
 @ProviderFor(editQueueById)
 const editQueueByIdProvider = EditQueueByIdProvider._();
 
 /// Map view for [EditQueue].
+/// This will exclude insert operations since they don't have an associated id.
 
 final class EditQueueByIdProvider
     extends
@@ -88,6 +90,7 @@ final class EditQueueByIdProvider
         $FutureModifier<Map<int, List<EditOp>>>,
         $FutureProvider<Map<int, List<EditOp>>> {
   /// Map view for [EditQueue].
+  /// This will exclude insert operations since they don't have an associated id.
   const EditQueueByIdProvider._()
     : super(
         from: null,
@@ -114,70 +117,7 @@ final class EditQueueByIdProvider
   }
 }
 
-String _$editQueueByIdHash() => r'6f076ed9dc435cccbcae4eea38cf31fa3e79b2e4';
-
-/// A queue (fifo) of insert operations [InsertItem] to be performed when online.
-///
-/// This queue is persisted to sqlite local storage.
-
-@ProviderFor(InsertQueue)
-@JsonPersist()
-const insertQueueProvider = InsertQueueProvider._();
-
-/// A queue (fifo) of insert operations [InsertItem] to be performed when online.
-///
-/// This queue is persisted to sqlite local storage.
-@JsonPersist()
-final class InsertQueueProvider
-    extends $AsyncNotifierProvider<InsertQueue, List<InsertItem>> {
-  /// A queue (fifo) of insert operations [InsertItem] to be performed when online.
-  ///
-  /// This queue is persisted to sqlite local storage.
-  const InsertQueueProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'insertQueueProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$insertQueueHash();
-
-  @$internal
-  @override
-  InsertQueue create() => InsertQueue();
-}
-
-String _$insertQueueHash() => r'38d357b2510c869e9a2b96a9eeaee9b4644c49cf';
-
-/// A queue (fifo) of insert operations [InsertItem] to be performed when online.
-///
-/// This queue is persisted to sqlite local storage.
-
-@JsonPersist()
-abstract class _$InsertQueueBase extends $AsyncNotifier<List<InsertItem>> {
-  FutureOr<List<InsertItem>> build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref =
-        this.ref as $Ref<AsyncValue<List<InsertItem>>, List<InsertItem>>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<InsertItem>>, List<InsertItem>>,
-              AsyncValue<List<InsertItem>>,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
-  }
-}
+String _$editQueueByIdHash() => r'1f3d7cc0ef73b1a920f2af53710dcf57dcd6da71';
 
 // **************************************************************************
 // JsonGenerator
@@ -211,40 +151,6 @@ abstract class _$EditQueue extends _$EditQueueBase {
             final e = $jsonCodex.decode(encoded);
             return (e as List)
                 .map((e) => EditOp.fromJson(e as Map<String, Object?>))
-                .toList();
-          },
-      options: options,
-    );
-  }
-}
-
-abstract class _$InsertQueue extends _$InsertQueueBase {
-  /// The default key used by [persist].
-  String get key {
-    const resolvedKey = "InsertQueue";
-    return resolvedKey;
-  }
-
-  /// A variant of [persist], for JSON-specific encoding.
-  ///
-  /// You can override [key] to customize the key used for storage.
-  PersistResult persist(
-    FutureOr<Storage<String, String>> storage, {
-    String? key,
-    String Function(List<InsertItem> state)? encode,
-    List<InsertItem> Function(String encoded)? decode,
-    StorageOptions options = const StorageOptions(),
-  }) {
-    return NotifierPersistX(this).persist<String, String>(
-      storage,
-      key: key ?? this.key,
-      encode: encode ?? $jsonCodex.encode,
-      decode:
-          decode ??
-          (encoded) {
-            final e = $jsonCodex.decode(encoded);
-            return (e as List)
-                .map((e) => InsertItem.fromJson(e as Map<String, Object?>))
                 .toList();
           },
       options: options,
