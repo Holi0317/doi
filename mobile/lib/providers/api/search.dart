@@ -14,7 +14,7 @@ part 'search.g.dart';
 @riverpod
 Future<SearchResponse> searchApplied(Ref ref, SearchQuery query) async {
   final response = await ref.watch(searchProvider(query).future);
-  final queue = await ref.watch(editQueueByIdProvider.future);
+  final queue = ref.watch(editQueueByIdProvider);
 
   final items = response.items
       .map((link) => link.applyEdits(queue[link.id] ?? const []))

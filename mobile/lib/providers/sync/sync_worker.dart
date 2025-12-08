@@ -22,7 +22,7 @@ class SyncWorker extends _$SyncWorker {
   @override
   int build() {
     ref.listen(editQueueProvider, (previous, next) {
-      _process(next.value ?? const []);
+      _process(next);
     });
 
     return 1;

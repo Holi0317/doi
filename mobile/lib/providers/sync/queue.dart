@@ -15,13 +15,13 @@ part 'queue.g.dart';
 @JsonPersist()
 class EditQueue extends _$EditQueue {
   @override
-  Future<List<EditOp>> build() async {
-    await persist(
+  List<EditOp> build() {
+    persist(
       ref.watch(storageProvider.future),
       options: const StorageOptions(destroyKey: 'edit-queue:v1'),
     ).future;
 
-    return List.unmodifiable(state.value ?? const []);
+    return const [];
   }
 
   void add(EditOp op) {
@@ -29,9 +29,7 @@ class EditQueue extends _$EditQueue {
   }
 
   void addAll(Iterable<EditOp> ops) {
-    state = AsyncValue.data(
-      List.unmodifiable([...state.value ?? const [], ...ops]),
-    );
+    state = List.unmodifiable([...state, ...ops]);
   }
 
   /// Pops [length] items from the front of the queue.
@@ -43,21 +41,20 @@ class EditQueue extends _$EditQueue {
       return;
     }
 
-    final val = state.value ?? const [];
-    state = AsyncValue.data(List.unmodifiable(val.slice(length).toList()));
+    state = List.unmodifiable(state.slice(length).toList());
   }
 
   /// Resets the queue to empty.
   void reset() {
-    state = const AsyncValue.data([]);
+    state = const [];
   }
 }
 
 /// Map view for [EditQueue].
 /// This will exclude insert operations since they don't have an associated id.
 @riverpod
-Future<Map<int, List<EditOp>>> editQueueById(Ref ref) async {
-  final queue = await ref.watch(editQueueProvider.future);
+Map<int, List<EditOp>> editQueueById(Ref ref) {
+  final queue = ref.watch(editQueueProvider);
 
   return queue
       .where((op) => op.maybeId != null)

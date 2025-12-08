@@ -21,7 +21,7 @@ const editQueueProvider = EditQueueProvider._();
 /// This queue is persisted to sqlite local storage.
 @JsonPersist()
 final class EditQueueProvider
-    extends $AsyncNotifierProvider<EditQueue, List<EditOp>> {
+    extends $NotifierProvider<EditQueue, List<EditOp>> {
   /// A queue (fifo) of edit operations [EditOp] to be performed when online.
   ///
   /// This queue is persisted to sqlite local storage.
@@ -42,27 +42,35 @@ final class EditQueueProvider
   @$internal
   @override
   EditQueue create() => EditQueue();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<EditOp> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<EditOp>>(value),
+    );
+  }
 }
 
-String _$editQueueHash() => r'b7e967edb90fff3361cfdc43a48e40cbef8edda3';
+String _$editQueueHash() => r'1afe4954817f0270e143f07675ce17aa9de30237';
 
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
 /// This queue is persisted to sqlite local storage.
 
 @JsonPersist()
-abstract class _$EditQueueBase extends $AsyncNotifier<List<EditOp>> {
-  FutureOr<List<EditOp>> build();
+abstract class _$EditQueueBase extends $Notifier<List<EditOp>> {
+  List<EditOp> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref = this.ref as $Ref<AsyncValue<List<EditOp>>, List<EditOp>>;
+    final ref = this.ref as $Ref<List<EditOp>, List<EditOp>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<EditOp>>, List<EditOp>>,
-              AsyncValue<List<EditOp>>,
+              AnyNotifier<List<EditOp>, List<EditOp>>,
+              List<EditOp>,
               Object?,
               Object?
             >;
@@ -82,13 +90,11 @@ const editQueueByIdProvider = EditQueueByIdProvider._();
 final class EditQueueByIdProvider
     extends
         $FunctionalProvider<
-          AsyncValue<Map<int, List<EditOp>>>,
           Map<int, List<EditOp>>,
-          FutureOr<Map<int, List<EditOp>>>
+          Map<int, List<EditOp>>,
+          Map<int, List<EditOp>>
         >
-    with
-        $FutureModifier<Map<int, List<EditOp>>>,
-        $FutureProvider<Map<int, List<EditOp>>> {
+    with $Provider<Map<int, List<EditOp>>> {
   /// Map view for [EditQueue].
   /// This will exclude insert operations since they don't have an associated id.
   const EditQueueByIdProvider._()
@@ -107,17 +113,25 @@ final class EditQueueByIdProvider
 
   @$internal
   @override
-  $FutureProviderElement<Map<int, List<EditOp>>> $createElement(
+  $ProviderElement<Map<int, List<EditOp>>> $createElement(
     $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ) => $ProviderElement(pointer);
 
   @override
-  FutureOr<Map<int, List<EditOp>>> create(Ref ref) {
+  Map<int, List<EditOp>> create(Ref ref) {
     return editQueueById(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<int, List<EditOp>> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<int, List<EditOp>>>(value),
+    );
   }
 }
 
-String _$editQueueByIdHash() => r'1f3d7cc0ef73b1a920f2af53710dcf57dcd6da71';
+String _$editQueueByIdHash() => r'd2bb156f489018de855422f0698a1f84850ddd77';
 
 // **************************************************************************
 // JsonGenerator
