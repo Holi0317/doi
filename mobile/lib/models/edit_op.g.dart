@@ -9,6 +9,9 @@ part of 'edit_op.dart';
 EditOpInsert _$EditOpInsertFromJson(Map<String, dynamic> json) => EditOpInsert(
   title: json['title'] as String?,
   url: json['url'] as String,
+  appliedAt: json['appliedAt'] == null
+      ? null
+      : DateTime.parse(json['appliedAt'] as String),
   $type: json['op'] as String?,
 );
 
@@ -16,6 +19,7 @@ Map<String, dynamic> _$EditOpInsertToJson(EditOpInsert instance) =>
     <String, dynamic>{
       'title': instance.title,
       'url': instance.url,
+      'appliedAt': ?instance.appliedAt?.toIso8601String(),
       'op': instance.$type,
     };
 
@@ -24,6 +28,9 @@ EditOpSetBool _$EditOpSetBoolFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       field: $enumDecode(_$EditOpBoolFieldEnumMap, json['field']),
       value: json['value'] as bool,
+      appliedAt: json['appliedAt'] == null
+          ? null
+          : DateTime.parse(json['appliedAt'] as String),
       $type: json['op'] as String?,
     );
 
@@ -32,6 +39,7 @@ Map<String, dynamic> _$EditOpSetBoolToJson(EditOpSetBool instance) =>
       'id': instance.id,
       'field': _$EditOpBoolFieldEnumMap[instance.field]!,
       'value': instance.value,
+      'appliedAt': ?instance.appliedAt?.toIso8601String(),
       'op': instance.$type,
     };
 
@@ -45,6 +53,9 @@ EditOpSetString _$EditOpSetStringFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       field: $enumDecode(_$EditOpStringFieldEnumMap, json['field']),
       value: json['value'] as String,
+      appliedAt: json['appliedAt'] == null
+          ? null
+          : DateTime.parse(json['appliedAt'] as String),
       $type: json['op'] as String?,
     );
 
@@ -53,13 +64,23 @@ Map<String, dynamic> _$EditOpSetStringToJson(EditOpSetString instance) =>
       'id': instance.id,
       'field': _$EditOpStringFieldEnumMap[instance.field]!,
       'value': instance.value,
+      'appliedAt': ?instance.appliedAt?.toIso8601String(),
       'op': instance.$type,
     };
 
 const _$EditOpStringFieldEnumMap = {EditOpStringField.note: 'note'};
 
-EditOpDelete _$EditOpDeleteFromJson(Map<String, dynamic> json) =>
-    EditOpDelete(id: (json['id'] as num).toInt(), $type: json['op'] as String?);
+EditOpDelete _$EditOpDeleteFromJson(Map<String, dynamic> json) => EditOpDelete(
+  id: (json['id'] as num).toInt(),
+  appliedAt: json['appliedAt'] == null
+      ? null
+      : DateTime.parse(json['appliedAt'] as String),
+  $type: json['op'] as String?,
+);
 
 Map<String, dynamic> _$EditOpDeleteToJson(EditOpDelete instance) =>
-    <String, dynamic>{'id': instance.id, 'op': instance.$type};
+    <String, dynamic>{
+      'id': instance.id,
+      'appliedAt': ?instance.appliedAt?.toIso8601String(),
+      'op': instance.$type,
+    };

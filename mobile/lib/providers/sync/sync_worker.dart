@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,9 +23,20 @@ class SyncWorker extends _$SyncWorker {
 
   @override
   int build() {
-    ref.listen(editQueueProvider, (previous, next) {
+    ref.listen(editQueuePendingProvider, (previous, next) {
+      // TODO: Debounce?
+      // TODO: Retry on failure?
+      // TODO: Stop processing if we are not authenticated?
+      // TODO: Status reporting?
       _process(next);
     });
+
+    // Set up periodic timer to pop applied operations every minute
+    final timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      ref.read(editQueueProvider.notifier).popApplied();
+    });
+
+    ref.onDispose(timer.cancel);
 
     return 1;
   }
@@ -49,10 +62,9 @@ class SyncWorker extends _$SyncWorker {
 
       await api.edit(ops, abortTrigger: ref.abortTrigger());
 
-      // FIXME(GH-18): Wait for refresh to complete before popping the queue?
       ref.invalidate(searchProvider);
+      queue.markApplied(ops);
 
-      queue.pop(ops.length);
       log.info('Processed ${ops.length} EditOp successfully.');
     } catch (e, st) {
       log.severe('Failed to process EditOp', e, st);

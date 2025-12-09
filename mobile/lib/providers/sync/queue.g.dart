@@ -11,6 +11,19 @@ part of 'queue.dart';
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
 /// This queue is persisted to sqlite local storage.
+///
+/// The state is immutable; any modification to the queue will create a new list instance.
+///
+/// Note on appliedAt:
+/// See GH-18.
+/// After applying an edit operation (sending it to the server successfully),
+/// the operation is marked as applied by setting its [EditOp.appliedAt] to the current time.
+/// We are keeping the operation alive in the queue for a short period (1 minute) so that
+/// when riverpod is refreshing queries, we can still keep the optimistic update intact.
+///
+/// Main reason for this is riverpod have no way to await for invalidation to complete,
+/// so if we remove the operation from the queue immediately after applying it,
+/// the query may refresh before the optimistic update is applied, causing a flicker in the UI.
 
 @ProviderFor(EditQueue)
 @JsonPersist()
@@ -19,12 +32,38 @@ const editQueueProvider = EditQueueProvider._();
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
 /// This queue is persisted to sqlite local storage.
+///
+/// The state is immutable; any modification to the queue will create a new list instance.
+///
+/// Note on appliedAt:
+/// See GH-18.
+/// After applying an edit operation (sending it to the server successfully),
+/// the operation is marked as applied by setting its [EditOp.appliedAt] to the current time.
+/// We are keeping the operation alive in the queue for a short period (1 minute) so that
+/// when riverpod is refreshing queries, we can still keep the optimistic update intact.
+///
+/// Main reason for this is riverpod have no way to await for invalidation to complete,
+/// so if we remove the operation from the queue immediately after applying it,
+/// the query may refresh before the optimistic update is applied, causing a flicker in the UI.
 @JsonPersist()
 final class EditQueueProvider
     extends $NotifierProvider<EditQueue, List<EditOp>> {
   /// A queue (fifo) of edit operations [EditOp] to be performed when online.
   ///
   /// This queue is persisted to sqlite local storage.
+  ///
+  /// The state is immutable; any modification to the queue will create a new list instance.
+  ///
+  /// Note on appliedAt:
+  /// See GH-18.
+  /// After applying an edit operation (sending it to the server successfully),
+  /// the operation is marked as applied by setting its [EditOp.appliedAt] to the current time.
+  /// We are keeping the operation alive in the queue for a short period (1 minute) so that
+  /// when riverpod is refreshing queries, we can still keep the optimistic update intact.
+  ///
+  /// Main reason for this is riverpod have no way to await for invalidation to complete,
+  /// so if we remove the operation from the queue immediately after applying it,
+  /// the query may refresh before the optimistic update is applied, causing a flicker in the UI.
   const EditQueueProvider._()
     : super(
         from: null,
@@ -52,11 +91,24 @@ final class EditQueueProvider
   }
 }
 
-String _$editQueueHash() => r'1afe4954817f0270e143f07675ce17aa9de30237';
+String _$editQueueHash() => r'd63f4143aabda75a71f71527157822a0e409ac1f';
 
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
 /// This queue is persisted to sqlite local storage.
+///
+/// The state is immutable; any modification to the queue will create a new list instance.
+///
+/// Note on appliedAt:
+/// See GH-18.
+/// After applying an edit operation (sending it to the server successfully),
+/// the operation is marked as applied by setting its [EditOp.appliedAt] to the current time.
+/// We are keeping the operation alive in the queue for a short period (1 minute) so that
+/// when riverpod is refreshing queries, we can still keep the optimistic update intact.
+///
+/// Main reason for this is riverpod have no way to await for invalidation to complete,
+/// so if we remove the operation from the queue immediately after applying it,
+/// the query may refresh before the optimistic update is applied, causing a flicker in the UI.
 
 @JsonPersist()
 abstract class _$EditQueueBase extends $Notifier<List<EditOp>> {
@@ -132,6 +184,52 @@ final class EditQueueByIdProvider
 }
 
 String _$editQueueByIdHash() => r'd2bb156f489018de855422f0698a1f84850ddd77';
+
+/// List of pending (not yet applied) edit operations.
+
+@ProviderFor(editQueuePending)
+const editQueuePendingProvider = EditQueuePendingProvider._();
+
+/// List of pending (not yet applied) edit operations.
+
+final class EditQueuePendingProvider
+    extends $FunctionalProvider<List<EditOp>, List<EditOp>, List<EditOp>>
+    with $Provider<List<EditOp>> {
+  /// List of pending (not yet applied) edit operations.
+  const EditQueuePendingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'editQueuePendingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$editQueuePendingHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<EditOp>> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  List<EditOp> create(Ref ref) {
+    return editQueuePending(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<EditOp> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<EditOp>>(value),
+    );
+  }
+}
+
+String _$editQueuePendingHash() => r'd2aceae20f761fa77b913f3777004023c6a3912d';
 
 // **************************************************************************
 // JsonGenerator

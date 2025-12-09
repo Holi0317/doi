@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../models/search_query.dart';
 import '../../models/search_response.dart';
 import '../../models/server_info.dart';
+import '../../models/with_timestamp.dart';
 import '../../repositories/api.dart';
 import '../bindings/http.dart';
 import '../extensions.dart';
@@ -90,7 +91,9 @@ Future<ServerInfo> serverInfo(Ref ref) async {
 }
 
 @riverpod
-Future<SearchResponse> search(Ref ref, SearchQuery query) async {
+Future<WithTimestamp<SearchResponse>> search(Ref ref, SearchQuery query) async {
   final client = await ref.watch(apiRepositoryProvider.future);
-  return client.search(query, abortTrigger: ref.abortTrigger());
+  final data = await client.search(query, abortTrigger: ref.abortTrigger());
+
+  return WithTimestamp(data);
 }

@@ -145,11 +145,13 @@ const searchProvider = SearchFamily._();
 final class SearchProvider
     extends
         $FunctionalProvider<
-          AsyncValue<SearchResponse>,
-          SearchResponse,
-          FutureOr<SearchResponse>
+          AsyncValue<WithTimestamp<SearchResponse>>,
+          WithTimestamp<SearchResponse>,
+          FutureOr<WithTimestamp<SearchResponse>>
         >
-    with $FutureModifier<SearchResponse>, $FutureProvider<SearchResponse> {
+    with
+        $FutureModifier<WithTimestamp<SearchResponse>>,
+        $FutureProvider<WithTimestamp<SearchResponse>> {
   const SearchProvider._({
     required SearchFamily super.from,
     required SearchQuery super.argument,
@@ -173,12 +175,12 @@ final class SearchProvider
 
   @$internal
   @override
-  $FutureProviderElement<SearchResponse> $createElement(
+  $FutureProviderElement<WithTimestamp<SearchResponse>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<SearchResponse> create(Ref ref) {
+  FutureOr<WithTimestamp<SearchResponse>> create(Ref ref) {
     final argument = this.argument as SearchQuery;
     return search(ref, argument);
   }
@@ -194,10 +196,14 @@ final class SearchProvider
   }
 }
 
-String _$searchHash() => r'73d39db83864458076c1a1304c2f5ff4d1e5eebf';
+String _$searchHash() => r'3bd3ee6582fe7e03765280670d427d4dc7b0838c';
 
 final class SearchFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<SearchResponse>, SearchQuery> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<WithTimestamp<SearchResponse>>,
+          SearchQuery
+        > {
   const SearchFamily._()
     : super(
         retry: null,

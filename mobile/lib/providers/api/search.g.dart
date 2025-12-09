@@ -76,7 +76,7 @@ final class SearchAppliedProvider
   }
 }
 
-String _$searchAppliedHash() => r'eb898418cd9b0236a84b32a27fd838f04f86f44f';
+String _$searchAppliedHash() => r'f6087ef5e931023743d11e790e24ca3d4c0f8d96';
 
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 

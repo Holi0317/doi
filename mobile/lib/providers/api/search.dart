@@ -22,13 +22,23 @@ AsyncValue<SearchResponse> searchApplied(Ref ref, SearchQuery query) {
   final queue = ref.watch(editQueueByIdProvider);
 
   return response.whenData((resp) {
-    final items = resp.items
-        .map((link) => link.applyEdits(queue[link.id] ?? const []))
+    final items = resp.data.items
+        .map((link) {
+          final edits = (queue[link.id] ?? const [])
+              .where(
+                (op) =>
+                    op.appliedAt == null ||
+                    op.appliedAt!.isAfter(resp.timestamp),
+              )
+              .toList();
+
+          return link.applyEdits(edits);
+        })
         .nonNulls
         .where((link) => link.matchesQuery(query))
         .toList();
 
-    return resp.copyWith(items: items);
+    return resp.data.copyWith(items: items);
   });
 }
 
