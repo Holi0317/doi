@@ -12,6 +12,10 @@ import '../utils.dart';
 import 'link_favicon.dart';
 import 'link_image_preview.dart';
 
+/// A tile widget that displays a [Link] with actions.
+///
+/// WARNING: This does not expects [item.id] to change. Make sure to provide a key
+/// if the item instance may change to a different link with the same id.
 class LinkTile extends ConsumerStatefulWidget {
   const LinkTile({
     super.key,

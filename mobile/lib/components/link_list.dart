@@ -111,6 +111,7 @@ class _LinkListState extends ConsumerState<LinkList> {
           },
           builderDelegate: PagedChildBuilderDelegate(
             itemBuilder: (context, item, index) => LinkTile(
+              key: ValueKey(item.id),
               item: item,
               dismissible: widget.dismissible,
               selecting: widget.selection.isNotEmpty,
