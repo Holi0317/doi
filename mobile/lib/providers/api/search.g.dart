@@ -19,10 +19,10 @@ final class SearchAppliedProvider
     extends
         $FunctionalProvider<
           AsyncValue<SearchResponse>,
-          SearchResponse,
-          FutureOr<SearchResponse>
+          AsyncValue<SearchResponse>,
+          AsyncValue<SearchResponse>
         >
-    with $FutureModifier<SearchResponse>, $FutureProvider<SearchResponse> {
+    with $Provider<AsyncValue<SearchResponse>> {
   /// Combines [search] with [EditQueue] to apply pending edits to search results.
   const SearchAppliedProvider._({
     required SearchAppliedFamily super.from,
@@ -47,14 +47,22 @@ final class SearchAppliedProvider
 
   @$internal
   @override
-  $FutureProviderElement<SearchResponse> $createElement(
+  $ProviderElement<AsyncValue<SearchResponse>> $createElement(
     $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ) => $ProviderElement(pointer);
 
   @override
-  FutureOr<SearchResponse> create(Ref ref) {
+  AsyncValue<SearchResponse> create(Ref ref) {
     final argument = this.argument as SearchQuery;
     return searchApplied(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<SearchResponse> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<SearchResponse>>(value),
+    );
   }
 
   @override
@@ -68,12 +76,12 @@ final class SearchAppliedProvider
   }
 }
 
-String _$searchAppliedHash() => r'827e1e187202298e098d9fd7e39bf2494dcf43ef';
+String _$searchAppliedHash() => r'eb898418cd9b0236a84b32a27fd838f04f86f44f';
 
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 
 final class SearchAppliedFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<SearchResponse>, SearchQuery> {
+    with $FunctionalFamilyOverride<AsyncValue<SearchResponse>, SearchQuery> {
   const SearchAppliedFamily._()
     : super(
         retry: null,

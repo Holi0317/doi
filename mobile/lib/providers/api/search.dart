@@ -12,17 +12,24 @@ part 'search.g.dart';
 
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 @riverpod
-Future<SearchResponse> searchApplied(Ref ref, SearchQuery query) async {
-  final response = await ref.watch(searchProvider(query).future);
+AsyncValue<SearchResponse> searchApplied(Ref ref, SearchQuery query) {
+  // We **cannot** have async gap here. Riverpod will move our state to loading when
+  // refreshing. While that won't really flicker in the UI, flutter_slidable will be unhappy
+  // about that because the dismissed item is still in the list on the next frame.
+  // Async gap will cause the items get removed on 2nd frame instead.
+
+  final response = ref.watch(searchProvider(query));
   final queue = ref.watch(editQueueByIdProvider);
 
-  final items = response.items
-      .map((link) => link.applyEdits(queue[link.id] ?? const []))
-      .nonNulls
-      .where((link) => link.matchesQuery(query))
-      .toList();
+  return response.whenData((resp) {
+    final items = resp.items
+        .map((link) => link.applyEdits(queue[link.id] ?? const []))
+        .nonNulls
+        .where((link) => link.matchesQuery(query))
+        .toList();
 
-  return response.copyWith(items: items);
+    return resp.copyWith(items: items);
+  });
 }
 
 extension on Link {
