@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import type { RedirectDestination } from "../oauth_state";
-import { getSession, refreshSession } from "./cookie";
+import { getSession, isAdmin, refreshSession } from "./cookie";
 
 export type RequireSessionOption =
   | {
@@ -43,5 +43,23 @@ export function requireSession(option: RequireSessionOption) {
     }
 
     return c.redirect(`/auth/github/login?redirect=${option.destination}`);
+  });
+}
+
+/**
+ * Middleware for requiring session to be admin before continue.
+ *
+ * {@link requireSession} must be placed before this middleware. Otherwise
+ * unauthenticated session will get 500 error instead of 401 or redirect.
+ */
+export function requireAdmin() {
+  return createMiddleware<Env>(async (c, next) => {
+    const pass = await isAdmin(c);
+
+    if (!pass) {
+      throw new HTTPException(403, { message: "Forbidden" });
+    }
+
+    await next();
   });
 }

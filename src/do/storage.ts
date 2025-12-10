@@ -130,6 +130,13 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
   }
 
   /**
+   * Vacuum underlying SQLite database
+   */
+  public async vacuum() {
+    this.conn.void_(sql`PRAGMA optimize`);
+  }
+
+  /**
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import * as z from "zod";
 import { requireSession } from "../composable/session/middleware";
-import { mustSession } from "../composable/session/cookie";
+import { isAdmin, mustSession } from "../composable/session/cookie";
 import type { EditOpSchema } from "../schemas";
 import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";
@@ -29,6 +29,8 @@ const app = new Hono<Env>({ strict: false })
   .get("/", zv("query", SearchQuerySchema), async (c) => {
     const sess = await mustSession(c);
 
+    const admin = await isAdmin(c);
+
     const queryRaw = c.req.queries();
     const query = c.req.valid("query");
 
@@ -46,6 +48,9 @@ const app = new Hono<Env>({ strict: false })
     return c.render(
       <Layout title="List">
         <p>Authenticated via GitHub, {sess.name}</p>
+
+        {admin && <a href="/admin">Admin console</a>}
+
         <InsertForm />
 
         <SearchToolbar query={query} />
