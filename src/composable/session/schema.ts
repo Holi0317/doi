@@ -36,5 +36,5 @@ export type Session = z.output<typeof SessionSchema>;
 export type SessionInput = z.input<typeof SessionSchema>;
 
 export function useSessionStorage(env: CloudflareBindings) {
-  return useKv(env.SESSION, SessionSchema, "session");
+  return useKv(env.KV, "session", SessionSchema);
 }

@@ -7,14 +7,33 @@ import type dayjs from "dayjs";
  * This expects the value to be JSON serializable, validated by zod.
  *
  * @param ns KV namespace object. Probably from env binding like `env.MY_KV`.
+ * @param prefix Prefix to use for keys in this storage. Like "user" or "session".
+ *        Make sure the prefix is unique to avoid key collisions.
+ *        We add a `:` separator after the prefix automatically here.
  * @param schema Zod schema to validate the data. If validation fails, read will return null and write a warning.
- * @param name Name of the data type, used in warning messages.
  */
 export function useKv<T extends z.ZodType>(
   ns: KVNamespace<string>,
+  prefix: string,
   schema: T,
-  name: string,
 ) {
+  if (prefix.endsWith(":")) {
+    throw new Error(
+      "Prefix should not end with ':'. useKv will add it automatically.",
+    );
+  }
+
+  /**
+   * Add prefix to the key.
+   */
+  const p = (k: string) => `${prefix}:${k}`;
+  /**
+   * De-prefix (remove prefix) for the key.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Only used when we need to list keys. Not yet implemented yet.
+  const d = (k: string) =>
+    k.startsWith(prefix + ":") ? k.slice(prefix.length + 1) : k;
+
   /**
    * Store data in KV storage.
    */
@@ -23,7 +42,7 @@ export function useKv<T extends z.ZodType>(
     content: z.input<T>,
     expire: dayjs.Dayjs,
   ) => {
-    await ns.put(key, JSON.stringify(content), {
+    await ns.put(p(key), JSON.stringify(content), {
       expiration: expire.unix(),
     });
   };
@@ -34,7 +53,7 @@ export function useKv<T extends z.ZodType>(
    * @returns The validated data, or null if not found or validation failed
    */
   const read = async (key: string) => {
-    const data = await ns.get(key, "json");
+    const data = await ns.get(p(key), "json");
     if (data == null) {
       return null;
     }
@@ -43,7 +62,7 @@ export function useKv<T extends z.ZodType>(
 
     if (!parsed.success) {
       console.warn(
-        `Failed to parse data type ${name} from kv: ${z.prettifyError(parsed.error)}`,
+        `Failed to parse data type ${prefix} from kv: ${z.prettifyError(parsed.error)}`,
         parsed.error,
       );
 
@@ -57,7 +76,7 @@ export function useKv<T extends z.ZodType>(
    * Delete data from KV storage.
    */
   const remove = async (key: string) => {
-    await ns.delete(key);
+    await ns.delete(p(key));
   };
 
   return {

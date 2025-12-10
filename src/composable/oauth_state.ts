@@ -23,7 +23,7 @@ export const OauthStateSchema = z.object({
 });
 
 function useOauthStateStorage(env: CloudflareBindings) {
-  return useKv(env.OAUTH_STATE, OauthStateSchema, "oauth_state");
+  return useKv(env.KV, "oauth_state", OauthStateSchema);
 }
 
 export function useOauthState(env: CloudflareBindings) {
