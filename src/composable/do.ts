@@ -14,3 +14,11 @@ export async function getStorageStub(c: Context<Env>) {
   const id = c.env.STORAGE.idFromName(name);
   return c.env.STORAGE.get(id);
 }
+
+/**
+ * Get durable object stub for token refresh worker.
+ */
+export function getRefreshStub(env: CloudflareBindings, sessHash: string) {
+  const id = env.TOKEN_REFRESH.idFromName(sessHash);
+  return env.TOKEN_REFRESH.get(id);
+}

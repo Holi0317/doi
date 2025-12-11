@@ -3,6 +3,7 @@ import type { Context } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { revokeToken } from "../../gh/revoke";
 import { useKy } from "../http";
+import { getRefreshStub } from "../do";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, getSessHash, hashSessionID } from "./id";
 import { type SessionInput, useSessionStorage } from "./schema";
@@ -89,8 +90,7 @@ export async function refreshSession(c: Context<Env>) {
     return;
   }
 
-  const id = c.env.TOKEN_REFRESH.idFromName(sessHash);
-  const stub = c.env.TOKEN_REFRESH.get(id);
+  const stub = getRefreshStub(c.env, sessHash);
 
   // Trigger token refresh in the background. Don't wait for it to finish in request-response cycle.
   c.executionCtx.waitUntil(stub.refresh(sessHash));
