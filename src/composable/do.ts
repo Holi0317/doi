@@ -1,11 +1,11 @@
 import type { Context } from "hono";
-import { mustSession } from "./session/cookie";
+import { getSession } from "./session/getter";
 
 /**
  * Get storage durable object stub for given session.
  */
 export async function getStorageStub(c: Context<Env>) {
-  const sess = await mustSession(c);
+  const sess = await getSession(c);
 
   const name = `${sess.source}:${sess.uid}`;
 

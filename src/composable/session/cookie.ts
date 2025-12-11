@@ -1,13 +1,11 @@
 import type dayjs from "dayjs";
 import type { Context } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
-import { HTTPException } from "hono/http-exception";
-import { useReqCache } from "../cache";
 import { revokeToken } from "../../gh/revoke";
 import { useKy } from "../http";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, getSessHash, hashSessionID } from "./id";
-import { type SessionInput, type Session, useSessionStorage } from "./schema";
+import { type SessionInput, useSessionStorage } from "./schema";
 
 /**
  * Store session data to KV.
@@ -80,56 +78,6 @@ export async function deleteSession(c: Context<Env>) {
       console.warn("Failed to revoke token on session delete.", err);
     }
   }
-}
-
-/**
- * Get session from request.
- *
- * When this returns some value, the session has been validated.
- *
- * This function is cached/memorized.
- *
- * @see {requireSession} Middleware for requiring session
- * @see {mustSession} For getting session without handling null case
- */
-export async function getSession(c: Context<Env>): Promise<Session | null> {
-  return useReqCache(c, "session", async () => {
-    const { read } = useSessionStorage(c.env);
-
-    const sessHash = await getSessHash(c);
-    // Cookie doesn't exist. User is unauthenticated.
-    if (!sessHash) {
-      await deleteSession(c);
-      return null;
-    }
-
-    const sess = await read(sessHash);
-
-    // Session does not exist, or expired
-    if (sess == null) {
-      await deleteSession(c);
-      return null;
-    }
-
-    return sess;
-  });
-}
-
-/**
- * Same as {@link getSession}, except when the return value is null this will
- * raise 401 error.
- */
-export async function mustSession(c: Context<Env>): Promise<Session> {
-  const sess = await getSession(c);
-  if (sess == null) {
-    console.warn(
-      "Got null session in `mustSession`. Did the route forget `requireSession` middleware?",
-    );
-
-    throw new HTTPException(401, { message: "Unauthenticated" });
-  }
-
-  return sess;
 }
 
 /**

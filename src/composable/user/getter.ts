@@ -1,14 +1,14 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { useReqCache } from "../cache";
-import { getSession } from "../session/cookie";
+import { getSession } from "../session/getter";
 import type { User } from "./schema";
 import { useUserRegistry } from "./registry";
 
 async function _get(c: Context<Env>) {
   const registry = useUserRegistry(c.env);
 
-  const session = await getSession(c);
+  const session = await getSession(c, false);
   if (session == null) {
     return null;
   }
