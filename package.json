@@ -16,7 +16,7 @@
     "@truto/sqlite-builder": "^1.0.4",
     "dayjs": "^1.11.19",
     "hono": "^4.10.6",
-    "ky": "^1.14.0",
+    "ky": "^1.14.1",
     "p-limit": "^7.2.0",
     "uint8array-extras": "^1.5.0",
     "zod": "^4.1.12"
