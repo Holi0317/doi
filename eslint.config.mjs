@@ -34,8 +34,38 @@ export default defineConfig(
 
   js.configs.recommended,
   tseslint.configs.recommended,
-  // @ts-expect-error Missing types
-  importX.flatConfigs.typescript,
+
+  // Inline TypeScript configuration for eslint-plugin-import-x
+  // This replaces importX.flatConfigs.typescript to avoid requiring
+  // eslint-import-resolver-typescript package
+  {
+    name: "import-x/typescript",
+    plugins: {
+      "import-x": importX,
+    },
+    settings: {
+      "import-x/extensions": [
+        ".ts",
+        ".tsx",
+        ".cts",
+        ".mts",
+        ".js",
+        ".jsx",
+        ".cjs",
+        ".mjs",
+      ],
+      "import-x/external-module-folders": [
+        "node_modules",
+        "node_modules/@types",
+      ],
+      "import-x/parsers": {
+        "@typescript-eslint/parser": [".ts", ".tsx", ".cts", ".mts"],
+      },
+    },
+    rules: {
+      "import-x/named": "off",
+    },
+  },
 
   eslintConfigPrettier,
 
