@@ -23,7 +23,7 @@ export const OauthStateSchema = z.object({
 });
 
 function useOauthStateStorage(env: CloudflareBindings) {
-  return useKv(env.KV, "oauth_state", OauthStateSchema);
+  return useKv(env.KV, "oauth_state", OauthStateSchema, z.undefined());
 }
 
 export function useOauthState(env: CloudflareBindings) {
@@ -36,7 +36,11 @@ export function useOauthState(env: CloudflareBindings) {
     // Reuse session ID generator for state token
     const state = genSessionID();
 
-    await write(state, { redirect }, dayjs().add(10, "minute"));
+    await write({
+      key: state,
+      content: { redirect },
+      expire: dayjs().add(10, "minute"),
+    });
 
     return state;
   };

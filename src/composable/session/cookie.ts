@@ -24,7 +24,11 @@ async function storeSession(
 
   const { write } = useSessionStorage(env);
 
-  await write(sessHash, content, expire);
+  await write({
+    key: sessHash,
+    content,
+    expire,
+  });
 
   return sessID;
 }
@@ -142,29 +146,4 @@ export async function refreshSession(c: Context<Env>) {
 
   // Trigger token refresh in the background. Don't wait for it to finish in request-response cycle.
   c.executionCtx.waitUntil(stub.refresh(sessHash));
-}
-
-/**
- * Check if current session is an admin session.
- *
- * Uses {@link mustSession}. Make sure {@link requireSession} exist in the
- * middleware chain.
- */
-export async function isAdmin(c: Context<Env>) {
-  const { login } = await mustSession(c);
-
-  // GitHub login is case insensitive
-  const { compare } = new Intl.Collator(undefined, { sensitivity: "accent" });
-
-  const admins = c.env.ADMIN_GH_LOGIN.split(";");
-
-  console.log(login, admins);
-
-  for (const str of admins) {
-    if (compare(str, login) === 0) {
-      return true;
-    }
-  }
-
-  return false;
 }

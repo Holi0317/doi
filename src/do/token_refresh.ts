@@ -5,6 +5,7 @@ import { useSessionStorage } from "../composable/session/schema";
 import { exchangeToken } from "../gh/oauth_token";
 import { makeSessionContent } from "../composable/session/content";
 import { useBasicKy } from "../composable/http";
+import { useUserRegistry } from "../composable/user/registry";
 
 export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
   /**
@@ -63,6 +64,7 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
     const now = dayjs();
 
     const ky = useBasicKy(this.env);
+    const { write: writeUser } = useUserRegistry(this.env);
 
     const tokens = await exchangeToken(
       this.env,
@@ -76,7 +78,8 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
 
     console.info(`Storing refreshed session for ${sessHash}`);
 
-    await this._put(sessHash, newSess, expire);
+    await this._put(sessHash, newSess.session, expire);
+    await writeUser(newSess.user);
   }
 
   /**
@@ -119,7 +122,11 @@ export class TokenRefreshDO extends DurableObject<CloudflareBindings> {
   private async _put(sessHash: string, sess: Session, expire: dayjs.Dayjs) {
     const { write } = useSessionStorage(this.env);
 
-    await write(sessHash, sess, expire);
+    await write({
+      key: sessHash,
+      content: sess,
+      expire,
+    });
 
     this._cache = sess;
     this._readTime = dayjs();

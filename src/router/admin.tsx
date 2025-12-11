@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { requireAdmin, requireSession } from "../composable/session/middleware";
+import { requireSession } from "../composable/session/middleware";
 import { Layout } from "../component/layout";
+import { requireAdmin } from "../composable/user/admin";
 
 const app = new Hono<Env>({ strict: false })
   .use(requireSession({ action: "throw" }))

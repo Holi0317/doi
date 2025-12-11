@@ -1,6 +1,14 @@
 import * as z from "zod";
 import type dayjs from "dayjs";
 
+export interface KVWriteOptions<T extends z.ZodType, M extends z.ZodType> {
+  key: string;
+  content: z.input<T>;
+  // FIXME: Metadata is only optional if M allows undefined. DK how to express that in TS yet.
+  metadata?: z.input<M>;
+  expire?: dayjs.Dayjs;
+}
+
 /**
  * Wrapper for Cloudflare KV storage.
  *
@@ -11,11 +19,14 @@ import type dayjs from "dayjs";
  *        Make sure the prefix is unique to avoid key collisions.
  *        We add a `:` separator after the prefix automatically here.
  * @param schema Zod schema to validate the data. If validation fails, read will return null and write a warning.
+ * @param metadataSchema Zod schema to validate the metadata. Use `z.undefined()` if no metadata will be written.
+ *        Currently metadata is only used for listing keys.
  */
-export function useKv<T extends z.ZodType>(
+export function useKv<T extends z.ZodType, M extends z.ZodType>(
   ns: KVNamespace<string>,
   prefix: string,
   schema: T,
+  metadataSchema: M,
 ) {
   if (prefix.endsWith(":")) {
     throw new Error(
@@ -30,20 +41,17 @@ export function useKv<T extends z.ZodType>(
   /**
    * De-prefix (remove prefix) for the key.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Only used when we need to list keys. Not yet implemented yet.
+
   const d = (k: string) =>
     k.startsWith(prefix + ":") ? k.slice(prefix.length + 1) : k;
 
   /**
    * Store data in KV storage.
    */
-  const write = async (
-    key: string,
-    content: z.input<T>,
-    expire: dayjs.Dayjs,
-  ) => {
-    await ns.put(p(key), JSON.stringify(content), {
-      expiration: expire.unix(),
+  const write = async (options: KVWriteOptions<T, M>) => {
+    await ns.put(p(options.key), JSON.stringify(options.content), {
+      metadata: options.metadata,
+      expiration: options.expire?.unix(),
     });
   };
 
@@ -79,9 +87,41 @@ export function useKv<T extends z.ZodType>(
     await ns.delete(p(key));
   };
 
+  /**
+   * List all keys in this storage.
+   *
+   * WARNING: This could hit subrequest limits if there are too many keys.
+   */
+  const listAll = async () => {
+    const result: Array<KVNamespaceListKey<unknown, string>> = [];
+
+    const options: KVNamespaceListOptions = {
+      prefix: `${prefix}:`,
+    };
+
+    while (true) {
+      const page = await ns.list(options);
+
+      result.push(...page.keys);
+
+      if (page.list_complete) {
+        break;
+      }
+
+      options.cursor = page.cursor;
+    }
+
+    return result.map(({ name, metadata, ...rest }) => ({
+      name: d(name),
+      metadata: metadataSchema.parse(metadata),
+      ...rest,
+    }));
+  };
+
   return {
     write,
     read,
     remove,
+    listAll,
   };
 }
