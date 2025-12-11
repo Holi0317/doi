@@ -11,7 +11,7 @@ import * as zu from "../zod-utils";
 import { InsertForm } from "../component/InsertForm";
 import { LinkList } from "../component/LinkList";
 import { SearchToolbar } from "../component/SearchToolbar";
-import { mustUser } from "../composable/user/getter";
+import { getUser } from "../composable/user/getter";
 import { isAdmin } from "../composable/user/admin";
 
 const ItemEditSchema = z.object({
@@ -29,7 +29,7 @@ const app = new Hono<Env>({ strict: false })
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
     const admin = await isAdmin(c);
-    const user = await mustUser(c);
+    const user = await getUser(c);
 
     const queryRaw = c.req.queries();
     const query = c.req.valid("query");

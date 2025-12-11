@@ -26,7 +26,7 @@ const app = new Hono<Env>({ strict: false })
    * Version check / user info endpoint
    */
   .get("/", async (c) => {
-    const user = await getUser(c);
+    const user = await getUser(c, false);
 
     return c.json({
       // This name is used for client to probe and verify the correct API endpoint.

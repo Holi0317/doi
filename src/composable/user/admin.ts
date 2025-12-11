@@ -1,16 +1,22 @@
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
-import { mustUser } from "./getter";
+import { getUser } from "./getter";
 
 /**
  * Check if current session is an admin session.
  *
- * Uses {@link mustUser}. Make sure {@link requireSession} exist in the
- * middleware chain.
+ * If no session or user exist, return false.
+ * You probably want to add {@link requireSession} middleware before using this.
+ *
+ * See also {@link requireAdmin} for middleware version of this.
  */
 export async function isAdmin(c: Context<Env>) {
-  const { login } = await mustUser(c);
+  const user = await getUser(c, false);
+
+  if (user == null) {
+    return false;
+  }
 
   // GitHub login is case insensitive
   const { compare } = new Intl.Collator(undefined, { sensitivity: "accent" });
@@ -18,7 +24,7 @@ export async function isAdmin(c: Context<Env>) {
   const admins = c.env.ADMIN_GH_LOGIN.split(";");
 
   for (const str of admins) {
-    if (compare(str, login) === 0) {
+    if (compare(str, user.login) === 0) {
       return true;
     }
   }
@@ -28,9 +34,6 @@ export async function isAdmin(c: Context<Env>) {
 
 /**
  * Middleware for requiring session to be admin before continue.
- *
- * {@link requireSession} must be placed before this middleware. Otherwise
- * unauthenticated session will get 500 error instead of 401 or redirect.
  */
 export function requireAdmin() {
   return createMiddleware<Env>(async (c, next) => {
