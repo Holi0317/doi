@@ -1,14 +1,20 @@
 // @ts-check
 
+import { defineConfig } from "eslint/config";
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import stylistic from "@stylistic/eslint-plugin";
-import importPlugin from "eslint-plugin-import-x";
+import importX from "eslint-plugin-import-x";
 
-export default tseslint.config(
+export default defineConfig(
   {
+    name: "Files and globbing",
+    files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+  },
+  {
+    name: "Global ignores",
     ignores: [
       "dist/",
       "node_modules/",
@@ -17,21 +23,19 @@ export default tseslint.config(
     ],
   },
   {
-    plugins: {
-      import: importPlugin,
-    },
-  },
-
-  {
-    files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+    name: "Language options",
     languageOptions: {
+      ecmaVersion: "latest",
       globals: {
         ...globals.worker,
       },
     },
   },
+
   js.configs.recommended,
   tseslint.configs.recommended,
+  // @ts-expect-error Missing types
+  importX.flatConfigs.typescript,
 
   eslintConfigPrettier,
 
@@ -65,10 +69,18 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_.+", ignoreRestSiblings: true },
       ],
-      "import/no-duplicates": "error",
+      "import-x/no-duplicates": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-import-type-side-effects": "error",
-      "import/order": ["error"],
+      "import-x/no-nodejs-modules": "warn",
+      "import-x/order": [
+        "error",
+        {
+          groups: [
+            ["builtin", "external", "parent", "sibling", "index", "type"],
+          ],
+        },
+      ],
     },
   },
 );
