@@ -6,7 +6,8 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import stylistic from "@stylistic/eslint-plugin";
-import importX from "eslint-plugin-import-x";
+import importX, { createNodeResolver } from "eslint-plugin-import-x";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 
 export default defineConfig(
   {
@@ -35,12 +36,10 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommended,
 
-  // Inline TypeScript configuration for eslint-plugin-import-x
-  // This replaces importX.flatConfigs.typescript to avoid requiring
-  // eslint-import-resolver-typescript package
   {
     name: "import-x/typescript",
     plugins: {
+      // @ts-expect-error Missing types
       "import-x": importX,
     },
     settings: {
@@ -61,9 +60,10 @@ export default defineConfig(
       "import-x/parsers": {
         "@typescript-eslint/parser": [".ts", ".tsx", ".cts", ".mts"],
       },
-    },
-    rules: {
-      "import-x/named": "off",
+      "import-x/resolver-next": [
+        createTypeScriptImportResolver(/* Your override options go here */),
+        createNodeResolver(/* Your override options go here */),
+      ],
     },
   },
 
