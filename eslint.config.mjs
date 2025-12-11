@@ -23,7 +23,7 @@ export default tseslint.config(
   },
 
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
     languageOptions: {
       globals: {
         ...globals.worker,
