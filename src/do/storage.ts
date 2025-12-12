@@ -137,6 +137,13 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
   }
 
   /**
+   * Deallocate this durable object and delete all stored data
+   */
+  public async deallocate() {
+    this.ctx.storage.deleteAll();
+  }
+
+  /**
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {

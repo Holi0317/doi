@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { useKv } from "../kv";
-import type { Session } from "../session/schema";
 import type { User } from "./schema";
+import { uidToString, type UserIdentifier } from "./ident";
 import { UserMetadataSchema, UserSchema } from "./schema";
 
 /**
@@ -29,12 +29,14 @@ export function useUserRegistry(env: CloudflareBindings) {
    * This also updates `lastLoginAt` to current time.
    */
   const write = async (user: UserWriteInput) => {
-    const existing = await storage.read(`${user.source}:${user.uid}`);
+    const key = uidToString(user);
+
+    const existing = await storage.read(key);
 
     const now = dayjs().valueOf();
 
     await storage.write({
-      key: `${user.source}:${user.uid}`,
+      key,
       content: {
         ...user,
         createdAt: existing?.createdAt ?? now,
@@ -44,17 +46,31 @@ export function useUserRegistry(env: CloudflareBindings) {
     });
   };
 
-  const read = async (sess: Session) => {
-    return await storage.read(`${sess.source}:${sess.uid}`);
+  /**
+   * Read user data from KV storage.
+   *
+   * @param uid User identifier. You can pass in session object or user object here.
+   * @returns
+   */
+  const read = async (uid: UserIdentifier) => {
+    return await storage.read(uidToString(uid));
   };
 
   const list = async () => {
     return await storage.listAll();
   };
 
+  /**
+   * Delete user data from KV storage.
+   */
+  const remove = async (uid: UserIdentifier) => {
+    return await storage.remove(uidToString(uid));
+  };
+
   return {
     list,
     read,
     write,
+    remove,
   };
 }

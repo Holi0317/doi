@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import type { LinkItem } from "../do/storage";
+import { DateDisplay } from "./DateDisplay";
 
 export interface LinkItemFormProps {
   item: LinkItem;
@@ -55,7 +55,9 @@ export function LinkItemForm(props: LinkItemFormProps) {
       </div>
 
       <div>
-        <label>Created at {dayjs(item.created_at).toISOString()}</label>
+        <label>
+          Created at <DateDisplay timestamp={item.created_at} />
+        </label>
       </div>
 
       <input type="submit" value="submit" />

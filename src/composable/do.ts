@@ -1,13 +1,25 @@
 import type { Context } from "hono";
 import { getSession } from "./session/getter";
+import type { UserIdentifier } from "./user/ident";
+import { uidToString } from "./user/ident";
 
 /**
- * Get storage durable object stub for given session.
+ * Get storage durable object stub.
+ *
+ * If `uid` is not provided (default), get the stub for current session user.
+ *
+ * If `uid` is provided, get the stub for the provided user identifier.
+ * Should be used in admin context only.
+ *
+ * @param c Hono context
+ * @param uid Optional user identifier
  */
-export async function getStorageStub(c: Context<Env>) {
-  const sess = await getSession(c);
+export async function getStorageStub(c: Context<Env>, uid?: UserIdentifier) {
+  if (uid == null) {
+    uid = await getSession(c);
+  }
 
-  const name = `${sess.source}:${sess.uid}`;
+  const name = uidToString(uid);
 
   console.log(`Getting durable object with name ${name}`);
 
