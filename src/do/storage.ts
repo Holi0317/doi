@@ -105,7 +105,7 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
 
     const maxID = this.conn.one(
       CountSchema,
-      sql`SELECT MAX(id) AS count FROM link;`,
+      sql`SELECT IFNULL(MAX(id), 0) AS count FROM link;`,
     );
 
     return {
