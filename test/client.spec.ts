@@ -5,9 +5,15 @@ describe("Test client", () => {
   it("should get authenticated successfully", async () => {
     const client = await createTestClient();
 
-    const response = await client.auth.$get();
+    const response = await client.api.$get();
+    const json = await response.json();
 
     expect(response.status).toEqual(200);
-    expect(await response.text()).toEqual("Hello <testing user>!");
+    expect(json.session).toEqual({
+      avatarUrl: "",
+      login: "testing",
+      name: "testing user",
+      source: "github",
+    });
   });
 });
