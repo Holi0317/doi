@@ -73,7 +73,6 @@ export function useUserRegistry(env: CloudflareBindings) {
    * Read user data from KV storage.
    *
    * @param uid User identifier. You can pass in session object or user object here.
-   * @returns
    */
   const read = async (uid: UserIdentifier) => {
     return await storage.read(uidToString(uid));

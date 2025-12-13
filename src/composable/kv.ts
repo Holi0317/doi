@@ -4,7 +4,7 @@ import type dayjs from "dayjs";
 export interface KVWriteOptions<T extends z.ZodType, M extends z.ZodType> {
   key: string;
   content: z.input<T>;
-  // FIXME: Metadata is only optional if M allows undefined. DK how to express that in TS yet.
+  // FIXME: Metadata is only optional if M allows undefined. Not sure how to express that in TS yet.
   metadata?: z.input<M>;
   expire?: dayjs.Dayjs;
 }

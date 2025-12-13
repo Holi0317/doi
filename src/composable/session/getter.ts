@@ -37,7 +37,7 @@ export function getSession(
  * @see {requireSession} Middleware for requiring session
  */
 export async function getSession(c: Context<Env>, must: boolean = true) {
-  const session = useReqCache(c, "session", async () => {
+  const session = await useReqCache(c, "session", async () => {
     const { read } = useSessionStorage(c.env);
 
     const sessHash = await getSessHash(c);

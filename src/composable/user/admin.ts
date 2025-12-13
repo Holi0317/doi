@@ -21,7 +21,9 @@ export async function isAdmin(c: Context<Env>) {
   // GitHub login is case insensitive
   const { compare } = new Intl.Collator(undefined, { sensitivity: "accent" });
 
-  const admins = c.env.ADMIN_GH_LOGIN.split(";");
+  const admins = c.env.ADMIN_GH_LOGIN.split(";")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
   for (const str of admins) {
     if (compare(str, user.login) === 0) {

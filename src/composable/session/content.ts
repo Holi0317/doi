@@ -20,10 +20,8 @@ export async function makeSessionContent(
   const session: Session = {
     source: "github",
     uid: userInfo.id.toString(),
-    // name: userInfo.name || userInfo.login,
-    // login: userInfo.login,
-    // avatarUrl: userInfo.avatar_url,
     accessToken: tokens.access_token,
+
     // Refresh after 8 hours, even if the GitHub app turned off token expiration.
     accessTokenExpire: now.add(8, "hour").valueOf(),
     refreshToken: tokens.refresh_token,
