@@ -29,8 +29,8 @@ importers:
         specifier: ^4.10.6
         version: 4.10.6
       ky:
-        specifier: ^1.14.0
-        version: 1.14.0
+        specifier: ^1.14.1
+        version: 1.14.1
       p-limit:
         specifier: ^7.2.0
         version: 7.2.0
@@ -1419,8 +1419,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  ky@1.14.0:
-    resolution: {integrity: sha512-Rczb6FMM6JT0lvrOlP5WUOCB7s9XKxzwgErzhKlKde1bEV90FXplV1o87fpt4PU/asJFiqjYJxAJyzJhcrxOsQ==}
+  ky@1.14.1:
+    resolution: {integrity: sha512-hYje4L9JCmpEQBtudo+v52X5X8tgWXUYyPcxKSuxQNboqufecl9VMWjGiucAFH060AwPXHZuH+WB2rrqfkmafw==}
     engines: {node: '>=18'}
 
   levn@0.4.1:
@@ -1844,6 +1844,7 @@ packages:
   wrangler@4.52.0:
     resolution: {integrity: sha512-VRNclJHTDgNyPsaensT0RwX2arwvxMh4LHmdgpb1yeYMdV+elkcxlAWbMaKeOkbWPGsDxfniPyDIX+JYiiTWGA==}
     engines: {node: '>=20.0.0'}
+    deprecated: Issues deploying new Workers. Downgrade to 4.51.0.
     hasBin: true
     peerDependencies:
       '@cloudflare/workers-types': ^4.20251128.0
@@ -3002,7 +3003,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  ky@1.14.0: {}
+  ky@1.14.1: {}
 
   levn@0.4.1:
     dependencies:
