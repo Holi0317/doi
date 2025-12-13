@@ -7,7 +7,10 @@ import { UserMetadataSchema, UserSchema } from "./schema";
 /**
  * Input type for writing user data. See `useUserRegistry` `write` method.
  */
-export type UserWriteInput = Omit<User, "createdAt" | "lastLoginAt">;
+export type UserWriteInput = Omit<
+  User,
+  "createdAt" | "lastLoginAt" | "bannedAt"
+>;
 
 function useUserStorage(env: CloudflareBindings) {
   return useKv(env.KV, "user", UserSchema, UserMetadataSchema);
@@ -41,6 +44,26 @@ export function useUserRegistry(env: CloudflareBindings) {
         ...user,
         createdAt: existing?.createdAt ?? now,
         lastLoginAt: now,
+        bannedAt: existing?.bannedAt ?? null,
+      },
+      metadata: { string: `${user.source} @${user.login}` },
+    });
+  };
+
+  /**
+   * Ban/unban a user.
+   */
+  const writeBan = async (uid: UserIdentifier, banned: boolean) => {
+    const user = await storage.read(uidToString(uid));
+    if (user == null) {
+      throw new Error("User not found for banning/unbanning");
+    }
+
+    await storage.write({
+      key: uidToString(uid),
+      content: {
+        ...user,
+        bannedAt: banned ? dayjs().valueOf() : null,
       },
       metadata: { string: `${user.source} @${user.login}` },
     });
@@ -72,5 +95,6 @@ export function useUserRegistry(env: CloudflareBindings) {
     read,
     write,
     remove,
+    writeBan,
   };
 }

@@ -14,6 +14,7 @@ describe("Test client", () => {
       login: "testing",
       name: "testing user",
       source: "github",
+      banned: false,
     });
   });
 });

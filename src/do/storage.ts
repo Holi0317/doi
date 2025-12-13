@@ -138,9 +138,16 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
 
   /**
    * Deallocate this durable object and delete all stored data
+   *
+   * Technically we only truncate the link table here. The DO instance
+   * will still exist and cost us small amount of fee.
+   *
+   * Doing `storage.deleteAll()` will cause subsequent call to `stats` fail.
+   * That resets the state and will recreate the DO with migration on next wake.
+   * It's just better to keep the DO instance around.
    */
   public async deallocate() {
-    this.ctx.storage.deleteAll();
+    this.conn.void_(sql`TRUNCATE link;`);
   }
 
   /**

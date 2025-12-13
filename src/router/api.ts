@@ -40,6 +40,7 @@ const app = new Hono<Env>({ strict: false })
               name: user.name,
               login: user.login,
               avatarUrl: user.avatarUrl,
+              banned: user.bannedAt != null,
             },
     });
   })

@@ -14,7 +14,9 @@ import { DateDisplay } from "../component/DateDisplay";
 import { ButtonLink } from "../component/ButtonLink";
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) {return "0 Bytes";}
+  if (bytes === 0) {
+    return "0 Bytes";
+  }
 
   const k = 1024;
   const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -91,6 +93,14 @@ const app = new Hono<Env>({ strict: false })
             <dd>
               <DateDisplay timestamp={user.lastLoginAt} />
             </dd>
+            <dt>Banned At</dt>
+            <dd>
+              {user.bannedAt ? (
+                <DateDisplay timestamp={user.bannedAt} />
+              ) : (
+                "Not banned"
+              )}
+            </dd>
           </dl>
 
           <h2>Storage Statistics</h2>
@@ -109,7 +119,19 @@ const app = new Hono<Env>({ strict: false })
           <form method="post" action={`/admin/${uidStr}/vacuum`}>
             <button type="submit">Vacuum Database</button>
           </form>
-          <ButtonLink href={`/admin/${uidStr}/delete`}>Delete user</ButtonLink>
+          <form method="post" action={`/admin/${uidStr}/ban`}>
+            <input
+              type="hidden"
+              name="banned"
+              value={user.bannedAt ? "false" : "true"}
+            />
+            <button type="submit">
+              {user.bannedAt ? "Unban User" : "Ban User"}
+            </button>
+          </form>
+          <ButtonLink href={`/admin/${uidStr}/delete`}>
+            Delete database
+          </ButtonLink>
         </Layout>,
       );
     },
@@ -158,16 +180,17 @@ const app = new Hono<Env>({ strict: false })
 
       return c.render(
         <Layout title={`Admin - ${user.name} - Confirm delete`}>
-          <h2>Confirm user deletion</h2>
+          <h2>Confirm database deletion</h2>
           <p>
-            Are you sure you want to delete user{" "}
+            Are you sure you want to delete the database for user{" "}
             <strong>
               {uidStr} / {user.login}
             </strong>
-            ? This action is irreversible.
+            ? This will remove all their saved links and data. The user account
+            will remain in the registry.
           </p>
           <form method="post">
-            <button type="submit">Yes, delete user</button>
+            <button type="submit">Yes, delete database</button>
           </form>
         </Layout>,
       );
@@ -181,7 +204,7 @@ const app = new Hono<Env>({ strict: false })
 
       const uidStr = uidToString(uid);
 
-      const { read, remove } = useUserRegistry(c.env);
+      const { read } = useUserRegistry(c.env);
       const user = await read(uid);
 
       if (user == null) {
@@ -191,19 +214,37 @@ const app = new Hono<Env>({ strict: false })
       const storage = await getStorageStub(c, uid);
       await storage.deallocate();
 
-      await remove(uid);
-
-      // FIXME: Remove session
-
       return c.render(
         <Layout title={`Admin - ${user.name} - Delete completed`}>
-          <h2>Delete completed</h2>
+          <h2>Database deleted</h2>
           <p>
-            Deleted user {user.name} ({uidStr})
+            Deleted database for user {user.name} ({uidStr})
           </p>
-          <a href={`/admin`}>Back to user list</a>
+          <a href={`/admin/${uidStr}`}>Back to user details</a>
         </Layout>,
       );
+    },
+  )
+  .post(
+    "/:uid/ban",
+    zv("param", z.object({ uid: UserIdentifierStringSchema })),
+    zv("form", z.object({ banned: z.enum(["true", "false"]) })),
+    async (c) => {
+      const { uid } = c.req.valid("param");
+      const { banned } = c.req.valid("form");
+
+      const uidStr = uidToString(uid);
+
+      const { read, writeBan } = useUserRegistry(c.env);
+      const user = await read(uid);
+
+      if (user == null) {
+        return c.text("User not found", 404);
+      }
+
+      await writeBan(uid, banned === "true");
+
+      return c.redirect(`/admin/${uidStr}`);
     },
   );
 

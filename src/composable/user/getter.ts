@@ -26,6 +26,9 @@ async function _get(c: Context<Env>) {
  *
  * `must` is true or omitted in this overload. This will throw 401 error if session is missing or user is not found.
  * Routers should add `requireSession` middleware in the chain to ensure session exists.
+ *
+ * This does not check if the user is banned or not. However {@link requireSession} middleware already does that check.
+ * Most routes should not need to concern about banned users.
  */
 export function getUser(c: Context<Env>, must?: true): Promise<User>;
 
@@ -35,6 +38,9 @@ export function getUser(c: Context<Env>, must?: true): Promise<User>;
  * The user object is cached per-request. It's cheap to call it multiple times.
  *
  * `must` is false in this overload. This will return null instead of raising error if user is not found.
+ *
+ * This does not check if the user is banned or not. However {@link requireSession} middleware already does that check.
+ * Most routes should not need to concern about banned users.
  */
 export function getUser(c: Context<Env>, must: false): Promise<User | null>;
 
