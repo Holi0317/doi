@@ -1,3 +1,12 @@
 {
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+
+  // For whatever reason vscode eslint isn't applying on tsx files.
+  // Ref: https://stackoverflow.com/a/56558518
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
 }
