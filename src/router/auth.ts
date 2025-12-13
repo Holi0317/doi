@@ -5,22 +5,15 @@ import { zv } from "../composable/validator";
 import { exchangeToken } from "../gh/oauth_token";
 import { useKy } from "../composable/http";
 import { getAuthorizeUrl } from "../gh/authorize";
-import {
-  deleteSession,
-  getSession,
-  setSession,
-} from "../composable/session/cookie";
+import { deleteSession, setSession } from "../composable/session/cookie";
 import {
   useOauthState,
   RedirectDestinationSchema,
 } from "../composable/oauth_state";
 import { makeSessionContent } from "../composable/session/content";
+import { useUserRegistry } from "../composable/user/registry";
 
 const app = new Hono<Env>({ strict: false })
-  .get("/", async (c) => {
-    const sess = await getSession(c);
-    return c.text(`Hello <${sess?.name}>!`);
-  })
   .get("/logout", async (c) => {
     await deleteSession(c);
     return c.text("You have been successfully logged out!");
@@ -54,6 +47,7 @@ const app = new Hono<Env>({ strict: false })
       const { code, state } = c.req.valid("query");
 
       const { getAndDelete } = useOauthState(c.env);
+      const { write: writeUser } = useUserRegistry(c.env);
 
       // Retrieve redirect destination from KV using state
       const stateData = await getAndDelete(state);
@@ -67,9 +61,10 @@ const app = new Hono<Env>({ strict: false })
       const now = dayjs();
       const expire = now.add(7, "day");
 
-      const sess = await makeSessionContent(ky, tokens);
+      const { session, user } = await makeSessionContent(ky, tokens);
 
-      const sessID = await setSession(c, sess, expire);
+      const sessID = await setSession(c, session, expire);
+      await writeUser(user);
 
       const redirect =
         stateData.redirect === "doi:"

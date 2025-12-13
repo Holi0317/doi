@@ -35,6 +35,23 @@ export function Layout(props: LayoutProps) {
           h3 {
             line-height: 1.2;
           }
+
+          dl {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1rem;
+            margin: 1rem 0;
+          }
+
+          dt {
+            font-weight: 600;
+            color: #333;
+          }
+
+          dd {
+            margin: 0;
+            word-break: break-word;
+          }
         `}</Style>
       </head>
       <body>{props.children}</body>

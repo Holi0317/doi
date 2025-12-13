@@ -6,8 +6,8 @@ import apiRouter from "./api";
 import authRouter from "./auth";
 import basicRouter from "./basic";
 import landingRouter from "./landing";
+import adminRouter from "./admin";
 
-// TODO: Admin page
 const app = new Hono<Env>({ strict: false })
   .use(clientInject(apiRouter))
   .use(renderer())
@@ -15,7 +15,8 @@ const app = new Hono<Env>({ strict: false })
   .route("/", landingRouter)
   .route("/auth", authRouter)
   .route("/api", apiRouter)
-  .route("/basic", basicRouter);
+  .route("/basic", basicRouter)
+  .route("/admin", adminRouter);
 
 export default app;
 

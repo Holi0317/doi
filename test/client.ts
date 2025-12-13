@@ -4,18 +4,26 @@ import dayjs from "dayjs";
 import { __test__storeSession } from "../src/composable/session/cookie";
 import { COOKIE_NAME } from "../src/composable/session/constants";
 import type { AppType } from "../src/router";
+import { useUserRegistry } from "../src/composable/user/registry";
 
 export type ClientType = ReturnType<typeof hc<AppType>>;
 
 export async function createTestClient() {
+  const { write: writeUser } = useUserRegistry(env);
+
   const expire = dayjs().add(1, "day");
+
+  await writeUser({
+    source: "github",
+    uid: "1",
+    name: "testing user",
+    login: "testing",
+    avatarUrl: "",
+  });
 
   const sessID = await __test__storeSession(
     env,
     {
-      avatarUrl: "",
-      name: "testing user",
-      login: "testing",
       source: "github",
       uid: "1",
       accessToken: "gho_test_token",

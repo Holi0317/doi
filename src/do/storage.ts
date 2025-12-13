@@ -105,7 +105,7 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
 
     const maxID = this.conn.one(
       CountSchema,
-      sql`SELECT MAX(id) AS count FROM link;`,
+      sql`SELECT IFNULL(MAX(id), 0) AS count FROM link;`,
     );
 
     return {
@@ -127,6 +127,27 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     }
 
     return match[1];
+  }
+
+  /**
+   * Vacuum underlying SQLite database
+   */
+  public async vacuum() {
+    this.conn.void_(sql`PRAGMA optimize`);
+  }
+
+  /**
+   * Deallocate this durable object and delete all stored data
+   *
+   * Technically we only truncate the link table here. The DO instance
+   * will still exist and cost us small amount of fee.
+   *
+   * Doing `storage.deleteAll()` will cause subsequent call to `stats` fail.
+   * That resets the state and will recreate the DO with migration on next wake.
+   * It's just better to keep the DO instance around.
+   */
+  public async deallocate() {
+    this.conn.void_(sql`TRUNCATE link;`);
   }
 
   /**

@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import * as z from "zod";
 import { requireSession } from "../composable/session/middleware";
-import { mustSession } from "../composable/session/cookie";
 import type { EditOpSchema } from "../schemas";
 import { IDStringSchema, SearchQuerySchema } from "../schemas";
 import { zv } from "../composable/validator";
@@ -12,6 +11,8 @@ import * as zu from "../zod-utils";
 import { InsertForm } from "../component/InsertForm";
 import { LinkList } from "../component/LinkList";
 import { SearchToolbar } from "../component/SearchToolbar";
+import { getUser } from "../composable/user/getter";
+import { isAdmin } from "../composable/user/admin";
 
 const ItemEditSchema = z.object({
   // FIXME: <input type="checkbox"> won't send anything if unchecked.
@@ -27,7 +28,8 @@ const app = new Hono<Env>({ strict: false })
   .use(requireSession({ action: "redirect", destination: "/basic" }))
 
   .get("/", zv("query", SearchQuerySchema), async (c) => {
-    const sess = await mustSession(c);
+    const admin = await isAdmin(c);
+    const user = await getUser(c);
 
     const queryRaw = c.req.queries();
     const query = c.req.valid("query");
@@ -45,7 +47,10 @@ const app = new Hono<Env>({ strict: false })
 
     return c.render(
       <Layout title="List">
-        <p>Authenticated via GitHub, {sess.name}</p>
+        <p>Authenticated via GitHub, {user.name}</p>
+
+        {admin && <a href="/admin">Admin console</a>}
+
         <InsertForm />
 
         <SearchToolbar query={query} />

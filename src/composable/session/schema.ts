@@ -13,9 +13,6 @@ export const SessionSchema = z.object({
    */
   source: z.literal("github"),
   uid: z.string(),
-  name: z.string(),
-  login: z.string(),
-  avatarUrl: z.string(),
   accessToken: z.string(),
   /**
    * Time for access token to expire, in milliseconds since epoch
@@ -36,5 +33,5 @@ export type Session = z.output<typeof SessionSchema>;
 export type SessionInput = z.input<typeof SessionSchema>;
 
 export function useSessionStorage(env: CloudflareBindings) {
-  return useKv(env.SESSION, SessionSchema, "session");
+  return useKv(env.KV, "session", SessionSchema, z.undefined());
 }

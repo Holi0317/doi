@@ -68,11 +68,13 @@ export function useDBMigration(ctx: DurableObjectState) {
 
       const ran = listMigrations();
 
-      for (const migration of migrations) {
-        if (ran.has(migration.name)) {
-          continue;
-        }
+      const pending = migrations.filter((m) => !ran.has(m.name));
 
+      if (pending.length === 0) {
+        return;
+      }
+
+      for (const migration of pending) {
         conn.transaction(() => {
           console.log(`Running migration ${migration.name}`);
 
@@ -85,6 +87,13 @@ export function useDBMigration(ctx: DurableObjectState) {
           console.log(`Migration ${migration.name} complete`);
         });
       }
+
+      // From SQLite docs:
+      // > All applications should run "PRAGMA optimize;" after a schema change,
+      // > especially after one or more CREATE INDEX statements.
+      // > https://sqlite.org/pragma.html#pragma_optimize
+      console.log("Running PRAGMA optimize");
+      conn.void_(sql`PRAGMA optimize`);
     });
   };
 

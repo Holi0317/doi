@@ -1,13 +1,12 @@
 import type dayjs from "dayjs";
 import type { Context } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
-import { HTTPException } from "hono/http-exception";
-import { useReqCache } from "../cache";
 import { revokeToken } from "../../gh/revoke";
 import { useKy } from "../http";
+import { getRefreshStub } from "../do";
 import { COOKIE_NAME, cookieOpt } from "./constants";
 import { genSessionID, getSessHash, hashSessionID } from "./id";
-import { type SessionInput, type Session, useSessionStorage } from "./schema";
+import { type SessionInput, useSessionStorage } from "./schema";
 
 /**
  * Store session data to KV.
@@ -24,7 +23,11 @@ async function storeSession(
 
   const { write } = useSessionStorage(env);
 
-  await write(sessHash, content, expire);
+  await write({
+    key: sessHash,
+    content,
+    expire,
+  });
 
   return sessID;
 }
@@ -79,56 +82,6 @@ export async function deleteSession(c: Context<Env>) {
 }
 
 /**
- * Get session from request.
- *
- * When this returns some value, the session has been validated.
- *
- * This function is cached/memorized.
- *
- * @see {requireSession} Middleware for requiring session
- * @see {mustSession} For getting session without handling null case
- */
-export async function getSession(c: Context<Env>): Promise<Session | null> {
-  return useReqCache(c, "session", async () => {
-    const { read } = useSessionStorage(c.env);
-
-    const sessHash = await getSessHash(c);
-    // Cookie doesn't exist. User is unauthenticated.
-    if (!sessHash) {
-      await deleteSession(c);
-      return null;
-    }
-
-    const sess = await read(sessHash);
-
-    // Session does not exist, or expired
-    if (sess == null) {
-      await deleteSession(c);
-      return null;
-    }
-
-    return sess;
-  });
-}
-
-/**
- * Same as {@link getSession}, except when the return value is null this will
- * raise 401 error.
- */
-export async function mustSession(c: Context<Env>): Promise<Session> {
-  const sess = await getSession(c);
-  if (sess == null) {
-    console.warn(
-      "Got null session in `mustSession`. Did the route forget `requireSession` middleware?",
-    );
-
-    throw new HTTPException(401, { message: "Unauthenticated" });
-  }
-
-  return sess;
-}
-
-/**
  * Try to refresh session in the background.
  */
 export async function refreshSession(c: Context<Env>) {
@@ -137,8 +90,7 @@ export async function refreshSession(c: Context<Env>) {
     return;
   }
 
-  const id = c.env.TOKEN_REFRESH.idFromName(sessHash);
-  const stub = c.env.TOKEN_REFRESH.get(id);
+  const stub = getRefreshStub(c.env, sessHash);
 
   // Trigger token refresh in the background. Don't wait for it to finish in request-response cycle.
   c.executionCtx.waitUntil(stub.refresh(sessHash));

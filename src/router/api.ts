@@ -3,7 +3,6 @@ import pLimit from "p-limit";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session/middleware";
-import { getSession } from "../composable/session/cookie";
 import {
   getHTMLTitle,
   getSocialImageUrl,
@@ -19,6 +18,7 @@ import {
 } from "../schemas";
 import { fetchImage, parseAcceptImageFormat } from "../composable/image";
 import { useCache } from "../composable/cache";
+import { getUser } from "../composable/user/getter";
 import { REQUEST_CONCURRENCY } from "./constants";
 
 const app = new Hono<Env>({ strict: false })
@@ -26,20 +26,21 @@ const app = new Hono<Env>({ strict: false })
    * Version check / user info endpoint
    */
   .get("/", async (c) => {
-    const sess = await getSession(c);
+    const user = await getUser(c, false);
 
     return c.json({
       // This name is used for client to probe and verify the correct API endpoint.
       name: "doi",
       version: c.env.CF_VERSION_METADATA,
       session:
-        sess == null
+        user == null
           ? null
           : {
-              source: sess.source,
-              name: sess.name,
-              login: sess.login,
-              avatarUrl: sess.avatarUrl,
+              source: user.source,
+              name: user.name,
+              login: user.login,
+              avatarUrl: user.avatarUrl,
+              banned: user.bannedAt != null,
             },
     });
   })
