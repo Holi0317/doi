@@ -186,6 +186,19 @@ const app = new Hono<Env>({ strict: false })
     }
 
     return c.text("", 201);
+  })
+  .post("/bulk/export", async (c) => {
+    const stub = await getStorageStub(c);
+
+    const csv = await stub.export_();
+
+    return new Response(csv, {
+      status: 200,
+      headers: {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": 'attachment; filename="doi_export.csv"',
+      },
+    });
   });
 
 export default app;

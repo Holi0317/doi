@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.5",
+    "@std/csv": "jsr:^1.0.6",
     "@std/html": "jsr:^1.0.4",
     "@truto/sqlite-builder": "^1.0.4",
     "dayjs": "^1.11.19",
