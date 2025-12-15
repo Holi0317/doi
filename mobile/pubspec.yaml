@@ -47,7 +47,7 @@ dependencies:
   collection: ^1.19.1
   flutter_riverpod: ^3.0.3
   riverpod_annotation: ^3.0.3
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.4
   infinite_scroll_pagination: ^5.1.1
   riverpod_sqflite: ^0.3.3
   sqflite: ^2.4.2
