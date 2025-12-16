@@ -5,7 +5,11 @@ import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import type { EditOpSchema, SearchQuerySchema } from "../schemas";
+import type {
+  EditOpSchema,
+  LinkInsertItem,
+  SearchQuerySchema,
+} from "../schemas";
 import { stringify } from "@std/csv";
 
 const migrations: DBMigration[] = [
@@ -60,11 +64,6 @@ const LinkItemSchema = z.strictObject({
 });
 
 export type LinkItem = z.output<typeof LinkItemSchema>;
-
-export interface LinkInsertItem {
-  title: string;
-  url: string;
-}
 
 const IDSchema = z.strictObject({
   id: z.number(),
