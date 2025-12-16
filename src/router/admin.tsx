@@ -9,7 +9,7 @@ import {
   uidToString,
   UserIdentifierStringSchema,
 } from "../composable/user/ident";
-import { getStorageStub } from "../composable/do";
+import { getStorageStubAdmin } from "../composable/do";
 import { DateDisplay } from "../component/DateDisplay";
 import { ButtonLink } from "../component/ButtonLink";
 
@@ -69,7 +69,7 @@ const app = new Hono<Env>({ strict: false })
         return c.text("User not found", 404);
       }
 
-      const storage = await getStorageStub(c, uid);
+      const storage = getStorageStubAdmin(c.env, uid);
       const stat = await storage.stat();
 
       return c.render(
@@ -151,7 +151,7 @@ const app = new Hono<Env>({ strict: false })
         return c.text("User not found", 404);
       }
 
-      const storage = await getStorageStub(c, uid);
+      const storage = getStorageStubAdmin(c.env, uid);
       await storage.vacuum();
 
       return c.render(
@@ -211,7 +211,7 @@ const app = new Hono<Env>({ strict: false })
         return c.text("User not found", 404);
       }
 
-      const storage = await getStorageStub(c, uid);
+      const storage = getStorageStubAdmin(c.env, uid);
       await storage.deallocate();
 
       return c.render(
