@@ -27,6 +27,27 @@ export function getStorageStubAdmin(
 }
 
 /**
+ * Get import durable object stub for current session user.
+ */
+export async function getImportStub(c: Context<Env>) {
+  const uid = await getSession(c);
+  return getImportStubAdmin(c.env, uid);
+}
+
+/**
+ * Get import durable object stub for given user identifier.
+ */
+export function getImportStubAdmin(
+  env: CloudflareBindings,
+  uid: UserIdentifier,
+) {
+  const name = uidToString(uid);
+
+  const id = env.IMPORT_DO.idFromName(name);
+  return env.IMPORT_DO.get(id);
+}
+
+/**
  * Get durable object stub for token refresh worker.
  */
 export function getRefreshStub(env: CloudflareBindings, sessHash: string) {

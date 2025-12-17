@@ -1,6 +1,7 @@
 import { Hono } from "hono";
+import * as z from "zod";
 import { zv } from "../composable/validator";
-import { getStorageStub } from "../composable/do";
+import { getImportStub, getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session/middleware";
 import { getSocialImageUrl, getFaviconUrl } from "../composable/scraper";
 import { useKy } from "../composable/http";
@@ -15,6 +16,7 @@ import { fetchImage, parseAcceptImageFormat } from "../composable/image";
 import { useCache } from "../composable/cache";
 import { getUser } from "../composable/user/getter";
 import { processInsert } from "../composable/insert";
+import { useImportStore } from "../composable/import";
 
 const app = new Hono<Env>({ strict: false })
   /**
@@ -180,7 +182,41 @@ const app = new Hono<Env>({ strict: false })
         "content-disposition": 'attachment; filename="doi_export.csv"',
       },
     });
-  });
+  })
+  .get("/bulk/import", async (c) => {
+    const stub = await getImportStub(c);
+    const status = await stub.status();
+
+    return c.json({ status });
+  })
+  .post(
+    "/bulk/import",
+    zv(
+      "form",
+      z.object({
+        // `z.file()` is broken. zod relies on globalThis.File which isn't available or inferrable
+        // in this typescript environment.
+        // Using instanceof check as a workaround.
+        file: z.instanceof(File),
+      }),
+    ),
+    async (c) => {
+      const { writeRaw } = useImportStore(c.env);
+      const stub = await getImportStub(c);
+      const user = await getUser(c);
+      const { file } = c.req.valid("form");
+
+      const content = await file.text();
+
+      const rawId = await writeRaw(user, content);
+      console.log("Wrote import raw data with ID:", rawId);
+
+      const status = await stub.start(user, rawId);
+      console.log("Started import with status:", status);
+
+      return c.json({ status }, 201);
+    },
+  );
 
 export default app;
 

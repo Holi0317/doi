@@ -91,12 +91,20 @@ export function useKv<T extends z.ZodType, M extends z.ZodType>(
    * List all keys in this storage.
    *
    * WARNING: This could hit subrequest limits if there are too many keys.
+   *
+   * @param prefix_ Optional prefix to filter keys. This is added after the main prefix.
+   *        Default to empty string.
    */
-  const listAll = async () => {
+  const listAll = async (prefix_: string = "") => {
     const result: Array<KVNamespaceListKey<unknown, string>> = [];
 
+    let p = `${prefix}:`;
+    if (prefix_) {
+      p += prefix_;
+    }
+
     const options: KVNamespaceListOptions = {
-      prefix: `${prefix}:`,
+      prefix: p,
     };
 
     while (true) {
