@@ -1,4 +1,5 @@
 import * as z from "zod";
+import * as zu from "../zod-utils";
 import { parse } from "@std/csv";
 import { useKv } from "./kv";
 import { uidToString, type UserIdentifier } from "./user/ident";
@@ -36,6 +37,16 @@ function usePreparedPartStore(env: CloudflareBindings) {
   return useKv(env.KV, "import:prepared", PreparedPartSchema, z.undefined());
 }
 
+// Schema for parsing CSV rows from Pocket export
+// Known columns: title, url, time_added, tags, status
+const CsvRowSchema = z.looseObject({
+  title: z.string().nullish(),
+  url: zu.httpUrl(),
+  status: z.string(),
+  // TODO(GH-56): Handle time_added properly
+  time_added: z.string(),
+});
+
 export function useImportStore(env: CloudflareBindings) {
   const raw = useRawStore(env);
   const part = usePartStore(env);
@@ -61,7 +72,6 @@ export function useImportStore(env: CloudflareBindings) {
     return id;
   };
 
-  // TODO: Add different file parsers
   const parseFile = (body: string) => {
     const csv = parse(body, {
       skipFirstRow: true,
@@ -74,7 +84,7 @@ export function useImportStore(env: CloudflareBindings) {
 
     for (const row of csv) {
       i++;
-      const parsed = InsertSchema.safeParse(row);
+      const parsed = CsvRowSchema.safeParse(row);
       if (!parsed.success) {
         const errorMsg = `Row ${i}: ${z.prettifyError(parsed.error)}`;
         console.warn(`Skipping invalid row in import file: ${errorMsg}`);
@@ -82,7 +92,20 @@ export function useImportStore(env: CloudflareBindings) {
         continue;
       }
 
-      result.push(parsed.data);
+      const { title, url, status, time_added, ...rest } = parsed.data;
+
+      const noteParts: string[] = ["[Imported]"];
+      for (const [key, value] of Object.entries(rest)) {
+        noteParts.push(`${key}: ${value}`);
+      }
+
+      result.push({
+        title: title ?? null,
+        url,
+        archive: status === "archive",
+        favorite: false,
+        note: noteParts.join("\n"),
+      });
     }
 
     return { items: result, errors };
