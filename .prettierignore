@@ -1,12 +1,13 @@
 /pnpm-lock.yaml
 
-/mobile/build
+/mobile/**/build
 /mobile/.dart_tool
 
 # build output
 dist/
-.wrangler
-/worker-configuration.d.ts
+packages/worker/dist/
+packages/worker/.wrangler
+packages/worker/worker-configuration.d.ts
 
 .idea/
 

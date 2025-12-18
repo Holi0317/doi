@@ -17,10 +17,10 @@ export default defineConfig(
   {
     name: "Global ignores",
     ignores: [
-      "dist/",
+      "packages/worker/dist/",
       "node_modules/",
-      ".wrangler/",
-      "worker-configuration.d.ts",
+      "packages/worker/.wrangler/",
+      "packages/worker/worker-configuration.d.ts",
     ],
   },
   {
