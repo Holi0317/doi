@@ -21,6 +21,9 @@ export async function processInsert(
       return {
         title: item.title.substring(0, 512),
         url: item.url,
+        archive: item.archive,
+        favorite: item.favorite,
+        note: item.note,
       };
     }
 
@@ -29,6 +32,9 @@ export async function processInsert(
     return {
       title,
       url: item.url,
+      archive: item.archive,
+      favorite: item.favorite,
+      note: item.note,
     };
   });
 }
