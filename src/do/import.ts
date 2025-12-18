@@ -73,7 +73,7 @@ export class ImportDO extends DurableObject<CloudflareBindings> {
   public async reset() {
     const { get, delete_ } = useStatus(this.ctx);
 
-    this.ctx.blockConcurrencyWhile(async () => {
+    await this.ctx.blockConcurrencyWhile(async () => {
       const status = get();
 
       if (status == null || status.completed != null) {

@@ -79,7 +79,9 @@ export function useImportStore(env: CloudflareBindings) {
 
     const result: Array<z.output<typeof InsertSchema>> = [];
     const errors: string[] = [];
-    // Starts from 1 because we are skipping header row
+    // Starts from 1 because we are skipping header row.
+    // This means the first data row is row 2 in the original file, aligning with what
+    // excel would show.
     let i = 1;
 
     for (const row of csv) {
