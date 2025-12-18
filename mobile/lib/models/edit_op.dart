@@ -29,7 +29,7 @@ sealed class EditOp with _$EditOp {
     bool? archive,
     bool? favorite,
     String? note,
-    DateTime? createdAt,
+    @JsonKey(name: 'created_at') int? createdAt,
     @JsonKey(includeIfNull: false) DateTime? appliedAt,
   }) = EditOpInsert;
 

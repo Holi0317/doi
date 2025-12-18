@@ -27,8 +27,8 @@ export type CursorPayload = z.infer<typeof CursorSchema>;
 /**
  * Encode given {@link CursorPayload} or {@link LinkItem} into cursor.
  *
- * This should be the plus one item after the last item in previous page.
- * Next page should start from this item (inclusive).
+ * This cursor typically points to the last item returned in the previous page.
+ * Pagination continues *after* this item (exclusive) when fetching the next page.
  */
 export function encodeCursor(link: CursorPayload | LinkItem): string {
   const payload: CursorPayload = {
@@ -40,7 +40,7 @@ export function encodeCursor(link: CursorPayload | LinkItem): string {
 }
 
 /**
- * Decode given cursor back to ID.
+ * Decode given cursor back to {@link CursorPayload}.
  *
  * If the cursor is falsy, this will return null.
  * If the cursor isn't a number, this will return null
