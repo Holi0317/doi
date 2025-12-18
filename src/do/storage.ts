@@ -1,14 +1,14 @@
 import { DurableObject } from "cloudflare:workers";
 import * as z from "zod";
-import * as zu from "../zod-utils";
 import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import type {
-  EditOpSchema,
-  LinkInsertItem,
-  SearchQuerySchema,
+import {
+  LinkItemSchema,
+  type EditOpSchema,
+  type LinkInsertItem,
+  type SearchQuerySchema,
 } from "../schemas";
 import { stringify } from "@std/csv";
 
@@ -52,18 +52,6 @@ ALTER TABLE link ADD COLUMN note text NOT NULL DEFAULT '' CHECK (length(note) <=
 `,
   },
 ];
-
-const LinkItemSchema = z.strictObject({
-  id: z.number(),
-  title: z.string(),
-  url: z.string(),
-  favorite: zu.sqlBool(),
-  archive: zu.sqlBool(),
-  created_at: zu.unixEpochMs(),
-  note: z.string(),
-});
-
-export type LinkItem = z.output<typeof LinkItemSchema>;
 
 const IDSchema = z.strictObject({
   id: z.number(),

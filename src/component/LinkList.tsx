@@ -1,4 +1,4 @@
-import type { LinkItem } from "../do/storage";
+import type { LinkItem } from "../schemas";
 import { LinkItem as LinkItemComp } from "./LinkItem";
 
 export interface LinkListProps {
