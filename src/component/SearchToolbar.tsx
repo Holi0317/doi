@@ -46,10 +46,16 @@ export function SearchToolbar(props: SearchToolbarProps) {
       </select>
 
       <select name="order">
-        <option value="id_asc" selected={query.order === "id_asc"}>
+        <option
+          value="created_at_asc"
+          selected={query.order === "created_at_asc"}
+        >
           Ascending (oldest first)
         </option>
-        <option value="id_desc" selected={query.order === "id_desc"}>
+        <option
+          value="created_at_desc"
+          selected={query.order === "created_at_desc"}
+        >
           Descending (newest first)
         </option>
       </select>

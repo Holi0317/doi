@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'search_query.freezed.dart';
 
@@ -30,9 +30,8 @@ abstract class SearchQuery with _$SearchQuery {
     /// Limit items to return.
     @Default(30) int limit,
 
-    /// Order in result. Can only sort by id.
-    /// id correlates to created_at timestamp, so this sorting is effectively link insert time.
-    @Default(SearchOrder.idDesc) SearchOrder order,
+    /// Order in result. Can only sort by created_at.
+    @Default(SearchOrder.createdAtDesc) SearchOrder order,
   }) = _SearchQuery;
 
   Map<String, String> toMap() {
@@ -62,8 +61,8 @@ abstract class SearchQuery with _$SearchQuery {
 }
 
 enum SearchOrder {
-  idAsc('id_asc'),
-  idDesc('id_desc');
+  createdAtAsc('created_at_asc'),
+  createdAtDesc('created_at_desc');
 
   const SearchOrder(this.value);
 

@@ -17,7 +17,7 @@ const migrations: DBMigration[] = [
     name: "20250610-create-link",
     script: sql`
 CREATE TABLE link (
-  -- ID/PK of the link. This relates to created_at column.
+  -- ID/PK of the link. This is a tie breaker for links with same created_at timestamp.
   -- On conflict of URL, we will replace (delete and insert) the row and bump ID.
   id integer PRIMARY KEY AUTOINCREMENT,
 
@@ -250,8 +250,9 @@ ORDER BY id ASC;
     AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;
 
-    const dir = param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc");
-    const comp = param.order === "id_asc" ? sql.raw(">") : sql.raw("<");
+    const dir =
+      param.order === "created_at_asc" ? sql.raw("asc") : sql.raw("desc");
+    const comp = param.order === "created_at_asc" ? sql.raw(">") : sql.raw("<");
 
     const cursorCond =
       cursor == null

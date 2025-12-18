@@ -259,7 +259,7 @@ describe("Link search", () => {
         { url: "http://1.com", title: "1", created_at: 1620000000001 },
       ],
       search: {
-        order: "id_asc",
+        order: "created_at_asc",
       },
       resp: {
         count: 3,
@@ -308,7 +308,7 @@ describe("Link search", () => {
       search: {
         limit: "1",
         cursor: encodeCursor({ id: 1, created_at: 1620000000000 }),
-        order: "id_asc",
+        order: "created_at_asc",
       },
       resp: {
         count: 3,

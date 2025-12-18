@@ -65,7 +65,7 @@ describe("Link edit", () => {
         { op: "set_string", field: "note", value: "Hello world", id: 1 },
       ],
       query: {
-        order: "id_asc",
+        order: "created_at_asc",
       },
       search: [
         {
@@ -91,7 +91,7 @@ describe("Link edit", () => {
 
     const search1 = await client.api.search.$get({
       query: {
-        order: "id_asc",
+        order: "created_at_asc",
         archive: "true",
       },
     });
@@ -110,7 +110,7 @@ describe("Link edit", () => {
 
     const search2 = await client.api.search.$get({
       query: {
-        order: "id_asc",
+        order: "created_at_asc",
         archive: "false",
       },
     });
@@ -136,7 +136,7 @@ describe("Link edit", () => {
         { op: "set_bool", field: "archive", value: false, id: 2 },
       ],
       query: {
-        order: "id_asc",
+        order: "created_at_asc",
       },
       search: [
         {
@@ -174,7 +174,7 @@ describe("Link edit", () => {
     await testEdit({
       edit: [{ op: "set_bool", field: "archive", value: true, id: 100 }],
       query: {
-        order: "id_asc",
+        order: "created_at_asc",
       },
       search: [
         {
