@@ -48,7 +48,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="doi" />
+                <data android:scheme="haudoi" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

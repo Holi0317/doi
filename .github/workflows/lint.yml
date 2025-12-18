@@ -37,7 +37,7 @@ jobs:
             eslint-cache-
 
       - name: Generate Cloudflare types
-        run: pnpm run --filter @doi/worker cf-typegen
+        run: pnpm run --filter @haudoi/worker cf-typegen
 
       - name: Check for worker-configuration.d.ts changes
         run: |
@@ -45,7 +45,7 @@ jobs:
             echo "worker-configuration.d.ts is up to date"
           else
             echo "❌ worker-configuration.d.ts has uncommitted changes"
-            echo "Please run 'pnpm run --filter @doi/worker cf-typegen' and commit the changes"
+            echo "Please run 'pnpm run --filter @haudoi/worker cf-typegen' and commit the changes"
             exit 1
           fi
 

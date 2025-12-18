@@ -18,7 +18,7 @@ export function useBasicKy(env: CloudflareBindings) {
 
   return ky.create({
     headers: {
-      "user-agent": `doi-app/${version.id || "unknown"}/${version.tag || "unknown"}`,
+      "user-agent": `haudoi-worker/${version.id || "unknown"}/${version.tag || "unknown"}`,
     },
   });
 }

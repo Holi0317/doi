@@ -124,7 +124,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final u = Uri.parse(_apiUrlController.text);
       final apiUrl = u.replace(path: "/api").toString();
       final loginUrl = u
-          .replace(path: "/auth/github/login", query: "redirect=doi:")
+          .replace(path: "/auth/github/login", query: "redirect=haudoi:")
           .toString();
 
       // Validate server info on URL
@@ -181,7 +181,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Future<String> _oauthLogin(String loginUrl) async {
     final result = await FlutterWebAuth2.authenticate(
       url: loginUrl,
-      callbackUrlScheme: 'doi',
+      callbackUrlScheme: 'haudoi',
     );
 
     // Extract token from callback URL

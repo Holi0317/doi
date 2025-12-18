@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
 
-  "name": "doi",
+  "name": "haudoi",
   "main": "src/index.ts",
   "compatibility_date": "2025-11-20",
   "compatibility_flags": ["enable_request_signal"],

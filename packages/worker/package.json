@@ -1,5 +1,5 @@
 {
-  "name": "@doi/worker",
+  "name": "@haudoi/worker",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",

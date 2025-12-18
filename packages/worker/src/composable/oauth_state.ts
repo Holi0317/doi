@@ -10,7 +10,7 @@ export const RedirectDestinationSchema = z.enum([
   "/",
   "/basic",
   "/admin",
-  "doi:",
+  "haudoi:",
 ] as const);
 
 export type RedirectDestination = z.output<typeof RedirectDestinationSchema>;

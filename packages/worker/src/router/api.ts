@@ -27,7 +27,7 @@ const app = new Hono<Env>({ strict: false })
 
     return c.json({
       // This name is used for client to probe and verify the correct API endpoint.
-      name: "doi",
+      name: "haudoi",
       version: c.env.CF_VERSION_METADATA,
       session:
         user == null
@@ -179,7 +179,7 @@ const app = new Hono<Env>({ strict: false })
       status: 200,
       headers: {
         "content-type": "text/csv; charset=utf-8",
-        "content-disposition": 'attachment; filename="doi_export.csv"',
+        "content-disposition": 'attachment; filename="haudoi_export.csv"',
       },
     });
   })

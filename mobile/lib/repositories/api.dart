@@ -48,9 +48,9 @@ class ApiRepository {
   /// HTTP headers for requests.
   late final Map<String, String> headers = Map.unmodifiable({
     if (_authToken.isNotEmpty)
-      'cookie': Cookie('__Host-doi-auth', _authToken).toString(),
+      'cookie': Cookie('__Host-haudoi-auth', _authToken).toString(),
     // FIXME: Add version
-    'user-agent': 'doi-mobile',
+    'user-agent': 'haudoi-mobile',
   });
 
   ApiRepository({

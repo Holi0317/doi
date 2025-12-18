@@ -1,7 +1,7 @@
 {
-  "name": "doi",
+  "name": "haudoi",
   "scripts": {
-    "dev": "pnpm run --filter @doi/worker dev",
+    "dev": "pnpm run --filter @haudoi/worker dev",
     "lint": "eslint --cache .",
     "fmt": "prettier --cache --write .",
     "typecheck": "pnpm run --filter='./packages/*' typecheck",

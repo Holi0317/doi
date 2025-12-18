@@ -67,8 +67,8 @@ const app = new Hono<Env>({ strict: false })
       await writeUser(user);
 
       const redirect =
-        stateData.redirect === "doi:"
-          ? `doi://login?token=${sessID}`
+        stateData.redirect === "haudoi:"
+          ? `haudoi://login?token=${sessID}`
           : stateData.redirect;
       return c.redirect(redirect);
     },
