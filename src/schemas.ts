@@ -107,7 +107,7 @@ export const EditOpSchema = z.discriminatedUnion("op", [
 export const EditBodySchema = z.object({
   op: z
     .array(EditOpSchema)
-    .min(1, { error: "At least must at lease one operation" })
+    .min(1, { error: "At least one operation is required" })
     .max(MAX_EDIT_OPS, {
       error: `At most ${MAX_EDIT_OPS} operations per request`,
     }),
