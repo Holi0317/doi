@@ -68,7 +68,7 @@ export const InsertSchema = z.object({
   url: zu.httpUrl(),
   archive: z.boolean().default(false),
   favorite: z.boolean().default(false),
-  note: z.string().default(""),
+  note: z.string().max(4096).default(""),
 });
 
 /**
