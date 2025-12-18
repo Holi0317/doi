@@ -72,14 +72,21 @@ export const InsertSchema = z.object({
 });
 
 /**
- * Link to be inserted.
+ * Schema for insert object with title resolved. Actual type accepted by insert in
+ * durable object.
  *
- * This is basically InsertSchema. However the title needs to be resolved and present.
+ * Basically the same as {@link InsertSchema}, however the title needs to be
+ * resolved and present (not nullish).
  * Use `processInsert` to convert from InsertSchema to this type.
  */
-export type LinkInsertItem = Omit<z.output<typeof InsertSchema>, "title"> & {
-  title: string;
-};
+export const InsertLinkItemSchema = InsertSchema.extend({
+  title: z.string().max(512),
+});
+
+/**
+ * @see InsertLinkItemSchema
+ */
+export type LinkInsertItem = z.output<typeof InsertLinkItemSchema>;
 
 /**
  * A single edit operation for stored links.

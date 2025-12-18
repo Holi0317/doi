@@ -2,12 +2,12 @@ import * as z from "zod";
 import { parse } from "@std/csv";
 import { useKv } from "./kv";
 import { uidToString, type UserIdentifier } from "./user/ident";
-import { InsertSchema } from "../schemas";
+import type { LinkInsertItem } from "../schemas";
+import { InsertLinkItemSchema, InsertSchema } from "../schemas";
 import { MAX_EDIT_OPS } from "../constants";
 import { genSessionID } from "./session/id";
 import dayjs from "dayjs";
 import { chunk } from "es-toolkit/array";
-import type { LinkInsertItem } from "../do/storage";
 
 const RawMetaSchema = z.object({
   uid: z.string(),
@@ -25,12 +25,7 @@ export const PartSchema = z.object({
  * Schema for prepared insert objects ready for insertion
  */
 export const PreparedPartSchema = z.object({
-  items: z.array(
-    z.object({
-      title: z.string(),
-      url: z.string(),
-    }),
-  ),
+  items: z.array(InsertLinkItemSchema),
 });
 
 function usePartStore(env: CloudflareBindings) {
