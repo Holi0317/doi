@@ -9,9 +9,10 @@ import {
   uidToString,
   UserIdentifierStringSchema,
 } from "../composable/user/ident";
-import { getStorageStubAdmin } from "../composable/do";
+import { getImportStubAdmin, getStorageStubAdmin } from "../composable/do";
 import { DateDisplay } from "../component/DateDisplay";
 import { ButtonLink } from "../component/ButtonLink";
+import { AdminImportStatus } from "../component/AdminImportStatus";
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) {
@@ -115,9 +116,15 @@ const app = new Hono<Env>({ strict: false })
             <dd>{stat.colo}</dd>
           </dl>
 
+          <h2>Import Status</h2>
+          <AdminImportStatus c={c} uid={uid} />
+
           <h2>Actions</h2>
           <form method="post" action={`/admin/${uidStr}/vacuum`}>
             <button type="submit">Vacuum Database</button>
+          </form>
+          <form method="post" action={`/admin/${uidStr}/reset-import`}>
+            <button type="submit">Reset Import Status</button>
           </form>
           <form method="post" action={`/admin/${uidStr}/ban`}>
             <input
@@ -161,6 +168,27 @@ const app = new Hono<Env>({ strict: false })
           <a href={`/admin/${uidStr}`}>Back to user details</a>
         </Layout>,
       );
+    },
+  )
+  .post(
+    "/:uid/reset-import",
+    zv("param", z.object({ uid: UserIdentifierStringSchema })),
+    async (c) => {
+      const { uid } = c.req.valid("param");
+
+      const uidStr = uidToString(uid);
+
+      const { read } = useUserRegistry(c.env);
+      const user = await read(uid);
+
+      if (user == null) {
+        return c.text("User not found", 404);
+      }
+
+      const storage = getImportStubAdmin(c.env, uid);
+      await storage.reset();
+
+      return c.redirect(`/admin/${uidStr}`);
     },
   )
   .get(

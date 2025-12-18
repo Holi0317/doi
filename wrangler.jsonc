@@ -24,6 +24,10 @@
         "name": "TOKEN_REFRESH",
         "class_name": "TokenRefreshDO",
       },
+      {
+        "name": "IMPORT_DO",
+        "class_name": "ImportDO",
+      },
     ],
   },
 
@@ -36,12 +40,24 @@
       "tag": "v2",
       "new_sqlite_classes": ["TokenRefreshDO"],
     },
+    {
+      "tag": "v3",
+      "new_sqlite_classes": ["ImportDO"],
+    },
   ],
 
   "kv_namespaces": [
     {
       "binding": "KV",
       "id": "b4bad374baa14366a481f67e8c9c09bb",
+    },
+  ],
+
+  "workflows": [
+    {
+      "name": "import-workflow",
+      "binding": "IMPORT_WORKFLOW",
+      "class_name": "ImportWorkflow",
     },
   ],
 }

@@ -13,6 +13,8 @@ import { LinkList } from "../component/LinkList";
 import { SearchToolbar } from "../component/SearchToolbar";
 import { getUser } from "../composable/user/getter";
 import { isAdmin } from "../composable/user/admin";
+import { ImportStatus } from "../component/ImportStatus";
+import { ImportForm } from "../component/ImportForm";
 
 const ItemEditSchema = z.object({
   // FIXME: <input type="checkbox"> won't send anything if unchecked.
@@ -187,10 +189,18 @@ const app = new Hono<Env>({ strict: false })
   })
 
   .get("/bulk", async (c) => {
+    const { status } = await c
+      .get("client")
+      .bulk.import.$get()
+      .then((r) => r.json());
+
     return c.render(
       <Layout title="Import / Export">
         <a href="/basic">Back</a>
         <h2>Import</h2>
+
+        <ImportStatus status={status} />
+        {(status == null || status.completed != null) && <ImportForm />}
 
         <h2>Export</h2>
         <form method="post" action="/api/bulk/export">
@@ -198,6 +208,34 @@ const app = new Hono<Env>({ strict: false })
         </form>
       </Layout>,
     );
-  });
+  })
+  .post(
+    "/bulk",
+    zv(
+      "form",
+      z.object({
+        // `z.file()` is broken. zod relies on globalThis.File which isn't available or inferrable
+        // in this typescript environment.
+        // Using instanceof check as a workaround.
+        file: z.instanceof(File),
+      }),
+    ),
+    async (c) => {
+      const client = c.get("client");
+      const { file } = c.req.valid("form");
+
+      const resp = await client.bulk.import.$post({
+        form: {
+          file,
+        },
+      });
+
+      if (!resp.ok) {
+        return c.json(await resp.json(), resp.status);
+      }
+
+      return c.redirect("/basic/bulk");
+    },
+  );
 
 export default app;

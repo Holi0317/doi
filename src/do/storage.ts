@@ -4,12 +4,12 @@ import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import {
-  LinkItemSchema,
-  type EditOpSchema,
-  type LinkInsertItem,
-  type SearchQuerySchema,
+import type {
+  EditOpSchema,
+  LinkInsertItem,
+  SearchQuerySchema,
 } from "../schemas";
+import { LinkItemSchema } from "../schemas";
 import { stringify } from "@std/csv";
 
 const migrations: DBMigration[] = [
