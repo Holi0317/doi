@@ -35,6 +35,19 @@ export function ImportStatus(props: {
         Import completed at{" "}
         <DateDisplay timestamp={status.completed.completedAt} />
       </p>
+      <p>Processed rows: {status.completed.processed}</p>
+      <p>Inserted rows: {status.completed.inserted}</p>
+
+      {status.completed.errors.length > 0 && (
+        <>
+          <h3>Errors</h3>
+          <ul>
+            {status.completed.errors.map((err, idx) => (
+              <li key={idx}>{err}</li>
+            ))}
+          </ul>
+        </>
+      )}
     </>
   );
 }

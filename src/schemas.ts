@@ -156,9 +156,13 @@ export const ImportCompletedSchema = z.object({
    */
   completedAt: zu.unixEpochMs(),
   /**
-   * Number of successfully imported items
+   * Number of processed rows from source file
    */
-  count: z.number(),
+  processed: z.number(),
+  /**
+   * Number of inserted rows. This can be less than processed due to deduplication
+   */
+  inserted: z.number(),
   /**
    * Errors encountered during import
    */

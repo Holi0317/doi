@@ -24,17 +24,21 @@ export class ImportWorkflow extends WorkflowEntrypoint<
 
     console.log("Starting import workflow", { uid, rawId });
 
-    const parts = await step.do("Partition raw import file", async () => {
-      const { partition } = useImportStore(this.env);
-      return await partition(uid, rawId);
-    });
+    // Step 1: Parse and partition raw import file
+    const { parts, stats } = await step.do(
+      "Partition raw import file",
+      async () => {
+        const { partition } = useImportStore(this.env);
+        return await partition(uid, rawId);
+      },
+    );
 
+    // Step 2: Prepare insert objects for each part (resolve titles)
     for (const partId of parts) {
-      await step.do(`Import part ${partId}`, async () => {
-        console.log(`Importing chunk for user ${uidStr}: ${partId}`);
+      await step.do(`Prepare part ${partId}`, async () => {
+        console.log(`Preparing chunk for user ${uidStr}: ${partId}`);
 
-        const { readPart } = useImportStore(this.env);
-        const stub = getStorageStubAdmin(this.env, uid);
+        const { readPart, writePrepared } = useImportStore(this.env);
         const ky = useBasicKy(this.env);
 
         const part = await readPart(uid, partId);
@@ -42,23 +46,56 @@ export class ImportWorkflow extends WorkflowEntrypoint<
         console.log("Resolving insert items titles");
         const inserts = await processInsert(ky, part.items);
 
-        console.log("Writing insert items into storage");
-        await stub.insert(inserts);
+        console.log("Writing prepared insert items to KV");
+        await writePrepared(uid, partId, inserts);
       });
     }
+
+    // Step 3: Insert all prepared items at once (for accurate deduplication)
+    const { insertedCount } = await step.do("Insert all links", async () => {
+      const { readPrepared } = useImportStore(this.env);
+      const stub = getStorageStubAdmin(this.env, uid);
+
+      // Collect all prepared items from all parts
+      const promises = await Promise.all(
+        parts.map((partId) => readPrepared(uid, partId)),
+      );
+
+      const items = promises.flatMap((p) => p.items);
+
+      console.log(
+        `Inserting ${items.length} items into storage for user ${uidStr}`,
+      );
+      const inserted = await stub.insert(items);
+
+      return {
+        insertedCount: inserted.length,
+      };
+    });
 
     console.log("Import workflow completed. Marking on durable object", {
       uid,
       rawId,
+      stats,
+      insertedCount,
     });
 
     await step.do("Mark import as complete", async () => {
       const stub = getImportStubAdmin(this.env, uid);
       await stub.complete({
         completedAt: Date.now(),
-        count: 0,
-        errors: [],
+        processed: stats.validRows,
+        inserted: insertedCount,
+        errors: stats.parseErrors,
       });
+    });
+
+    await step.do("Clear raw and part data", async () => {
+      const { clearRaw, clearPart, clearPrepared } = useImportStore(this.env);
+
+      await clearRaw(rawId);
+      await clearPart(uid);
+      await clearPrepared(uid);
     });
   }
 }

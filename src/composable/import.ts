@@ -7,6 +7,7 @@ import { MAX_EDIT_OPS } from "../constants";
 import { genSessionID } from "./session/id";
 import dayjs from "dayjs";
 import { chunk } from "es-toolkit/array";
+import type { LinkInsertItem } from "../do/storage";
 
 const RawMetaSchema = z.object({
   uid: z.string(),
@@ -20,13 +21,30 @@ export const PartSchema = z.object({
   items: z.array(InsertSchema),
 });
 
+/**
+ * Schema for prepared insert objects ready for insertion
+ */
+export const PreparedPartSchema = z.object({
+  items: z.array(
+    z.object({
+      title: z.string(),
+      url: z.string(),
+    }),
+  ),
+});
+
 function usePartStore(env: CloudflareBindings) {
   return useKv(env.KV, "import:part", PartSchema, z.undefined());
+}
+
+function usePreparedPartStore(env: CloudflareBindings) {
+  return useKv(env.KV, "import:prepared", PreparedPartSchema, z.undefined());
 }
 
 export function useImportStore(env: CloudflareBindings) {
   const raw = useRawStore(env);
   const part = usePartStore(env);
+  const prepared = usePreparedPartStore(env);
 
   /**
    * Write raw import content (string/file) to KV store
@@ -55,27 +73,31 @@ export function useImportStore(env: CloudflareBindings) {
     });
 
     const result: Array<z.output<typeof InsertSchema>> = [];
+    const errors: string[] = [];
+    // Starts from 1 because we are skipping header row
+    let i = 1;
 
     for (const row of csv) {
+      i++;
       const parsed = InsertSchema.safeParse(row);
       if (!parsed.success) {
-        console.warn(
-          `Skipping invalid row in import file: ${z.prettifyError(parsed.error)}`,
-        );
+        const errorMsg = `Row ${i}: ${z.prettifyError(parsed.error)}`;
+        console.warn(`Skipping invalid row in import file: ${errorMsg}`);
+        errors.push(errorMsg);
         continue;
       }
 
       result.push(parsed.data);
     }
 
-    return result;
+    return { items: result, errors };
   };
 
   /**
    * Parse and partition the import file into parts.
    * Each part should contain up to 30 items, aligning with edit API limit.
    *
-   * @return list of part identifiers (number ID)
+   * @return object containing part IDs and parsing statistics
    */
   const partition = async (uid: UserIdentifier, rawId: string) => {
     const uidStr = uidToString(uid);
@@ -86,7 +108,7 @@ export function useImportStore(env: CloudflareBindings) {
     }
 
     // Parse file content
-    const items = parseFile(body);
+    const { items, errors } = parseFile(body);
 
     // Partition items into chunks of MAX_EDIT_OPS
     const parts: number[] = [];
@@ -104,7 +126,13 @@ export function useImportStore(env: CloudflareBindings) {
       partId++;
     }
 
-    return parts;
+    return {
+      parts,
+      stats: {
+        validRows: items.length,
+        parseErrors: errors,
+      },
+    };
   };
 
   /**
@@ -141,11 +169,50 @@ export function useImportStore(env: CloudflareBindings) {
     await Promise.all(allKeys.map((key) => part.remove(key.name)));
   };
 
+  /**
+   * Write prepared insert items (with resolved titles) to KV store
+   */
+  const writePrepared = async (
+    uid: UserIdentifier,
+    partId: number,
+    items: LinkInsertItem[],
+  ) => {
+    const uidStr = uidToString(uid);
+    await prepared.write({
+      key: `${uidStr}:${partId}`,
+      content: { items },
+    });
+  };
+
+  /**
+   * Read prepared insert items for a specific part
+   */
+  const readPrepared = async (uid: UserIdentifier, partId: number) => {
+    const uidStr = uidToString(uid);
+    const data = await prepared.read(`${uidStr}:${partId}`);
+    if (data == null) {
+      throw new Error(`Prepared import part ${partId} not found`);
+    }
+    return data;
+  };
+
+  /**
+   * Delete all prepared import data for given user
+   */
+  const clearPrepared = async (uid: UserIdentifier) => {
+    const uidStr = uidToString(uid);
+    const allKeys = await prepared.listAll(`${uidStr}:`);
+    await Promise.all(allKeys.map((key) => prepared.remove(key.name)));
+  };
+
   return {
     writeRaw,
     partition,
     readPart,
     clearRaw,
     clearPart,
+    writePrepared,
+    readPrepared,
+    clearPrepared,
   };
 }

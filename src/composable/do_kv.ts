@@ -20,7 +20,20 @@ export function useSingleKV<T extends z.ZodObject>(
       return null;
     }
 
-    return schema.parse(value);
+    const parsed = schema.safeParse(value);
+    if (parsed.success) {
+      return parsed.data;
+    }
+
+    console.warn(
+      `Stored value for key ${key} failed schema validation. Pretending value doesn't exist`,
+      {
+        error: parsed.error,
+        value,
+      },
+    );
+
+    return null;
   };
 
   const put = (value: z.output<T>) => {
