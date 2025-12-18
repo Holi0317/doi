@@ -215,6 +215,29 @@ describe("Link insert", () => {
       ],
     });
   });
+
+  it("should write created_at timestamp", async () => {
+    await testInsert({
+      insert: [
+        {
+          title: "Test with custom timestamp",
+          url: "https://example.com",
+          created_at: 1620000000000,
+        },
+      ],
+      insertResponse: [
+        {
+          id: 1,
+          title: "Test with custom timestamp",
+          url: "https://example.com/",
+          archive: false,
+          favorite: false,
+          note: "",
+          created_at: 1620000000000,
+        },
+      ],
+    });
+  });
 });
 
 describe("HTML title scraping", () => {

@@ -24,8 +24,7 @@ mixin _$SearchQuery implements DiagnosticableTreeMixin {
  bool? get archive;/// Favorite filter.
 /// Null means disable filter. Boolean means the item must be favorited or not favorited.
  bool? get favorite;/// Limit items to return.
- int get limit;/// Order in result. Can only sort by id.
-/// id correlates to created_at timestamp, so this sorting is effectively link insert time.
+ int get limit;/// Order in result. Can only sort by created_at.
  SearchOrder get order;
 /// Create a copy of SearchQuery
 /// with the given fields replaced by the non-null parameter values.
@@ -229,7 +228,7 @@ return $default(_that.query,_that.cursor,_that.archive,_that.favorite,_that.limi
 
 
 class _SearchQuery extends SearchQuery with DiagnosticableTreeMixin {
-  const _SearchQuery({this.query, this.cursor, this.archive, this.favorite, this.limit = 30, this.order = SearchOrder.idDesc}): assert(limit >= 1 && limit <= 300, 'Limit must be between 1 and 300'),super._();
+  const _SearchQuery({this.query, this.cursor, this.archive, this.favorite, this.limit = 30, this.order = SearchOrder.createdAtDesc}): assert(limit >= 1 && limit <= 300, 'Limit must be between 1 and 300'),super._();
   
 
 /// Search query. This will search both title and url.
@@ -247,8 +246,7 @@ class _SearchQuery extends SearchQuery with DiagnosticableTreeMixin {
 @override final  bool? favorite;
 /// Limit items to return.
 @override@JsonKey() final  int limit;
-/// Order in result. Can only sort by id.
-/// id correlates to created_at timestamp, so this sorting is effectively link insert time.
+/// Order in result. Can only sort by created_at.
 @override@JsonKey() final  SearchOrder order;
 
 /// Create a copy of SearchQuery

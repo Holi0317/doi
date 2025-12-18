@@ -83,11 +83,11 @@ class FilterForm extends StatelessWidget {
             child: SegmentedButton<SearchOrder>(
               segments: [
                 ButtonSegment<SearchOrder>(
-                  value: SearchOrder.idDesc,
+                  value: SearchOrder.createdAtDesc,
                   label: Text(t.filter.order.newestFirst),
                 ),
                 ButtonSegment<SearchOrder>(
-                  value: SearchOrder.idAsc,
+                  value: SearchOrder.createdAtAsc,
                   label: Text(t.filter.order.oldestFirst),
                 ),
               ],

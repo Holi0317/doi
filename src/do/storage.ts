@@ -17,7 +17,7 @@ const migrations: DBMigration[] = [
     name: "20250610-create-link",
     script: sql`
 CREATE TABLE link (
-  -- ID/PK of the link. This relates to created_at column.
+  -- ID/PK of the link. This is a tie breaker for links with same created_at timestamp.
   -- On conflict of URL, we will replace (delete and insert) the row and bump ID.
   id integer PRIMARY KEY AUTOINCREMENT,
 
@@ -49,6 +49,12 @@ CREATE INDEX idx_link_archive ON link(archive);
     name: "20250612-add-note-column",
     script: sql`
 ALTER TABLE link ADD COLUMN note text NOT NULL DEFAULT '' CHECK (length(note) <= 4096);
+`,
+  },
+  {
+    name: "20251218-idx-created-at",
+    script: sql`
+CREATE INDEX idx_link_created_at_sort ON link(created_at DESC, id DESC);
 `,
   },
 ];
@@ -153,9 +159,9 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     for (const link of links) {
       const item = this.conn.one(
         IDSchema,
-        sql`INSERT OR REPLACE INTO link (title, url, archive, favorite, note)
-        VALUES (${link.title}, ${link.url}, ${Number(link.archive)}, ${Number(link.favorite)}, ${link.note})
-  RETURNING id;`,
+        sql`INSERT OR REPLACE INTO link (title, url, archive, favorite, note, created_at)
+VALUES (${link.title}, ${link.url}, ${Number(link.archive)}, ${Number(link.favorite)}, ${link.note}, ${link.created_at ?? sql`(unixepoch('now', 'subsec') * 1000)`})
+RETURNING id;`,
       );
 
       if (minID == null) {
@@ -244,6 +250,15 @@ ORDER BY id ASC;
     AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;
 
+    const dir =
+      param.order === "created_at_asc" ? sql.raw("asc") : sql.raw("desc");
+    const comp = param.order === "created_at_asc" ? sql.raw(">") : sql.raw("<");
+
+    const cursorCond =
+      cursor == null
+        ? sql`1=1`
+        : sql`created_at ${comp} ${cursor.created_at} OR (created_at = ${cursor.created_at} AND id ${comp} ${cursor.id})`;
+
     const { count } = this.conn.one(
       CountSchema,
       sql`SELECT COUNT(*) AS count ${frag}`,
@@ -253,8 +268,8 @@ ORDER BY id ASC;
       LinkItemSchema,
       sql`SELECT *
   ${frag}
-  AND (${cursor} IS NULL OR ${cursor} ${param.order === "id_asc" ? sql.raw("<") : sql.raw(">")} link.id)
-ORDER BY id ${param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc")}
+  AND (${cursorCond})
+ORDER BY created_at ${dir}, id ${dir}
 LIMIT ${param.limit + 1}`,
     );
 

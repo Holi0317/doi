@@ -19,7 +19,7 @@ class UnreadPage extends ConsumerStatefulWidget {
 
 class _UnreadPageState extends ConsumerState<UnreadPage> {
   Set<int> _selection = {};
-  SearchOrder _order = SearchOrder.idDesc;
+  SearchOrder _order = SearchOrder.createdAtDesc;
 
   @override
   Widget build(BuildContext context) {
@@ -72,16 +72,18 @@ class _UnreadPageState extends ConsumerState<UnreadPage> {
   Widget _sortAction(BuildContext context) {
     return IconButton(
       icon: Icon(
-        _order == SearchOrder.idAsc ? Icons.arrow_upward : Icons.arrow_downward,
+        _order == SearchOrder.createdAtAsc
+            ? Icons.arrow_upward
+            : Icons.arrow_downward,
       ),
-      tooltip: _order == SearchOrder.idAsc
+      tooltip: _order == SearchOrder.createdAtAsc
           ? t.unread.toggleSortingAsc
           : t.unread.toggleSortingDesc,
       onPressed: () {
         setState(() {
-          _order = _order == SearchOrder.idAsc
-              ? SearchOrder.idDesc
-              : SearchOrder.idAsc;
+          _order = _order == SearchOrder.createdAtAsc
+              ? SearchOrder.createdAtDesc
+              : SearchOrder.createdAtAsc;
         });
       },
     );

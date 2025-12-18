@@ -48,11 +48,10 @@ export const SearchQuerySchema = z.object({
     description: `Limit items to return.`,
   }),
   order: z
-    .literal(["id_asc", "id_desc"])
-    .default("id_desc")
+    .literal(["created_at_asc", "created_at_desc"])
+    .default("created_at_desc")
     .meta({
-      description: `Order in result. Can only sort by id.
-      id correlates to created_at timestamp, so this sorting is effectively link insert time.`,
+      description: "Order in result. Can only sort by created_at",
     }),
 });
 
@@ -66,6 +65,7 @@ export const SearchQuerySchema = z.object({
 export const InsertSchema = z.object({
   title: z.string().nullish(),
   url: zu.httpUrl(),
+  created_at: zu.unixEpochMs().optional(),
   archive: z.boolean().default(false),
   favorite: z.boolean().default(false),
   note: z.string().max(4096).default(""),

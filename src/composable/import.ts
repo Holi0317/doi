@@ -43,8 +43,7 @@ const CsvRowSchema = z.looseObject({
   title: z.string().nullish(),
   url: zu.httpUrl(),
   status: z.string(),
-  // TODO(GH-56): Handle time_added properly
-  time_added: z.string(),
+  time_added: z.coerce.number().pipe(zu.unixEpochSec()),
 });
 
 export function useImportStore(env: CloudflareBindings) {
@@ -104,6 +103,7 @@ export function useImportStore(env: CloudflareBindings) {
       result.push({
         title: title ?? null,
         url,
+        created_at: time_added,
         archive: status === "archive",
         favorite: false,
         note: noteParts.join("\n"),
