@@ -26,6 +26,9 @@ sealed class EditOp with _$EditOp {
   const factory EditOp.insert({
     String? title,
     required String url,
+    bool? archive,
+    bool? favorite,
+    String? note,
     @JsonKey(includeIfNull: false) DateTime? appliedAt,
   }) = EditOpInsert;
 

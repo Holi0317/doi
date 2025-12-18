@@ -9,6 +9,9 @@ part of 'edit_op.dart';
 EditOpInsert _$EditOpInsertFromJson(Map<String, dynamic> json) => EditOpInsert(
   title: json['title'] as String?,
   url: json['url'] as String,
+  archive: json['archive'] as bool?,
+  favorite: json['favorite'] as bool?,
+  note: json['note'] as String?,
   appliedAt: json['appliedAt'] == null
       ? null
       : DateTime.parse(json['appliedAt'] as String),
@@ -19,6 +22,9 @@ Map<String, dynamic> _$EditOpInsertToJson(EditOpInsert instance) =>
     <String, dynamic>{
       'title': instance.title,
       'url': instance.url,
+      'archive': instance.archive,
+      'favorite': instance.favorite,
+      'note': instance.note,
       'appliedAt': ?instance.appliedAt?.toIso8601String(),
       'op': instance.$type,
     };
