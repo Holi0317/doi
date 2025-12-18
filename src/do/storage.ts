@@ -6,6 +6,7 @@ import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
 import type { EditOpSchema, SearchQuerySchema } from "../schemas";
+import { stringify } from "@std/csv";
 
 const migrations: DBMigration[] = [
   {
@@ -278,5 +279,21 @@ LIMIT ${param.limit + 1}`,
        */
       hasMore,
     };
+  }
+
+  /**
+   * Export all stored links as csv
+   */
+  public async export_() {
+    // This loads all items into memory. Might need to test on large database
+    // under worker constraint.
+    const items = this.conn.any(
+      LinkItemSchema,
+      sql`SELECT * FROM link ORDER BY id ASC`,
+    );
+
+    const columns = LinkItemSchema.keyof().options;
+
+    return stringify(items, { columns });
   }
 }

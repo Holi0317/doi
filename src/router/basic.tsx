@@ -49,7 +49,15 @@ const app = new Hono<Env>({ strict: false })
       <Layout title="List">
         <p>Authenticated via GitHub, {user.name}</p>
 
-        {admin && <a href="/admin">Admin console</a>}
+        {admin && (
+          <div>
+            <a href="/admin">Admin console</a>
+          </div>
+        )}
+
+        <div>
+          <a href="/basic/bulk">Import / Export</a>
+        </div>
 
         <InsertForm />
 
@@ -176,6 +184,20 @@ const app = new Hono<Env>({ strict: false })
     });
 
     return c.redirect(`/basic`);
+  })
+
+  .get("/bulk", async (c) => {
+    return c.render(
+      <Layout title="Import / Export">
+        <a href="/basic">Back</a>
+        <h2>Import</h2>
+
+        <h2>Export</h2>
+        <form method="post" action="/api/bulk/export">
+          <input type="submit" value="Export CSV" />
+        </form>
+      </Layout>,
+    );
   });
 
 export default app;
