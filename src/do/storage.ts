@@ -136,7 +136,19 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
    * Insert given links to database
    */
   public insert(links: LinkInsertItem[]) {
-    const inserted: Array<z.infer<typeof IDSchema>> = [];
+    // Collect min/max ID for return value. Assuming:
+    // 1. ID are always increasing (curtesy of AUTOINCREMENT)
+    // 2. There isn't any concurrent insert happening when we start inserting.
+    //    This is guaranteed by DO concurrency model.
+    //
+    // If user is trying to insert the same URL in the same transaction, some ID
+    // will get replaced.
+    //
+    // The only reliable way to detect duplication is to query inserted entities
+    // after insert with `OR REPLACE`. Which we will do by selecting ID range.
+
+    let minID: number | null = null;
+    let maxID: number | null = null;
 
     for (const link of links) {
       const item = this.conn.one(
@@ -145,23 +157,26 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
   RETURNING id;`,
       );
 
-      inserted.push(item);
-    }
+      if (minID == null) {
+        minID = item.id;
+      }
 
-    // If user is trying to insert the same URL in the same transaction, some ID
-    // will get replaced.
-    //
-    // The only reliable way to purge invalid ID in the same transaction is to
-    // use query inserted entities.
+      maxID = item.id;
+    }
 
     // FIXME: Return per-url insert result back to client. Need some way to
     // indicate there was a duplication/replacement on insert process.
+
+    // No insert happened. Probably `links` parameter is empty array.
+    if (minID == null || maxID == null) {
+      return [];
+    }
 
     return this.conn.many(
       LinkItemSchema,
       sql`SELECT *
 FROM link
-WHERE id IN ${sql.in(inserted.map((r) => r.id))}
+WHERE id >= ${minID} AND id <= ${maxID}
 ORDER BY id ASC;
     `,
     );
