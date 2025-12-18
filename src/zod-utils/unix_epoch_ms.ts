@@ -7,7 +7,7 @@ import * as z from "zod";
  * 2025 so it should be fine.
  */
 export const unixEpochMs = () =>
-  z.number().gt(1e12, {
+  z.number().int().positive().gt(1e12, {
     error:
       "Timestamp looks small. Did you pass in epoch in seconds instead of milliseconds?",
   });
