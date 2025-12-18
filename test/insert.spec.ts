@@ -190,6 +190,31 @@ describe("Link insert", () => {
       ],
     });
   });
+
+  it("should write archive/favorite/note fields", async () => {
+    await testInsert({
+      insert: [
+        {
+          title: "Test with all fields",
+          url: "https://example.com",
+          archive: true,
+          favorite: true,
+          note: "This is a test note",
+        },
+      ],
+      insertResponse: [
+        {
+          id: 1,
+          title: "Test with all fields",
+          url: "https://example.com/",
+          archive: true,
+          favorite: true,
+          note: "This is a test note",
+          created_at: expect.any(Number),
+        },
+      ],
+    });
+  });
 });
 
 describe("HTML title scraping", () => {
