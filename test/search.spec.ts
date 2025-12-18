@@ -1,21 +1,26 @@
 import { fetchMock } from "cloudflare:test";
+import type * as z from "zod";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import type { InferRequestType, InferResponseType } from "hono/client";
-import { encodeCursor } from "../src/composable/cursor";
+import type { CursorPayload } from "../src/composable/cursor";
+import { decodeCursor, encodeCursor } from "../src/composable/cursor";
 import type { ClientType } from "./client";
 import { createTestClient } from "./client";
+import type { InsertSchema } from "../src/schemas";
 
 interface TestCase {
-  insert: Array<{
-    title?: string;
-    url: string;
-  }>;
+  insert: Array<z.input<typeof InsertSchema>>;
 
   search: InferRequestType<ClientType["api"]["search"]["$get"]>["query"];
 
   edit?: InferRequestType<ClientType["api"]["edit"]["$post"]>["json"]["op"];
 
-  resp: InferResponseType<ClientType["api"]["search"]["$get"]>;
+  resp: Omit<
+    InferResponseType<ClientType["api"]["search"]["$get"]>,
+    "cursor"
+  > & {
+    cursor: CursorPayload | null;
+  };
 }
 
 async function testInsert(tc: TestCase) {
@@ -47,7 +52,11 @@ async function testInsert(tc: TestCase) {
   });
 
   expect(search.status).toEqual(200);
-  expect(await search.json()).toEqual(tc.resp);
+  const j = await search.json();
+  expect({
+    ...j,
+    cursor: decodeCursor(j.cursor),
+  }).toEqual(tc.resp);
 }
 
 describe("Link search", () => {
@@ -243,9 +252,11 @@ describe("Link search", () => {
   it("sorting should work", async () => {
     await testInsert({
       insert: [
-        { url: "http://1.com", title: "1" },
-        { url: "http://2.com", title: "2" },
-        { url: "http://3.com", title: "3" },
+        // A bit confusing, but created_at is in descending order here.
+        // Expect the response to reverse this order.
+        { url: "http://3.com", title: "3", created_at: 1620000000003 },
+        { url: "http://2.com", title: "2", created_at: 1620000000002 },
+        { url: "http://1.com", title: "1", created_at: 1620000000001 },
       ],
       search: {
         order: "id_asc",
@@ -257,16 +268,16 @@ describe("Link search", () => {
         items: [
           {
             archive: false,
-            created_at: expect.any(Number),
+            created_at: 1620000000001,
             favorite: false,
-            id: 1,
+            id: 3,
             title: "1",
             url: "http://1.com/",
             note: "",
           },
           {
             archive: false,
-            created_at: expect.any(Number),
+            created_at: 1620000000002,
             favorite: false,
             id: 2,
             title: "2",
@@ -275,9 +286,9 @@ describe("Link search", () => {
           },
           {
             archive: false,
-            created_at: expect.any(Number),
+            created_at: 1620000000003,
             favorite: false,
-            id: 3,
+            id: 1,
             title: "3",
             url: "http://3.com/",
             note: "",
@@ -287,21 +298,21 @@ describe("Link search", () => {
     });
   });
 
-  it("limit and cursor should work", async () => {
+  it("limit, cursor and tie breaking should work", async () => {
     await testInsert({
       insert: [
-        { url: "http://1.com", title: "1" },
-        { url: "http://2.com", title: "2" },
-        { url: "http://3.com", title: "3" },
+        { url: "http://1.com", title: "1", created_at: 1620000000000 },
+        { url: "http://2.com", title: "2", created_at: 1620000000000 },
+        { url: "http://3.com", title: "3", created_at: 1620000000000 },
       ],
       search: {
         limit: "1",
-        cursor: encodeCursor(1),
+        cursor: encodeCursor({ id: 1, created_at: 1620000000000 }),
         order: "id_asc",
       },
       resp: {
         count: 3,
-        cursor: encodeCursor(2),
+        cursor: { id: 2, created_at: expect.any(Number) },
         hasMore: true,
         items: [
           {
@@ -321,9 +332,9 @@ describe("Link search", () => {
   it("should ignore cursor if it's invalid", async () => {
     await testInsert({
       insert: [
-        { url: "http://1.com", title: "1" },
-        { url: "http://2.com", title: "2" },
-        { url: "http://3.com", title: "3" },
+        { url: "http://1.com", title: "1", created_at: 1620000000000 },
+        { url: "http://2.com", title: "2", created_at: 1620000000000 },
+        { url: "http://3.com", title: "3", created_at: 1620000000000 },
       ],
       search: {
         limit: "1",
@@ -331,7 +342,10 @@ describe("Link search", () => {
       },
       resp: {
         count: 3,
-        cursor: encodeCursor(3),
+        cursor: {
+          id: 3,
+          created_at: expect.any(Number),
+        },
         hasMore: true,
         items: [
           {
@@ -352,9 +366,10 @@ describe("Link search", () => {
     await testInsert({
       insert: [],
       search: {
-        // Yeah for whatever reason searching by long hex (session hash) causes
-        // "LIKE or GLOB pattern too complex" error in SQLite when using LIKE.
-        // This is to test the new instr-based search method.
+        // There's this "Maximum characters (bytes) in a LIKE or GLOB pattern" limit on durable object.
+        // See https://developers.cloudflare.com/durable-objects/platform/limits/#sql-storage-limits
+        // This is to make sure we are using substring-based search method, or at least
+        // substring search won't blow up on long query string.
         query:
           "1b23827ff2fdd972040369f40878bdb7f0256c5ee759dec7b9cc88d38391f1b2",
       },

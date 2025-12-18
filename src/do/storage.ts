@@ -51,6 +51,12 @@ CREATE INDEX idx_link_archive ON link(archive);
 ALTER TABLE link ADD COLUMN note text NOT NULL DEFAULT '' CHECK (length(note) <= 4096);
 `,
   },
+  {
+    name: "20251218-idx-created-at",
+    script: sql`
+CREATE INDEX idx_link_created_at_sort ON link(created_at DESC, id DESC);
+`,
+  },
 ];
 
 const IDSchema = z.strictObject({
@@ -244,6 +250,14 @@ ORDER BY id ASC;
     AND (${param.favorite ?? null} IS NULL OR ${Number(param.favorite)} = link.favorite)
 `;
 
+    const dir = param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc");
+    const comp = param.order === "id_asc" ? sql.raw(">") : sql.raw("<");
+
+    const cursorCond =
+      cursor == null
+        ? sql`1=1`
+        : sql`created_at ${comp} ${cursor.created_at} OR (created_at = ${cursor.created_at} AND id ${comp} ${cursor.id})`;
+
     const { count } = this.conn.one(
       CountSchema,
       sql`SELECT COUNT(*) AS count ${frag}`,
@@ -253,8 +267,8 @@ ORDER BY id ASC;
       LinkItemSchema,
       sql`SELECT *
   ${frag}
-  AND (${cursor} IS NULL OR ${cursor} ${param.order === "id_asc" ? sql.raw("<") : sql.raw(">")} link.id)
-ORDER BY id ${param.order === "id_asc" ? sql.raw("asc") : sql.raw("desc")}
+  AND (${cursorCond})
+ORDER BY created_at ${dir}, id ${dir}
 LIMIT ${param.limit + 1}`,
     );
 
