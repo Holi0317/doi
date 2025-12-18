@@ -1,11 +1,15 @@
 import { DurableObject } from "cloudflare:workers";
 import * as z from "zod";
-import * as zu from "../zod-utils";
 import type { DBMigration } from "../composable/db_migration";
 import { useDBMigration } from "../composable/db_migration";
 import { sql, useSql } from "../composable/sql";
 import { decodeCursor } from "../composable/cursor";
-import type { EditOpSchema, SearchQuerySchema } from "../schemas";
+import {
+  LinkItemSchema,
+  type EditOpSchema,
+  type LinkInsertItem,
+  type SearchQuerySchema,
+} from "../schemas";
 import { stringify } from "@std/csv";
 
 const migrations: DBMigration[] = [
@@ -49,35 +53,12 @@ ALTER TABLE link ADD COLUMN note text NOT NULL DEFAULT '' CHECK (length(note) <=
   },
 ];
 
-const LinkItemSchema = z.strictObject({
-  id: z.number(),
-  title: z.string(),
-  url: z.string(),
-  favorite: zu.sqlBool(),
-  archive: zu.sqlBool(),
-  created_at: zu.unixEpochMs(),
-  note: z.string(),
-});
-
-export type LinkItem = z.output<typeof LinkItemSchema>;
-
-export interface LinkInsertItem {
-  title: string;
-  url: string;
-}
-
 const IDSchema = z.strictObject({
   id: z.number(),
 });
 
 const CountSchema = z.strictObject({
   count: z.number(),
-});
-
-const InsertedSchema = z.strictObject({
-  id: z.number(),
-  url: z.string(),
-  title: z.string(),
 });
 
 export class StorageDO extends DurableObject<CloudflareBindings> {
@@ -177,8 +158,8 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     // indicate there was a duplication/replacement on insert process.
 
     return this.conn.many(
-      InsertedSchema,
-      sql`SELECT id, url, title
+      LinkItemSchema,
+      sql`SELECT *
 FROM link
 WHERE id IN ${sql.in(inserted.map((r) => r.id))}
 ORDER BY id ASC;

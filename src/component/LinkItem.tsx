@@ -1,4 +1,4 @@
-import type { LinkItem } from "../do/storage";
+import type { LinkItem } from "../schemas";
 import { ButtonLink } from "./ButtonLink";
 
 export interface LinkItemProps {

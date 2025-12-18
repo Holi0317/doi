@@ -60,6 +60,8 @@ async function processHTML(
  *
  * This will still parse HTML document that contains error (>= 400) HTTP status
  * code.
+ *
+ * The return string is limited to 512 characters.
  */
 export async function getHTMLTitle(
   ky: KyInstance,
@@ -84,7 +86,7 @@ export async function getHTMLTitle(
 
   await processHTML(ky, url, rewriter);
 
-  return unescape(title.join("").trim());
+  return unescape(title.join("").trim()).substring(0, 512);
 }
 
 /**

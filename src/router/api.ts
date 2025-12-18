@@ -1,13 +1,8 @@
 import { Hono } from "hono";
-import pLimit from "p-limit";
 import { zv } from "../composable/validator";
 import { getStorageStub } from "../composable/do";
 import { requireSession } from "../composable/session/middleware";
-import {
-  getHTMLTitle,
-  getSocialImageUrl,
-  getFaviconUrl,
-} from "../composable/scraper";
+import { getSocialImageUrl, getFaviconUrl } from "../composable/scraper";
 import { useKy } from "../composable/http";
 import { encodeCursor } from "../composable/cursor";
 import {
@@ -19,7 +14,7 @@ import {
 import { fetchImage, parseAcceptImageFormat } from "../composable/image";
 import { useCache } from "../composable/cache";
 import { getUser } from "../composable/user/getter";
-import { REQUEST_CONCURRENCY } from "./constants";
+import { processInsert } from "../composable/insert";
 
 const app = new Hono<Env>({ strict: false })
   /**
@@ -154,26 +149,12 @@ const app = new Hono<Env>({ strict: false })
 
     const stub = await getStorageStub(c);
     const ky = useKy(c);
-    const limit = pLimit(REQUEST_CONCURRENCY);
 
-    const inserts = body.op.filter((op) => op.op === "insert");
     const edits = body.op.filter((op) => op.op !== "insert");
-
-    const resolved = await limit.map(inserts, async (item) => {
-      if (item.title) {
-        return {
-          title: item.title,
-          url: item.url,
-        };
-      }
-
-      const title = await getHTMLTitle(ky, item.url);
-
-      return {
-        title: title.substring(0, 512),
-        url: item.url,
-      };
-    });
+    const inserts = await processInsert(
+      ky,
+      body.op.filter((op) => op.op === "insert"),
+    );
 
     // Apply edits before inserts. We don't want to allow user to edit newly inserted
     // items by predicting their IDs.
@@ -181,8 +162,8 @@ const app = new Hono<Env>({ strict: false })
       await stub.edit(edits);
     }
 
-    if (resolved.length) {
-      await stub.insert(resolved);
+    if (inserts.length) {
+      await stub.insert(inserts);
     }
 
     return c.text("", 201);

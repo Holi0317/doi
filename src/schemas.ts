@@ -9,6 +9,7 @@
 
 import * as z from "zod";
 import * as zu from "./zod-utils";
+import { MAX_EDIT_OPS } from "./constants";
 
 /**
  * Simple id coerce into a number schema.
@@ -55,11 +56,35 @@ export const SearchQuerySchema = z.object({
     }),
 });
 
+/**
+ * Schema for insert object from client.
+ *
+ * Client actually ships this inside EditOpSchema. However in worker code
+ * we handle insert separately and having a separate type makes it easier for
+ * reference.
+ */
+export const InsertSchema = z.object({
+  title: z.string().nullish(),
+  url: zu.httpUrl(),
+});
+
+/**
+ * Link to be inserted.
+ *
+ * This is basically InsertSchema. However the title needs to be resolved and present.
+ * Use `processInsert` to convert from InsertSchema to this type.
+ */
+export type LinkInsertItem = Omit<z.output<typeof InsertSchema>, "title"> & {
+  title: string;
+};
+
+/**
+ * A single edit operation for stored links.
+ */
 export const EditOpSchema = z.discriminatedUnion("op", [
   z.object({
     op: z.literal("insert"),
-    title: z.string().nullish(),
-    url: zu.httpUrl(),
+    ...InsertSchema.shape,
   }),
   z.object({
     op: z.literal("set_bool"),
@@ -82,20 +107,10 @@ export const EditOpSchema = z.discriminatedUnion("op", [
 export const EditBodySchema = z.object({
   op: z
     .array(EditOpSchema)
-    .min(1, { error: "At least must have an operation" })
-    // Free worker can only have at most 50 subrequests. This counts other
-    // feature like session management before fetching title from url.
-    //
-    // This affects only insert operations where we might need to fetch (subrequest)
-    // the title from the URL. Other operations are just simple DB edits and only
-    // contribute to +1 subrequest limits.
-    //
-    // Choosing 30 here so we are not gonna blow through the subrequests limit.
-    // See https://developers.cloudflare.com/workers/platform/limits/
-    //
-    // If you are using workers paid and needs to bump this limit, open an issue.
-    // I'll figure out how to make this limit dynamic base on actual limit in runtime.
-    .max(30, { error: "At most 30 operations per request" }),
+    .min(1, { error: "At least one operation is required" })
+    .max(MAX_EDIT_OPS, {
+      error: `At most ${MAX_EDIT_OPS} operations per request`,
+    }),
 });
 
 /**
@@ -110,3 +125,21 @@ export const ImageQuerySchema = z.object({
   width: z.coerce.number().positive().optional(),
   height: z.coerce.number().positive().optional(),
 });
+
+/**
+ * Schema for link item stored in database.
+ */
+export const LinkItemSchema = z.strictObject({
+  id: z.number(),
+  title: z.string(),
+  url: z.string(),
+  favorite: zu.sqlBool(),
+  archive: zu.sqlBool(),
+  created_at: zu.unixEpochMs(),
+  note: z.string(),
+});
+
+/**
+ * Type for link item stored in database.
+ */
+export type LinkItem = z.output<typeof LinkItemSchema>;
