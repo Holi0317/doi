@@ -66,6 +66,7 @@ export const SearchQuerySchema = z.object({
 export const InsertSchema = z.object({
   title: z.string().nullish(),
   url: zu.httpUrl(),
+  created_at: zu.unixEpochMs().optional(),
   archive: z.boolean().default(false),
   favorite: z.boolean().default(false),
   note: z.string().max(4096).default(""),

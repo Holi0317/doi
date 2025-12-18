@@ -12,6 +12,9 @@ EditOpInsert _$EditOpInsertFromJson(Map<String, dynamic> json) => EditOpInsert(
   archive: json['archive'] as bool?,
   favorite: json['favorite'] as bool?,
   note: json['note'] as String?,
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
   appliedAt: json['appliedAt'] == null
       ? null
       : DateTime.parse(json['appliedAt'] as String),
@@ -25,6 +28,7 @@ Map<String, dynamic> _$EditOpInsertToJson(EditOpInsert instance) =>
       'archive': instance.archive,
       'favorite': instance.favorite,
       'note': instance.note,
+      'createdAt': instance.createdAt?.toIso8601String(),
       'appliedAt': ?instance.appliedAt?.toIso8601String(),
       'op': instance.$type,
     };

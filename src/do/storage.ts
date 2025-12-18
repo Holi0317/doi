@@ -153,9 +153,9 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     for (const link of links) {
       const item = this.conn.one(
         IDSchema,
-        sql`INSERT OR REPLACE INTO link (title, url, archive, favorite, note)
-        VALUES (${link.title}, ${link.url}, ${Number(link.archive)}, ${Number(link.favorite)}, ${link.note})
-  RETURNING id;`,
+        sql`INSERT OR REPLACE INTO link (title, url, archive, favorite, note, created_at)
+VALUES (${link.title}, ${link.url}, ${Number(link.archive)}, ${Number(link.favorite)}, ${link.note}, ${link.created_at ?? sql`(unixepoch('now', 'subsec') * 1000)`})
+RETURNING id;`,
       );
 
       if (minID == null) {

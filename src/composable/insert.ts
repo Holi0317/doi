@@ -19,22 +19,16 @@ export async function processInsert(
   return await limit.map(inserts, async (item) => {
     if (item.title) {
       return {
+        ...item,
         title: item.title.substring(0, 512),
-        url: item.url,
-        archive: item.archive,
-        favorite: item.favorite,
-        note: item.note,
       };
     }
 
     const title = await getHTMLTitle(ky, item.url);
 
     return {
+      ...item,
       title,
-      url: item.url,
-      archive: item.archive,
-      favorite: item.favorite,
-      note: item.note,
     };
   });
 }
