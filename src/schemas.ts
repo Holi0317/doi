@@ -9,6 +9,7 @@
 
 import * as z from "zod";
 import * as zu from "./zod-utils";
+import { MAX_EDIT_OPS } from "./constants";
 
 /**
  * Simple id coerce into a number schema.
@@ -99,24 +100,6 @@ export const EditOpSchema = z.discriminatedUnion("op", [
   }),
   z.object({ op: z.literal("delete"), id: z.number() }),
 ]);
-
-/**
- * Maximum number of edit operations allowed in a single edit request.
- *
- * Free worker can only have at most 50 subrequests. This counts other
- * feature like session management before fetching title from url.
- *
- * This affects only insert operations where we might need to fetch (subrequest)
- * the title from the URL. Other operations are just simple DB edits and only
- * contribute to +1 subrequest limits.
- *
- * Choosing 30 here so we are not gonna blow through the subrequests limit.
- * See https://developers.cloudflare.com/workers/platform/limits/
- *
- * If you are using workers paid and needs to bump this limit, open an issue.
- * I'll figure out how to make this limit dynamic base on actual limit in runtime.
- */
-export const MAX_EDIT_OPS = 30;
 
 /**
  * JSON body for editing stored links or inserting new items

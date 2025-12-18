@@ -1,6 +1,6 @@
 import type * as z from "zod";
 import pLimit from "p-limit";
-import { REQUEST_CONCURRENCY } from "../router/constants";
+import { REQUEST_CONCURRENCY } from "../constants";
 import type { InsertSchema, LinkInsertItem } from "../schemas";
 import type { KyInstance } from "ky";
 import { getHTMLTitle } from "./scraper";
