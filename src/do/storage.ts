@@ -61,12 +61,6 @@ const CountSchema = z.strictObject({
   count: z.number(),
 });
 
-const InsertedSchema = z.strictObject({
-  id: z.number(),
-  url: z.string(),
-  title: z.string(),
-});
-
 export class StorageDO extends DurableObject<CloudflareBindings> {
   private readonly conn: ReturnType<typeof useSql>;
 
@@ -164,8 +158,8 @@ export class StorageDO extends DurableObject<CloudflareBindings> {
     // indicate there was a duplication/replacement on insert process.
 
     return this.conn.many(
-      InsertedSchema,
-      sql`SELECT id, url, title
+      LinkItemSchema,
+      sql`SELECT *
 FROM link
 WHERE id IN ${sql.in(inserted.map((r) => r.id))}
 ORDER BY id ASC;

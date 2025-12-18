@@ -1,19 +1,14 @@
+import type * as z from "zod";
 import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { createTestClient } from "./client";
+import type { InsertSchema, LinkItem } from "../src/schemas";
 
 describe("Link insert", () => {
   interface TestCase {
-    insert: Array<{
-      title?: string;
-      url: string;
-    }>;
+    insert: Array<z.input<typeof InsertSchema>>;
 
-    insertResponse: Array<{
-      id: number;
-      title: string;
-      url: string;
-    }>;
+    insertResponse: LinkItem[];
   }
 
   async function testInsert(tc: TestCase) {
@@ -30,12 +25,7 @@ describe("Link insert", () => {
     const search = await client.api.search.$get({ query: {} });
     expect(search.status).toEqual(200);
     const j = await search.json();
-    const items = j.items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      url: item.url,
-    }));
-    expect(items).toEqual(tc.insertResponse);
+    expect(j.items).toEqual(tc.insertResponse);
   }
 
   beforeAll(() => {
@@ -48,7 +38,17 @@ describe("Link insert", () => {
   it("should insert link and store it", async () => {
     await testInsert({
       insert: [{ title: "asdf", url: "https://google.com" }],
-      insertResponse: [{ id: 1, title: "asdf", url: "https://google.com/" }],
+      insertResponse: [
+        {
+          id: 1,
+          title: "asdf",
+          url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
+        },
+      ],
     });
   });
 
@@ -68,6 +68,10 @@ describe("Link insert", () => {
           id: 1,
           title: "You should still use this 404 title",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -81,6 +85,10 @@ describe("Link insert", () => {
           id: 1,
           title: "",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -94,6 +102,10 @@ describe("Link insert", () => {
           id: 1,
           title: "first",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -105,6 +117,10 @@ describe("Link insert", () => {
           id: 2,
           title: "second",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -122,6 +138,10 @@ describe("Link insert", () => {
           id: 2,
           title: "second",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -140,6 +160,10 @@ describe("Link insert", () => {
           id: 1,
           title: "asdf",
           url: "https://google.com/?query=123&query=456",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
@@ -158,6 +182,10 @@ describe("Link insert", () => {
           id: 1,
           title: "asdf",
           url: "https://google.com/",
+          archive: false,
+          favorite: false,
+          created_at: expect.any(Number),
+          note: "",
         },
       ],
     });
