@@ -190,7 +190,7 @@ return delete(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note,  DateTime? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  insert,TResult Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setBool,TResult Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setString,TResult Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  delete,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  insert,TResult Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setBool,TResult Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setString,TResult Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  delete,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case EditOpInsert() when insert != null:
 return insert(_that.title,_that.url,_that.archive,_that.favorite,_that.note,_that.createdAt,_that.appliedAt);case EditOpSetBool() when setBool != null:
@@ -214,7 +214,7 @@ return delete(_that.id,_that.appliedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note,  DateTime? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  insert,required TResult Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  setBool,required TResult Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  setString,required TResult Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  delete,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  insert,required TResult Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  setBool,required TResult Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  setString,required TResult Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)  delete,}) {final _that = this;
 switch (_that) {
 case EditOpInsert():
 return insert(_that.title,_that.url,_that.archive,_that.favorite,_that.note,_that.createdAt,_that.appliedAt);case EditOpSetBool():
@@ -234,7 +234,7 @@ return delete(_that.id,_that.appliedAt);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note,  DateTime? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  insert,TResult? Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setBool,TResult? Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setString,TResult? Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  delete,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? title,  String url,  bool? archive,  bool? favorite,  String? note, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  insert,TResult? Function( int id,  EditOpBoolField field,  bool value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setBool,TResult? Function( int id,  EditOpStringField field,  String value, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  setString,TResult? Function( int id, @JsonKey(includeIfNull: false)  DateTime? appliedAt)?  delete,}) {final _that = this;
 switch (_that) {
 case EditOpInsert() when insert != null:
 return insert(_that.title,_that.url,_that.archive,_that.favorite,_that.note,_that.createdAt,_that.appliedAt);case EditOpSetBool() when setBool != null:
@@ -252,7 +252,7 @@ return delete(_that.id,_that.appliedAt);case _:
 @JsonSerializable()
 
 class EditOpInsert extends EditOp {
-  const EditOpInsert({this.title, required this.url, this.archive, this.favorite, this.note, this.createdAt, @JsonKey(includeIfNull: false) this.appliedAt, final  String? $type}): $type = $type ?? 'insert',super._();
+  const EditOpInsert({this.title, required this.url, this.archive, this.favorite, this.note, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(includeIfNull: false) this.appliedAt, final  String? $type}): $type = $type ?? 'insert',super._();
   factory EditOpInsert.fromJson(Map<String, dynamic> json) => _$EditOpInsertFromJson(json);
 
  final  String? title;
@@ -260,7 +260,7 @@ class EditOpInsert extends EditOp {
  final  bool? archive;
  final  bool? favorite;
  final  String? note;
- final  DateTime? createdAt;
+@JsonKey(name: 'created_at') final  int? createdAt;
 @override@JsonKey(includeIfNull: false) final  DateTime? appliedAt;
 
 @JsonKey(name: 'op')
@@ -300,7 +300,7 @@ abstract mixin class $EditOpInsertCopyWith<$Res> implements $EditOpCopyWith<$Res
   factory $EditOpInsertCopyWith(EditOpInsert value, $Res Function(EditOpInsert) _then) = _$EditOpInsertCopyWithImpl;
 @override @useResult
 $Res call({
- String? title, String url, bool? archive, bool? favorite, String? note, DateTime? createdAt,@JsonKey(includeIfNull: false) DateTime? appliedAt
+ String? title, String url, bool? archive, bool? favorite, String? note,@JsonKey(name: 'created_at') int? createdAt,@JsonKey(includeIfNull: false) DateTime? appliedAt
 });
 
 
@@ -325,7 +325,7 @@ as String,archive: freezed == archive ? _self.archive : archive // ignore: cast_
 as bool?,favorite: freezed == favorite ? _self.favorite : favorite // ignore: cast_nullable_to_non_nullable
 as bool?,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,appliedAt: freezed == appliedAt ? _self.appliedAt : appliedAt // ignore: cast_nullable_to_non_nullable
+as int?,appliedAt: freezed == appliedAt ? _self.appliedAt : appliedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
