@@ -189,6 +189,7 @@ const app = new Hono<Env>({ strict: false })
   .get("/bulk", async (c) => {
     return c.render(
       <Layout title="Import / Export">
+        <a href="/basic">Back</a>
         <h2>Import</h2>
 
         <h2>Export</h2>
