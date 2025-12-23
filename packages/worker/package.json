@@ -7,6 +7,12 @@
     "typecheck": "tsc -noEmit",
     "test": "vitest"
   },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
     "@std/csv": "jsr:^1.0.6",

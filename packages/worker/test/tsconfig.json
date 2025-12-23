@@ -6,7 +6,6 @@
       "../worker-configuration.d.ts",
       "../types.d.ts"
     ],
-    "composite": true,
     "rootDir": ".",
     "outDir": "./dist"
   },
