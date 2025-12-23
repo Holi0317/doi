@@ -4,7 +4,7 @@ import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import type { InferRequestType, InferResponseType } from "hono/client";
 import type { CursorPayload } from "../src/composable/cursor";
 import { decodeCursor, encodeCursor } from "../src/composable/cursor";
-import type { ClientType } from "./client";
+import type { ClientType } from "../src/client";
 import { createTestClient } from "./client";
 import type { InsertSchema } from "../src/schemas";
 
