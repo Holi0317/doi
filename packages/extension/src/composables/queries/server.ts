@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/vue-query";
-import { useConfigQuery } from "./server-config";
+import { useServerClientQuery } from "./config";
 import { computed } from "vue";
 
 const keys = {
@@ -8,28 +8,20 @@ const keys = {
 };
 
 export function useServerInfoQuery() {
-  const { data } = useConfigQuery();
-  const enabled = computed(() => !!data.value?.serverUrl);
+  const { data } = useServerClientQuery();
+  const enabled = computed(() => data.value != null);
 
   return useQuery({
     queryKey: keys.info(),
     enabled,
     async queryFn() {
-      const serverUrl = data.value?.serverUrl;
-      if (!serverUrl) {
+      const client = data.value;
+      if (client == null) {
         throw new Error("Server URL is not configured");
       }
 
-      const response = await fetch(`${serverUrl}/api`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
-
-      return await response.json();
+      const resp = await client.api.$get();
+      return await resp.json();
     },
   });
 }

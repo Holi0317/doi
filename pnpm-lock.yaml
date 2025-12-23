@@ -52,6 +52,9 @@ importers:
 
   packages/extension:
     dependencies:
+      '@haudoi/worker':
+        specifier: link:../worker
+        version: link:../worker
       '@tanstack/vue-query':
         specifier: ^5.92.1
         version: 5.92.1(vue@3.5.26(typescript@5.9.3))

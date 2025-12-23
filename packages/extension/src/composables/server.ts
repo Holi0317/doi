@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/vue-query";
-import { useConfigMutation, useConfigQuery } from "./queries/server-config";
+import { useConfigMutation, useServerClientQuery } from "./queries/config";
+import { createClient } from "@haudoi/worker/client";
 import { browser } from "#imports";
 
 export function useServerSetup() {
@@ -28,10 +29,12 @@ export function useServerSetup() {
         "Permission granted for origin. Validating server:",
         normalizedUrl,
       );
-      const response = await fetch(`${normalizedUrl}/api`, {
-        method: "GET",
-        credentials: "include",
+
+      const client = createClient(normalizedUrl, {
+        init: { credentials: "include" },
       });
+
+      const response = await client.api.$get();
 
       if (!response.ok) {
         throw new Error(
@@ -55,19 +58,17 @@ export function useServerSetup() {
 }
 
 export function useServerLogin() {
-  const config = useConfigQuery();
+  const { data } = useServerClientQuery();
 
   const login = () => {
-    const serverUrl = config.data.value?.serverUrl;
-    if (!serverUrl) {
+    if (data.value == null) {
       throw new Error("Server URL is not configured");
     }
 
-    const loginUrl = new URL("/auth/login", serverUrl);
-    loginUrl.searchParams.set("redirect", "popup");
+    const loginUrl = data.value.auth.github.login.$url();
 
     browser.tabs.create({
-      url: `${serverUrl}/auth/github/login`,
+      url: loginUrl.toString(),
     });
 
     // Close popup - user will come back after login

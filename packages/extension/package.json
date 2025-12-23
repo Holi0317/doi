@@ -16,6 +16,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@haudoi/worker": "link:../worker",
     "@tanstack/vue-query": "^5.92.1",
     "vue": "^3.5.25",
     "vue-router": "^4.6.4"

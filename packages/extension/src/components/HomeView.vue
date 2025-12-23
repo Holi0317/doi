@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import { useRouter } from "vue-router";
-import { useConfigQuery } from "@/composables/queries/server-config";
+import { useConfigQuery } from "@/composables/queries/config";
 
 const router = useRouter();
 const config = useConfigQuery();
