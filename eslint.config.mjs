@@ -22,6 +22,7 @@ export default defineConfig(
       "node_modules/",
       "packages/worker/.wrangler/",
       "packages/worker/worker-configuration.d.ts",
+      "packages/worker/src/client/build/",
       "packages/extension/.wxt/",
       "packages/extension/.output/",
     ],

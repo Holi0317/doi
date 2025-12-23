@@ -1,6 +1,6 @@
 import type { ClientRequestOptions } from "hono/client";
 import { hc } from "hono/client";
-import type { AppType } from "./router";
+import type { AppType } from "../router";
 
 /**
  * Typescript type for the worker app router.
