@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "wxt";
 
 // See https://wxt.dev/api/config.html
@@ -5,6 +6,9 @@ export default defineConfig({
   modules: ["@wxt-dev/module-vue"],
   srcDir: "src",
   imports: false,
+  vite: () => ({
+    plugins: [tailwindcss()],
+  }),
   manifest: ({ manifestVersion }) => ({
     name: "Haudoi",
     description: "Save links to your Haudoi server",

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Message from "primevue/message";
 import { useServerSetup, useServerLogin } from "@/composables/server";
 
 const input = ref("");
@@ -21,25 +24,41 @@ watch(setup.data, (res) => {
 </script>
 
 <template>
-  <form class="setup-form" @submit.prevent="setup.mutate(input)">
-    <div class="form-group">
-      <label>
-        Server URL
-
-        <input
-          v-model="input"
-          type="url"
-          placeholder="https://your-server.worker.dev"
-          :disabled="setup.isPending.value"
-        />
-      </label>
+  <form
+    class="flex justify-center flex-col gap-4"
+    @submit.prevent="setup.mutate(input)"
+  >
+    <div class="flex flex-col gap-2">
+      <label for="url">Server URL</label>
+      <InputText
+        id="url"
+        v-model="input"
+        name="url"
+        type="url"
+        placeholder="https://your-server.worker.dev"
+        :disabled="setup.isPending.value"
+      />
+      <Message size="small" severity="secondary" variant="simple">
+        Enter your haudoi server url. You can find that in server frontpage.
+      </Message>
     </div>
-    <button class="primary" type="submit" :disabled="setup.isPending.value">
-      Connect
-    </button>
 
-    <p v-if="setup.error.value" class="error-message">
+    <Button label="Connect" type="submit" :loading="setup.isPending.value" />
+
+    <Message
+      v-if="setup.isPending.value"
+      severity="info"
+      icon="pi pi-info-circle"
+    >
+      Press "allow" in the permission prompt to continue.
+    </Message>
+
+    <Message
+      v-if="setup.error.value"
+      severity="error"
+      icon="pi pi-times-circle"
+    >
       {{ setup.error.value.message }}
-    </p>
+    </Message>
   </form>
 </template>
