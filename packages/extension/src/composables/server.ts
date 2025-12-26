@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/vue-query";
-import { useConfigMutation, useServerClientQuery } from "./queries/config";
+import { useConfigMutation, useConfigQuery } from "./queries/config";
 import { createClient } from "@haudoi/worker/client";
-import { browser } from "#imports";
+import { browser, computed } from "#imports";
 
 export function useServerSetup() {
   const config = useConfigMutation();
@@ -57,15 +57,39 @@ export function useServerSetup() {
   });
 }
 
+/**
+ * Get hono client for configured server URL.
+ *
+ * If server URL is not configured, computes to null.
+ *
+ * This isn't using tanstack query. For whatever reason, if we `select` a client from
+ * a query, the client ends up being broken with incorrect call paths and generating wrong request URLs.
+ * Probably something to do with Proxy and structured sharing, or vue's reactivity system.
+ */
+export function useServerClient() {
+  const { data } = useConfigQuery();
+
+  return computed(() => {
+    const url = data.value?.serverUrl;
+    if (!url) {
+      return null;
+    }
+
+    return createClient(url, {
+      init: { credentials: "include" },
+    });
+  });
+}
+
 export function useServerLogin() {
-  const { data } = useServerClientQuery();
+  const client = useServerClient();
 
   const login = () => {
-    if (data.value == null) {
+    if (client.value == null) {
       throw new Error("Server URL is not configured");
     }
 
-    const loginUrl = data.value.auth.github.login.$url();
+    const loginUrl = client.value.auth.github.login.$url();
 
     browser.tabs.create({
       url: loginUrl.toString(),

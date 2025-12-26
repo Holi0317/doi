@@ -1,10 +1,24 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { createClient } from "@haudoi/worker/client";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/vue-query";
 import { useExtLocalStorage } from "../storage";
 
 const keys = {
   root: () => [{ scope: "storage.local" }] as const,
   config: () => [{ ...keys.root()[0], key: "config" }] as const,
+};
+
+const queries = {
+  config: () =>
+    queryOptions({
+      queryKey: keys.config(),
+      async queryFn() {
+        return await storage.get();
+      },
+    }),
 };
 
 export interface ServerConfig {
@@ -16,30 +30,7 @@ const storage = useExtLocalStorage<ServerConfig>("config", () => ({
 }));
 
 export function useConfigQuery() {
-  return useQuery({
-    queryKey: keys.config(),
-    async queryFn() {
-      return await storage.get();
-    },
-  });
-}
-
-export function useServerClientQuery() {
-  return useQuery({
-    queryKey: keys.config(),
-    async queryFn() {
-      return await storage.get();
-    },
-    select(config) {
-      if (!config.serverUrl) {
-        return null;
-      }
-
-      return createClient(config.serverUrl, {
-        init: { credentials: "include" },
-      });
-    },
-  });
+  return useQuery(queries.config());
 }
 
 export function useConfigMutation() {
