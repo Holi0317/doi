@@ -192,8 +192,12 @@ declare const app: hono_hono_base0.HonoBase<Env, hono_types1.BlankSchema | hono_
           })[];
         };
       };
-      output: "";
-      outputFormat: "text";
+      output: {
+        insert: {
+          ids: number[];
+        };
+      };
+      outputFormat: "json";
       status: 201;
     };
   };
@@ -287,7 +291,11 @@ declare const app: hono_hono_base0.HonoBase<Env, hono_types1.BlankSchema | hono_
           url: string;
         };
       };
-      output: never;
+      output: {
+        insert: {
+          ids: number[];
+        };
+      };
       outputFormat: "json";
       status: 201;
     };
@@ -725,8 +733,12 @@ declare function createClient<Prefix extends string = string>(baseUrl: Prefix, o
             })[];
           };
         };
-        output: "";
-        outputFormat: "text";
+        output: {
+          insert: {
+            ids: number[];
+          };
+        };
+        outputFormat: "json";
         status: 201;
       };
     }>;
@@ -869,7 +881,11 @@ declare function createClient<Prefix extends string = string>(baseUrl: Prefix, o
             url: string;
           };
         };
-        output: never;
+        output: {
+          insert: {
+            ids: number[];
+          };
+        };
         outputFormat: "json";
         status: 201;
       };
