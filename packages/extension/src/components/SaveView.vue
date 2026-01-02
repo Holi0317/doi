@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
+import DeleteLinkButton from "./DeleteLinkButton.vue";
+import SettingCog from "./SettingCog.vue";
 import { useCurrentTab } from "@/composables/queries/tab";
 import { useSaveMutation } from "@/composables/queries/server";
 
@@ -49,20 +51,11 @@ const retry = () => {
     title: tab.title,
   });
 };
-
-/*
-Handle following cases:
-
-- Server not configured: Button to redirect to setup page. (Normally user won't see this page as they will be redirected to setup page automatically)
-- currentTab is not available
-- currentTab is invalid (non-http URL)
-- Save the link automatically
-- Server not authenticated / not reachable / error (via link saving response). Show retry and redirect to setup options
-- Success message, delete button for saved link (mistake save)
-*/
 </script>
 
 <template>
+  <SettingCog />
+
   <div v-if="tabQuery.isLoading.value">Loading...</div>
 
   <div v-else-if="mutation.error.value != null">
@@ -77,10 +70,13 @@ Handle following cases:
 
   <div v-else-if="mutation.isPending.value">Saving link...</div>
 
-  <div v-else-if="mutation.isSuccess.value">
-    <p>Link saved successfully!</p>
+  <div v-else-if="mutation.isSuccess.value && mutation.data.value != null">
+    <p>
+      <i class="pi pi-check text-green-500"></i>
+      Link saved successfully!
+    </p>
 
-    <!-- TODO: Link to server, and delete saved link -->
+    <DeleteLinkButton :id="mutation.data.value" />
   </div>
 
   <div v-else>

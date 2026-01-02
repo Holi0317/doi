@@ -1,10 +1,13 @@
 import { useMutation } from "@tanstack/vue-query";
 import { useConfigMutation, useConfigQuery } from "./queries/config";
 import { createClient } from "@haudoi/worker/client";
+import { useRouter } from "vue-router";
 import { browser, computed } from "#imports";
 
 export function useServerSetup() {
   const config = useConfigMutation();
+  const { login } = useServerLogin();
+  const router = useRouter();
 
   return useMutation({
     async mutationFn(url: string) {
@@ -50,9 +53,13 @@ export function useServerSetup() {
 
       await config.mutateAsync({ serverUrl: normalizedUrl });
 
-      return {
-        authenticated: info.session != null,
-      };
+      if (info.session == null) {
+        console.info("User is not authenticated. Opening login page.");
+        login();
+      } else {
+        console.info("User is already authenticated. Redirecting to main app.");
+        router.push("/");
+      }
     },
   });
 }

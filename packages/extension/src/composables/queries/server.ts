@@ -34,9 +34,33 @@ export function useSaveMutation() {
         throw new Error("Server URL is not configured");
       }
 
-      await client.value.api.edit.$post({
+      const resp = await client.value.api.edit.$post({
         json: {
           op: [{ op: "insert", url: payload.url, title: payload.title }],
+        },
+      });
+
+      const data = await resp.json();
+
+      // We only have a single edit operation. So there should be only a single ID inserted.
+      const id = data.insert.ids[0];
+      return id;
+    },
+  });
+}
+
+export function useDeleteMutation() {
+  const client = useServerClient();
+
+  return useMutation({
+    async mutationFn(id: number) {
+      if (client.value == null) {
+        throw new Error("Server URL is not configured");
+      }
+
+      await client.value.api.edit.$post({
+        json: {
+          op: [{ op: "delete", id }],
         },
       });
     },
