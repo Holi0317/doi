@@ -44,7 +44,7 @@ const validUrl = (url: string) => {
     <form.Field
       name="url"
       :validators="{
-        onChange: ({ value }) =>
+        onBlur: ({ value }) =>
           validUrl(value)
             ? null
             : 'Invalid URL. Please enter a valid http(s) URL.',
