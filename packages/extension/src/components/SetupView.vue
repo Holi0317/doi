@@ -76,7 +76,12 @@ const validUrl = (url: string) => {
       </template>
     </form.Field>
 
-    <Button label="Connect" type="submit" :loading="setup.isPending.value" />
+    <Button
+      label="Connect"
+      icon="pi pi-sign-in"
+      type="submit"
+      :loading="setup.isPending.value"
+    />
 
     <Message
       v-if="setup.isPending.value"
