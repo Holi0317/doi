@@ -68,6 +68,9 @@ jobs:
       - name: Check formatting with Prettier
         run: pnpm fmt --check
 
+      - name: Typescript type check
+        run: pnpm typecheck
+
   dart:
     runs-on: ubuntu-latest
     steps:
