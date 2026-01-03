@@ -11,7 +11,7 @@ part of 'shared_preferences.dart';
 /// Underlying SharedPreferences singleton.
 
 @ProviderFor(_sharedPreferences)
-const _sharedPreferencesProvider = _SharedPreferencesProvider._();
+final _sharedPreferencesProvider = _SharedPreferencesProvider._();
 
 /// Underlying SharedPreferences singleton.
 
@@ -26,7 +26,7 @@ final class _SharedPreferencesProvider
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
   /// Underlying SharedPreferences singleton.
-  const _SharedPreferencesProvider._()
+  _SharedPreferencesProvider._()
     : super(
         from: null,
         argument: null,
@@ -56,11 +56,11 @@ String _$_sharedPreferencesHash() =>
     r'2522b63a74451e60cc7b6b1e3b029adb36117950';
 
 @ProviderFor(Preference)
-const preferenceProvider = PreferenceFamily._();
+final preferenceProvider = PreferenceFamily._();
 
 final class PreferenceProvider
     extends $AsyncNotifierProvider<Preference, String> {
-  const PreferenceProvider._({
+  PreferenceProvider._({
     required PreferenceFamily super.from,
     required SharedPreferenceKey super.argument,
   }) : super(
@@ -107,7 +107,7 @@ final class PreferenceFamily extends $Family
           FutureOr<String>,
           SharedPreferenceKey
         > {
-  const PreferenceFamily._()
+  PreferenceFamily._()
     : super(
         retry: null,
         name: r'preferenceProvider',
@@ -131,7 +131,6 @@ abstract class _$Preference extends $AsyncNotifier<String> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args);
     final ref = this.ref as $Ref<AsyncValue<String>, String>;
     final element =
         ref.element
@@ -141,6 +140,6 @@ abstract class _$Preference extends $AsyncNotifier<String> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, () => build(_$args));
   }
 }

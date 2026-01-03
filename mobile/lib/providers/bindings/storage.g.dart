@@ -11,7 +11,7 @@ part of 'storage.dart';
 /// SQFlite-based persistent storage for Riverpod state persistence.
 
 @ProviderFor(storage)
-const storageProvider = StorageProvider._();
+final storageProvider = StorageProvider._();
 
 /// SQFlite-based persistent storage for Riverpod state persistence.
 
@@ -26,7 +26,7 @@ final class StorageProvider
         $FutureModifier<Storage<String, String>>,
         $FutureProvider<Storage<String, String>> {
   /// SQFlite-based persistent storage for Riverpod state persistence.
-  const StorageProvider._()
+  StorageProvider._()
     : super(
         from: null,
         argument: null,

@@ -10,7 +10,7 @@ part of 'share_handler.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(_shareHandlerPlatform)
-const _shareHandlerPlatformProvider = _ShareHandlerPlatformProvider._();
+final _shareHandlerPlatformProvider = _ShareHandlerPlatformProvider._();
 
 final class _ShareHandlerPlatformProvider
     extends
@@ -20,7 +20,7 @@ final class _ShareHandlerPlatformProvider
           ShareHandlerPlatform
         >
     with $Provider<ShareHandlerPlatform> {
-  const _ShareHandlerPlatformProvider._()
+  _ShareHandlerPlatformProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,7 @@ String _$_shareHandlerPlatformHash() =>
 /// Currently this means links shared to the app.
 
 @ProviderFor(sharedMedia)
-const sharedMediaProvider = SharedMediaProvider._();
+final sharedMediaProvider = SharedMediaProvider._();
 
 /// Stream of shared media received.
 ///
@@ -79,7 +79,7 @@ final class SharedMediaProvider
   /// Stream of shared media received.
   ///
   /// Currently this means links shared to the app.
-  const SharedMediaProvider._()
+  SharedMediaProvider._()
     : super(
         from: null,
         argument: null,

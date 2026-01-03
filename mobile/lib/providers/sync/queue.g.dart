@@ -27,7 +27,7 @@ part of 'queue.dart';
 
 @ProviderFor(EditQueue)
 @JsonPersist()
-const editQueueProvider = EditQueueProvider._();
+final editQueueProvider = EditQueueProvider._();
 
 /// A queue (fifo) of edit operations [EditOp] to be performed when online.
 ///
@@ -64,7 +64,7 @@ final class EditQueueProvider
   /// Main reason for this is riverpod have no way to await for invalidation to complete,
   /// so if we remove the operation from the queue immediately after applying it,
   /// the query may refresh before the optimistic update is applied, causing a flicker in the UI.
-  const EditQueueProvider._()
+  EditQueueProvider._()
     : super(
         from: null,
         argument: null,
@@ -116,7 +116,6 @@ abstract class _$EditQueueBase extends $Notifier<List<EditOp>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<List<EditOp>, List<EditOp>>;
     final element =
         ref.element
@@ -126,7 +125,7 @@ abstract class _$EditQueueBase extends $Notifier<List<EditOp>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
@@ -134,7 +133,7 @@ abstract class _$EditQueueBase extends $Notifier<List<EditOp>> {
 /// This will exclude insert operations since they don't have an associated id.
 
 @ProviderFor(editQueueById)
-const editQueueByIdProvider = EditQueueByIdProvider._();
+final editQueueByIdProvider = EditQueueByIdProvider._();
 
 /// Map view for [EditQueue].
 /// This will exclude insert operations since they don't have an associated id.
@@ -149,7 +148,7 @@ final class EditQueueByIdProvider
     with $Provider<Map<int, List<EditOp>>> {
   /// Map view for [EditQueue].
   /// This will exclude insert operations since they don't have an associated id.
-  const EditQueueByIdProvider._()
+  EditQueueByIdProvider._()
     : super(
         from: null,
         argument: null,
@@ -188,7 +187,7 @@ String _$editQueueByIdHash() => r'd2bb156f489018de855422f0698a1f84850ddd77';
 /// List of pending (not yet applied) edit operations.
 
 @ProviderFor(editQueuePending)
-const editQueuePendingProvider = EditQueuePendingProvider._();
+final editQueuePendingProvider = EditQueuePendingProvider._();
 
 /// List of pending (not yet applied) edit operations.
 
@@ -196,7 +195,7 @@ final class EditQueuePendingProvider
     extends $FunctionalProvider<List<EditOp>, List<EditOp>, List<EditOp>>
     with $Provider<List<EditOp>> {
   /// List of pending (not yet applied) edit operations.
-  const EditQueuePendingProvider._()
+  EditQueuePendingProvider._()
     : super(
         from: null,
         argument: null,

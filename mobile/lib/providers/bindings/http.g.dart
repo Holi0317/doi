@@ -10,12 +10,12 @@ part of 'http.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(httpClient)
-const httpClientProvider = HttpClientProvider._();
+final httpClientProvider = HttpClientProvider._();
 
 final class HttpClientProvider
     extends $FunctionalProvider<http.Client, http.Client, http.Client>
     with $Provider<http.Client> {
-  const HttpClientProvider._()
+  HttpClientProvider._()
     : super(
         from: null,
         argument: null,

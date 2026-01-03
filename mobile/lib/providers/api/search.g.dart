@@ -11,7 +11,7 @@ part of 'search.dart';
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 
 @ProviderFor(searchApplied)
-const searchAppliedProvider = SearchAppliedFamily._();
+final searchAppliedProvider = SearchAppliedFamily._();
 
 /// Combines [search] with [EditQueue] to apply pending edits to search results.
 
@@ -24,7 +24,7 @@ final class SearchAppliedProvider
         >
     with $Provider<AsyncValue<SearchResponse>> {
   /// Combines [search] with [EditQueue] to apply pending edits to search results.
-  const SearchAppliedProvider._({
+  SearchAppliedProvider._({
     required SearchAppliedFamily super.from,
     required SearchQuery super.argument,
   }) : super(
@@ -82,7 +82,7 @@ String _$searchAppliedHash() => r'f6087ef5e931023743d11e790e24ca3d4c0f8d96';
 
 final class SearchAppliedFamily extends $Family
     with $FunctionalFamilyOverride<AsyncValue<SearchResponse>, SearchQuery> {
-  const SearchAppliedFamily._()
+  SearchAppliedFamily._()
     : super(
         retry: null,
         name: r'searchAppliedProvider',
@@ -112,7 +112,7 @@ final class SearchAppliedFamily extends $Family
 /// WARN: [cursors] list must be immutable for riverpod's change detection to work.
 
 @ProviderFor(searchPaginated)
-const searchPaginatedProvider = SearchPaginatedFamily._();
+final searchPaginatedProvider = SearchPaginatedFamily._();
 
 /// Search and paginate result. Returning PagingState for infinite_scroll_pagination package.
 ///
@@ -143,7 +143,7 @@ final class SearchPaginatedProvider
   /// string here as filler. This provider will assert that all cursors are non-empty string.
   ///
   /// WARN: [cursors] list must be immutable for riverpod's change detection to work.
-  const SearchPaginatedProvider._({
+  SearchPaginatedProvider._({
     required SearchPaginatedFamily super.from,
     required (SearchQuery, List<String>) super.argument,
   }) : super(
@@ -214,7 +214,7 @@ final class SearchPaginatedFamily extends $Family
           PagingState<String, Link>,
           (SearchQuery, List<String>)
         > {
-  const SearchPaginatedFamily._()
+  SearchPaginatedFamily._()
     : super(
         retry: null,
         name: r'searchPaginatedProvider',

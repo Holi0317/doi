@@ -10,7 +10,7 @@ part of 'api.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(apiRepository)
-const apiRepositoryProvider = ApiRepositoryProvider._();
+final apiRepositoryProvider = ApiRepositoryProvider._();
 
 final class ApiRepositoryProvider
     extends
@@ -20,7 +20,7 @@ final class ApiRepositoryProvider
           FutureOr<ApiRepository>
         >
     with $FutureModifier<ApiRepository>, $FutureProvider<ApiRepository> {
-  const ApiRepositoryProvider._()
+  ApiRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,11 +49,11 @@ final class ApiRepositoryProvider
 String _$apiRepositoryHash() => r'21919f719df517746b7d37a268d7045d48eb84dd';
 
 @ProviderFor(AuthState)
-const authStateProvider = AuthStateProvider._();
+final authStateProvider = AuthStateProvider._();
 
 final class AuthStateProvider
     extends $NotifierProvider<AuthState, AuthStateEnum> {
-  const AuthStateProvider._()
+  AuthStateProvider._()
     : super(
         from: null,
         argument: null,
@@ -87,7 +87,6 @@ abstract class _$AuthState extends $Notifier<AuthStateEnum> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AuthStateEnum, AuthStateEnum>;
     final element =
         ref.element
@@ -97,12 +96,12 @@ abstract class _$AuthState extends $Notifier<AuthStateEnum> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(serverInfo)
-const serverInfoProvider = ServerInfoProvider._();
+final serverInfoProvider = ServerInfoProvider._();
 
 final class ServerInfoProvider
     extends
@@ -112,7 +111,7 @@ final class ServerInfoProvider
           FutureOr<ServerInfo>
         >
     with $FutureModifier<ServerInfo>, $FutureProvider<ServerInfo> {
-  const ServerInfoProvider._()
+  ServerInfoProvider._()
     : super(
         from: null,
         argument: null,
@@ -140,7 +139,7 @@ final class ServerInfoProvider
 String _$serverInfoHash() => r'b8100684fa0ae47c089a3a5236e0b6bb62db599f';
 
 @ProviderFor(search)
-const searchProvider = SearchFamily._();
+final searchProvider = SearchFamily._();
 
 final class SearchProvider
     extends
@@ -152,7 +151,7 @@ final class SearchProvider
     with
         $FutureModifier<WithTimestamp<SearchResponse>>,
         $FutureProvider<WithTimestamp<SearchResponse>> {
-  const SearchProvider._({
+  SearchProvider._({
     required SearchFamily super.from,
     required SearchQuery super.argument,
   }) : super(
@@ -204,7 +203,7 @@ final class SearchFamily extends $Family
           FutureOr<WithTimestamp<SearchResponse>>,
           SearchQuery
         > {
-  const SearchFamily._()
+  SearchFamily._()
     : super(
         retry: null,
         name: r'searchProvider',

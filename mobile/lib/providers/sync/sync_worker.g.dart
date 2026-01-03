@@ -13,7 +13,7 @@ part of 'sync_worker.dart';
 /// Value of this provider doesn't matter.
 
 @ProviderFor(SyncWorker)
-const syncWorkerProvider = SyncWorkerProvider._();
+final syncWorkerProvider = SyncWorkerProvider._();
 
 /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
 ///
@@ -22,7 +22,7 @@ final class SyncWorkerProvider extends $NotifierProvider<SyncWorker, int> {
   /// Background worker that listens to [EditQueue] and processes the queue when there are pending operations.
   ///
   /// Value of this provider doesn't matter.
-  const SyncWorkerProvider._()
+  SyncWorkerProvider._()
     : super(
         from: null,
         argument: null,
@@ -60,7 +60,6 @@ abstract class _$SyncWorker extends $Notifier<int> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -70,7 +69,7 @@ abstract class _$SyncWorker extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
@@ -79,7 +78,7 @@ abstract class _$SyncWorker extends $Notifier<int> {
 /// FIXME(GH-11): Refactor share handling
 
 @ProviderFor(shareQueueBridge)
-const shareQueueBridgeProvider = ShareQueueBridgeProvider._();
+final shareQueueBridgeProvider = ShareQueueBridgeProvider._();
 
 /// Bridge between [sharedMediaProvider] and [editQueueProvider].
 ///
@@ -90,7 +89,7 @@ final class ShareQueueBridgeProvider extends $FunctionalProvider<int, int, int>
   /// Bridge between [sharedMediaProvider] and [editQueueProvider].
   ///
   /// FIXME(GH-11): Refactor share handling
-  const ShareQueueBridgeProvider._()
+  ShareQueueBridgeProvider._()
     : super(
         from: null,
         argument: null,
