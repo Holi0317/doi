@@ -12,11 +12,7 @@ export default defineConfig({
   manifest: ({ manifestVersion }) => ({
     name: "Haudoi",
     description: "Save links to your Haudoi server",
-    permissions: ["storage", "activeTab"],
-    // Allow requesting any origin at runtime for self-hosted servers
-    // host_permissions: ["*://*/*"],
-    // optional_permissions: ["cookies"],
-    // host_permissions: manifestVersion === 2 ? [...] : [...],
+    permissions: ["storage", "activeTab", "tabs"],
 
     // WXT cannot transpile optional_permissions for MV2/MV3 differences.
     // Ref: https://wxt.dev/guide/essentials/config/manifest#host-permissions
