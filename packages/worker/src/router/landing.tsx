@@ -1,9 +1,14 @@
 import { Hono } from "hono";
+import { getSession } from "../composable/session/getter";
 
 const app = new Hono<Env>({ strict: false }).get("/", async (c) => {
+  const sess = await getSession(c, false);
+
+  const url = new URL("/", c.req.url);
+
   return c.render(
     <>
-      <p>Hi, welcome to haudoi (口袋)</p>
+      <p>Hi, welcome to haudoi (口袋), a link collection service.</p>
 
       <p>
         <a
@@ -16,7 +21,12 @@ const app = new Hono<Env>({ strict: false }).get("/", async (c) => {
       </p>
 
       <p>
-        <a href="/basic">Login to web</a>
+        <a href="/basic">{sess == null ? "Login to web" : "Go to web"}</a>
+      </p>
+
+      <p>
+        This API endpoint is at <code>{url.toString()}</code> Mobile app or
+        extension will ask for this URL.
       </p>
     </>,
   );
