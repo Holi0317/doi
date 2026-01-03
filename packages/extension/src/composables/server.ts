@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/vue-query";
+import { computed } from "vue";
 import { useConfigMutation, useConfigQuery } from "./queries/config";
 import { createClient } from "@haudoi/worker/client";
 import { useRouter } from "vue-router";
-import { browser, computed } from "#imports";
+import { browser } from "#imports";
 
 export function useServerSetup() {
   const config = useConfigMutation();
@@ -16,9 +17,11 @@ export function useServerSetup() {
 
       console.info("Requesting permission for origin:", normalizedUrl);
 
-      // Request permission for this origin
+      // Request permission for this origin. This will show up in browser permission prompt.
+      // Seems if we already have the permission, this promise will resolve immediately without prompting again.
       const granted = await browser.permissions.request({
         origins: [`${normalizedUrl}/*`],
+        // Not sure if we need cookies here. We just want to make fetch to include session cookies in requests.
         permissions: ["cookies"],
       });
 
