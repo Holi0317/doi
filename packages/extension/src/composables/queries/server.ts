@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { computed } from "vue";
 import { useServerClient } from "../server";
+import { checkResp, unwrap } from "@/utils";
 
 const keys = {
   root: () => [{ scope: "server" }] as const,
@@ -20,6 +21,7 @@ export function useServerInfoQuery() {
       }
 
       const resp = await client.value.api.$get();
+      checkResp(resp);
       return await resp.json();
     },
   });
@@ -42,9 +44,10 @@ export function useSaveMutation() {
 
       const data = await resp.json();
 
+      checkResp(resp);
+
       // We only have a single edit operation. So there should be only a single ID inserted.
-      const id = data.insert.ids[0];
-      return id;
+      return unwrap(data.insert.ids[0]);
     },
   });
 }
@@ -58,11 +61,13 @@ export function useDeleteMutation() {
         throw new Error("Server URL is not configured");
       }
 
-      await client.value.api.edit.$post({
+      const resp = await client.value.api.edit.$post({
         json: {
           op: [{ op: "delete", id }],
         },
       });
+
+      checkResp(resp);
     },
   });
 }
