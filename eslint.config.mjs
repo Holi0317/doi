@@ -4,6 +4,7 @@ import { defineConfig } from "eslint/config";
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import pluginVue from "eslint-plugin-vue";
 import eslintConfigPrettier from "eslint-config-prettier";
 import stylistic from "@stylistic/eslint-plugin";
 import importX, { createNodeResolver } from "eslint-plugin-import-x";
@@ -12,7 +13,7 @@ import { createTypeScriptImportResolver } from "eslint-import-resolver-typescrip
 export default defineConfig(
   {
     name: "Files and globbing",
-    files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+    files: ["**/*.{js,jsx,mjs,ts,tsx,vue}"],
   },
   {
     name: "Global ignores",
@@ -21,20 +22,48 @@ export default defineConfig(
       "node_modules/",
       "packages/worker/.wrangler/",
       "packages/worker/worker-configuration.d.ts",
+      "packages/worker/src/client/build/",
+      "packages/extension/.wxt/",
+      "packages/extension/.output/",
     ],
   },
+
   {
-    name: "Language options",
+    name: "Base configurations",
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      ...pluginVue.configs["flat/recommended"],
+    ],
+    files: ["**/*.{js,jsx,mjs,ts,tsx,vue}"],
     languageOptions: {
       ecmaVersion: "latest",
+      sourceType: "module",
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+
+  {
+    name: "Language options (worker)",
+    files: ["packages/worker/**/*.{js,jsx,mjs,ts,tsx}"],
+    languageOptions: {
       globals: {
         ...globals.worker,
       },
     },
   },
-
-  js.configs.recommended,
-  tseslint.configs.recommended,
+  {
+    name: "Language options (extension)",
+    files: ["packages/extension/**/*.{js,jsx,mjs,ts,tsx,vue}"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.webextensions,
+      },
+    },
+  },
 
   {
     name: "import-x/typescript",
@@ -61,8 +90,8 @@ export default defineConfig(
         "@typescript-eslint/parser": [".ts", ".tsx", ".cts", ".mts"],
       },
       "import-x/resolver-next": [
-        createTypeScriptImportResolver(/* Your override options go here */),
-        createNodeResolver(/* Your override options go here */),
+        createTypeScriptImportResolver(),
+        createNodeResolver(),
       ],
     },
   },

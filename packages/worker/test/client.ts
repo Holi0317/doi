@@ -1,12 +1,9 @@
-import { hc } from "hono/client";
 import { env, SELF } from "cloudflare:test";
 import dayjs from "dayjs";
 import { __test__storeSession } from "../src/composable/session/cookie";
 import { COOKIE_NAME } from "../src/composable/session/constants";
-import type { AppType } from "../src/router";
 import { useUserRegistry } from "../src/composable/user/registry";
-
-export type ClientType = ReturnType<typeof hc<AppType>>;
+import { createClient } from "../src/client";
 
 export async function createTestClient() {
   const { write: writeUser } = useUserRegistry(env);
@@ -33,7 +30,7 @@ export async function createTestClient() {
     expire,
   );
 
-  return hc<AppType>("http://example.com", {
+  return createClient("http://example.com", {
     fetch: SELF.fetch.bind(SELF),
     headers: {
       cookie: `__Host-${COOKIE_NAME}=${sessID}`,

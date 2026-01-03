@@ -1,15 +1,10 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "outDir": "dist",
-    "strict": true,
-    "skipLibCheck": true,
-    "lib": ["ESNext"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "types": ["./worker-configuration.d.ts", "./types.d.ts"]
   },
-  "include": ["./vitest.config.ts"]
+  "include": ["src", "./vitest.config.ts"]
 }

@@ -1,5 +1,8 @@
 import app from "./router";
 
+/**
+ * Entrypoint for the Cloudflare Worker.
+ */
 export default app;
 
 // Must export all durable objects and workflow in entrypoint

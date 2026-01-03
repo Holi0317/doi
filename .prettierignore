@@ -8,6 +8,9 @@ dist/
 packages/worker/dist/
 packages/worker/.wrangler
 packages/worker/worker-configuration.d.ts
+packages/worker/src/client/build/
+packages/extension/.output/
+packages/extension/.wxt/
 
 .idea/
 

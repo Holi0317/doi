@@ -49,11 +49,27 @@ jobs:
             exit 1
           fi
 
+      - name: Run client build
+        run: pnpm run --filter @haudoi/worker build-client
+
+      - name: Check for client build changes
+        run: |
+          if git diff --exit-code packages/worker/src/client/build; then
+            echo "Client build is up to date"
+          else
+            echo "❌ client build has uncommitted changes"
+            echo "Please run 'pnpm run --filter @haudoi/worker build-client' and commit the changes"
+            exit 1
+          fi
+
       - name: Run ESLint
         run: pnpm lint
 
       - name: Check formatting with Prettier
         run: pnpm fmt --check
+
+      - name: Typescript type check
+        run: pnpm typecheck
 
   dart:
     runs-on: ubuntu-latest

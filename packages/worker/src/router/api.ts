@@ -164,11 +164,23 @@ const app = new Hono<Env>({ strict: false })
       await stub.edit(edits);
     }
 
+    const insertedIds: number[] = [];
     if (inserts.length) {
-      await stub.insert(inserts);
+      const insertedItems = await stub.insert(inserts);
+      insertedIds.push(...insertedItems.map((item) => item.id));
     }
 
-    return c.text("", 201);
+    return c.json(
+      {
+        // Return inserted IDs for client
+        // Actually I am not sure what else the client would need here.
+        // Currently the only use case is to allow client to delete newly inserted items right away.
+        insert: {
+          ids: insertedIds,
+        },
+      },
+      201,
+    );
   })
   .post("/bulk/export", async (c) => {
     const stub = await getStorageStub(c);

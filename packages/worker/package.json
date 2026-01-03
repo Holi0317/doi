@@ -5,7 +5,18 @@
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "typecheck": "tsc -noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "build-client": "tsdown --dts src/client/index.ts -d src/client/build/"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./client": {
+      "types": "./src/client/build/index.d.mts",
+      "default": "./src/client/build/index.mjs"
+    }
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
@@ -22,6 +33,7 @@
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.11.1",
+    "tsdown": "^0.18.2",
     "typescript": "^5.9.3",
     "vitest": "~3.2.4",
     "wrangler": "^4.56.0"

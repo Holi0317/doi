@@ -1,5 +1,6 @@
 packages:
   - "packages/worker"
+  - "packages/extension"
 
 patchedDependencies:
   "@truto/sqlite-builder@1.0.4": patches/@truto__sqlite-builder@1.0.4.patch
