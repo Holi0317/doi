@@ -84,7 +84,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
           flutter-version-file: mobile/pubspec.yaml # path to pubspec.yaml
+
+      - run: flutter --version
 
       - name: Get dependencies
         working-directory: mobile
