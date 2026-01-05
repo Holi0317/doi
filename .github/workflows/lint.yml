@@ -71,6 +71,9 @@ jobs:
       - name: Typescript type check
         run: pnpm typecheck
 
+      - name: Run unit tests
+        run: pnpm test
+
   dart:
     runs-on: ubuntu-latest
     steps:

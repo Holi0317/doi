@@ -34,15 +34,16 @@ async function testEdit(tc: TestCase) {
   });
 
   expect(edit.status).toEqual(201);
-  expect(await edit.text()).toEqual("");
+  const body1 = await edit.json();
+  expect(body1).toEqual({ insert: { ids: [] } });
 
   const search = await client.api.search.$get({
     query: tc.query,
   });
 
   expect(search.status).toEqual(200);
-  const body = await search.json();
-  expect(body.items).toEqual(tc.search);
+  const body2 = await search.json();
+  expect(body2.items).toEqual(tc.search);
 }
 
 describe("Link edit", () => {
